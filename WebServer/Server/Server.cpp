@@ -1,43 +1,48 @@
-//mainthreadsock define the entry point for console application
-#pragma once
-#define WIN32_LEAN_AND_MEAN
+#include "Server.h"
 
-#include <ws2tcpip.h>
-#include <winsock2.h>
-#include <process.h>
-#include <memory>
-#include <thread>
-#include <stdio.h>
-#include <iostream>
-#include <string>
-#include <regex>
-#include <vector>
-#include <mutex>
-#include <chrono>
-#include <fstream>
-#pragma comment (lib, "Ws2_32.lib")
+HttpServer::HttpServer()
+{
+	this->start();
+}
 
-static const char SERVER_IP[] = "127.0.0.1"; //default server ip (localhost)
+void HttpServer::start()
+{
+	FILE* logFile;
+	int err;
+	err = fopen_s(&logFile, "logFile.txt", "wb");
+	if (err == 0)
+	{
+		std::cout << "Log file was created and opened.\n";
+	}
+	else
+	{
+		std::cerr << "Error\n";
+	}
+	int status;
+	WSADATA wsaData;
+	status = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (status != 0)
+	{
+		std::cerr << "WSAStartup failed: " << status << '\n';
+		throw std::exception("WSAStartup failed: " + status + '\n');
+	}
+	std::vector<std::thread> portThreads;	//this is vector which holds all my diferent servers on diferent ports
+	int startPort = 2000;					//the starting and also main listening port which will accept all trafic and sends out the ports for connecting
+	int numServerPorts = 5;					//number of ports which is server listening on
+	for (int i = 0; i <= numServerPorts; i++)
+	{
+		portThreads.push_back(std::thread(&HttpServer::startThread, this, startPort + i, logFile));	//create one thread per one port
+	}
+	for (auto& portThread : portThreads)
+	{
+		portThread.join();
+	}
+	fclose(logFile);
+	WSACleanup();
+	std::cin.ignore();
+}
 
-void startThreadPorts(const int port, FILE *logFile);
-void servClient(SOCKET clientInstance, int port, FILE *logfile);
-void printBuffer(char* bufferPtr, int size);
-void putClientOnDiferrentPort(SOCKET clientInstance, int port);
-void getClientResource(SOCKET clientInstance);
-void openFileWithPathAndSend(std::string filePath, SOCKET clientInstance);
-void sendFile(FILE* m_file, SOCKET clientInstance);
-std::string processRequest(char* bufferPtr);
-std::string getFilePath(std::string p_toParse);
-void printClientPortAndIP(SOCKET clientInstance, int port, FILE *logfile);
-int roundRobinGetNextPort(int port);
-
-std::mutex g_lockPrint;
-std::mutex g_lockCounter;
-std::recursive_mutex g_r_lock;
-int g_counter = 1;
-int g_clientId = 0;
-
-void startThreadPorts(const int port, FILE *logFile)
+void HttpServer::startThread(const int port, FILE* logFile)
 {
 	//create my listening socket and client socket which will be different client each time
 	SOCKET listenSock;
@@ -69,7 +74,7 @@ void startThreadPorts(const int port, FILE *logFile)
 	{
 		std::cerr << "Listen function failed with error: " << WSAGetLastError() << '\n';
 	}
-//	std::cout << "Thread with id " << GetCurrentThreadId() << "is on port: " << port << '\n';
+	//	std::cout << "Thread with id " << GetCurrentThreadId() << "is on port: " << port << '\n';
 	int clientNum = 0;
 	int breakAfterServed = 100; //this is the number of clients that will be served by the server
 	bool listening = true;
@@ -92,7 +97,7 @@ void startThreadPorts(const int port, FILE *logFile)
 		{
 			g_lockPrint.lock();
 			g_lockPrint.unlock();
-			std::thread t(servClient, client, port, logFile);
+			std::thread t(&HttpServer::serveClient, this, client, port, logFile);
 			t.detach(); //this will allow the thread run on its own
 			clientNum++;
 		}
@@ -104,18 +109,18 @@ void startThreadPorts(const int port, FILE *logFile)
 	}
 }
 
-void servClient(SOCKET clientInstance, int port, FILE *logfile)
+void HttpServer::serveClient(SOCKET clientInstance, int port, FILE* logfile)
 {
 	if (port == 2000)
 	{
-		putClientOnDiferrentPort(clientInstance, roundRobinGetNextPort(port));
+		this->putClientOnDiferrentPort(clientInstance, this->getNextPort(port));
 	}
 	else
 	{
 		//this is the timing part of the code
 		std::chrono::time_point<std::chrono::system_clock> start, end;
 		start = std::chrono::system_clock::now();
-		printClientPortAndIP(clientInstance, port, logfile);
+		this->getClientPortAndIP(clientInstance, port, logfile);
 
 		getClientResource(clientInstance);	//this function will get the webpage for client or page not found
 
@@ -136,20 +141,20 @@ void servClient(SOCKET clientInstance, int port, FILE *logfile)
 }
 
 //this will guaratee that each port will get diferent number
-int roundRobinGetNextPort(int port)
+int HttpServer::getNextPort(int port)
 {
-	std::lock_guard<std::mutex> lock(g_lockPrint);//this allow to change the wariable only in one thread
-	g_clientId++;
-	port = port + g_counter;
-	g_counter++;
-	if (g_counter == 6)
+	std::lock_guard<std::mutex> lock(this->g_lockPrint);//this allow to change the wariable only in one thread
+	this->g_clientId++;
+	port = port + this->g_counter;
+	this->g_counter++;
+	if (this->g_counter == 6)
 	{
-		g_counter = 1;
+		this->g_counter = 1;
 	}
 	return port;
 }
 
-void printClientPortAndIP(SOCKET clientInstance, int port, FILE *logfile)
+void HttpServer::getClientPortAndIP(SOCKET clientInstance, int port, FILE* logfile)
 {
 	//this gets clients ip from sock_addr_in
 	struct sockaddr_in addr;
@@ -170,7 +175,7 @@ void printClientPortAndIP(SOCKET clientInstance, int port, FILE *logfile)
 	fwrite(clientIP.c_str(), sizeof(char), clientIP.size(), logfile);
 }
 
-void putClientOnDiferrentPort(SOCKET clientInstance, int port)
+void HttpServer::putClientOnDiferrentPort(SOCKET clientInstance, int port)
 {
 	char buffer[1024];
 	int recvMsgSize;
@@ -208,12 +213,12 @@ void putClientOnDiferrentPort(SOCKET clientInstance, int port)
 	sendResult = closesocket(clientInstance);	// close the socket
 	if (sendResult == SOCKET_ERROR)
 	{
-		std::cerr << "close failed with error: " <<  WSAGetLastError() << '\n';
+		std::cerr << "close failed with error: " << WSAGetLastError() << '\n';
 		WSACleanup();
 	}
 }
 
-void getClientResource(SOCKET clientInstance)
+void HttpServer::getClientResource(SOCKET clientInstance)
 {
 	std::string filePath("");
 	char buffer[1024];
@@ -253,7 +258,7 @@ void getClientResource(SOCKET clientInstance)
 	}
 }
 
-void openFileWithPathAndSend(std::string filePath, SOCKET clientInstance)
+void HttpServer::openFileWithPathAndSend(std::string filePath, SOCKET clientInstance)
 {
 	FILE* file;
 	errno_t err;
@@ -267,7 +272,7 @@ void openFileWithPathAndSend(std::string filePath, SOCKET clientInstance)
 		std::string responseNotFound = "HTTP/1.0 404 Not Found \r\n";
 		std::cout << "Client response: " << responseNotFound;
 		responseNotFound.append("Content-Type: text/html \r\n");
-		responseNotFound.append("<HTML><HEAD><TITLE>Not Found lukas</TITLE></HEAD><BODY>Not Found</BODY></HTML>");
+		responseNotFound.append("<!DOCTYPE html>\n<html>\n\n<head>\n<title>Not Found</title>\n</head>\n\n<body>\n<h1>Not Found</h1>\n</body>\n\n</html>\n");
 		send(clientInstance, responseNotFound.c_str(), (int)responseNotFound.size(), 0);
 	}
 	if (file)
@@ -280,18 +285,18 @@ void openFileWithPathAndSend(std::string filePath, SOCKET clientInstance)
 	}
 }
 
-void sendFile(FILE* m_file, SOCKET clientInstance)
+void HttpServer::sendFile(FILE* file, SOCKET clientInstance)
 {
 	char statusLine[] = "HTTP/1.0 200 OK\r\n";
 	char contentTypeLine[] = "Content-Type: text/html\r\n";
 
-	fseek(m_file, 0, SEEK_END);
-	int bufferSize = ftell(m_file);
-	rewind(m_file);
-	
+	fseek(file, 0, SEEK_END);
+	int bufferSize = ftell(file);
+	rewind(file);
+
 	std::unique_ptr<char[]> myBufferedFile = std::make_unique<char[]>(bufferSize);	// this creates unique pointer to my array 
 
-	int numRead = fread_s(myBufferedFile.get(), bufferSize, sizeof(char), bufferSize, m_file);	//this reads whole file into buffer.
+	int numRead = fread_s(myBufferedFile.get(), bufferSize, sizeof(char), bufferSize, file);	//this reads whole file into buffer.
 
 	int totalSend = bufferSize + strlen(statusLine) + strlen(contentTypeLine);
 
@@ -311,7 +316,7 @@ void sendFile(FILE* m_file, SOCKET clientInstance)
 	std::cout << "Client response: " << statusLine << '\n';
 }
 
-std::string processRequest(char* bufferPtr)
+std::string HttpServer::processRequest(char* bufferPtr)
 {
 	std::string firstLine("");
 	while (*bufferPtr != '\r')	//extract the first line from buffer
@@ -323,9 +328,7 @@ std::string processRequest(char* bufferPtr)
 	return getFilePath(firstLine);
 }
 
-//function to get the file that client want from http request using regex
-static const std::string REGEX_GET = R"((GET)\s\/(.+)\s(HTTP.+))";
-std::string getFilePath(std::string toParse)
+std::string HttpServer::getFilePath(std::string toParse)
 {
 	std::regex rx(REGEX_GET);
 	std::string extractedSubmatchPath("");
@@ -338,7 +341,7 @@ std::string getFilePath(std::string toParse)
 }
 
 //support function to check what is in the buffer
-void printBuffer(char* bufferPtr, int size)
+void HttpServer::printBuffer(char* bufferPtr, int size)
 {
 	for (int i = 0; i < size; i++)
 	{

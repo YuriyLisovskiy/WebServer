@@ -112,9 +112,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AppStart.cpp" />
+    <ClCompile Include="BL\Parser.cpp" />
+    <ClCompile Include="Server\Server.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WebServer.h" />
+    <ClInclude Include="BL\Parser.h" />
+    <ClInclude Include="Server\Server.h" />
+    <ClInclude Include="Utils\Header.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test.html" />

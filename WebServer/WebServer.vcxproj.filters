@@ -18,9 +18,21 @@
     <ClCompile Include="AppStart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BL\Parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WebServer.h">
+    <ClInclude Include="BL\Parser.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Server\Server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
