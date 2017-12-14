@@ -32,4 +32,4 @@
 *.app
 
 /.vs
-/Debug/
+Debug/
