@@ -4,7 +4,7 @@
 class HTMLResponse
 {
 public:
-	static std::string generate(const size_t statusCode, const std::string status, const std::string html);
+	static std::string ok(const std::string html);
 	static std::string notFound();
 	static std::string forbidden();
 	static std::string methodNotAllowed();

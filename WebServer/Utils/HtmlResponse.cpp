@@ -1,17 +1,17 @@
 #include "HtmlResponse.h"
 #include <iostream>
 
-std::string HTMLResponse::generate(const size_t statusCode, const std::string status, const std::string html)
+std::string HTMLResponse::ok(const std::string html)
 {
-	std::string response("HTTP/1.0 " + std::to_string(statusCode) + " " + status + " \r\n");
+	std::string response("HTTP/1.0 200 OK \r\n");
 	std::cout << "Client response: " << response;
-	response.append("Content-Type: text/html \r\n");
-	response.append(html);
+	response += "Content-Type: text/html \r\n";
+	response += html;
 	return response;
 }
 std::string HTMLResponse::errorPage(const size_t code, const std::string msg)
 {
-	std::string response = "HTTP/1.0 " + std::to_string(code) + " " + msg + " \r\n";
+	std::string response("HTTP/1.0 " + std::to_string(code) + " " + msg + " \r\n");
 	std::cout << "Client response: " << response;
 	response += "Content-Type: text/html \r\n";
 	response += "<!DOCTYPE html>\n<html>\n\n<head>\n<title>" + 

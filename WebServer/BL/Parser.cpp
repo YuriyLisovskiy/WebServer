@@ -12,13 +12,15 @@ std::string HttpParser::getClientData(SOCKET clientInstance, int port, int clien
 	int ipAddr = pV4Addr->sin_addr.s_addr;
 	char clientIp[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
-	return ("ID: " + std::to_string(clientID) + "\nThe Client port is: " + std::to_string(port) + "\nThe Client IP is: " + clientIp + '\n');
+	std::string result("ID: " + std::to_string(clientID) + "\nThe Client port is: " + 
+		std::to_string(port) + "\nThe Client IP is: " + clientIp + '\n');
+	return result;
 }
 
 std::string HttpParser::getRequestData(char* bufferPtr)
 {
 	std::string firstLine("");
-	while (*bufferPtr != '\r')	//extract the first line from buffer
+	while (*bufferPtr != '\r')
 	{
 		firstLine += *bufferPtr;
 		bufferPtr++;
@@ -28,11 +30,11 @@ std::string HttpParser::getRequestData(char* bufferPtr)
 
 std::string HttpParser::parseRequestData(std::string toParse)
 {
-	std::string extractedSubmatchPath("");
+	std::string url("");
 	std::smatch pieces_match;
 	if (std::regex_match(toParse, pieces_match, std::regex(REGEX::REQUEST_REGEX)))
 	{
-		extractedSubmatchPath = pieces_match[2].str();
+		url = pieces_match[2].str();
 	}
-	return extractedSubmatchPath;	//if there is no match so the request is not HTTP it will return empty string
+	return url;
 }

@@ -1,8 +1,10 @@
 #include "Server.h"
 #include "../BL/Parser.h"
 #include "../Utils/HtmlResponse.h"
+#include "../Utils/Header.h"
 #include <thread>
 #include <iostream>
+#include <ws2tcpip.h>
 
 HttpServer::HttpServer()
 {
@@ -42,11 +44,10 @@ void HttpServer::startServer()
 
 void HttpServer::startThread(const int port, std::ofstream& logFile)
 {
-	//create my listening socket and client socket which will be different client each time
 	SOCKET listenSock;
 	SOCKET client;
-	int status;			//error handling
-	sockaddr_in addr;	//structure to hold socket data
+	int status;
+	sockaddr_in addr;
 	socklen_t sa_size = sizeof(sockaddr_in);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
@@ -72,12 +73,10 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 	{
 		std::cerr << "Listen function failed with error: " << WSAGetLastError() << '\n';
 	}
-	int breakAfterServed = 100; //this is the number of clients that will be served by the server
 	bool listening = true;
 	while (listening)
 	{
-		//if you want to change the number of clients than you have to change the number when server stop running
-		if (this->clientNum == breakAfterServed)
+		if (this->clientNum == MAX_SERVERD)
 		{
 			std::chrono::milliseconds duration(2000);
 			std::this_thread::sleep_for(duration);
@@ -133,7 +132,7 @@ void HttpServer::processRequest(SOCKET clientInstance)
 			std::cout << "\nClient request: " << firstLine << '\n';
 			this->lockPrint.unlock();
 			filePath = HttpParser::parseRequestData(firstLine);
-			openFileWithPathAndSend(filePath, clientInstance);
+			this->sendResponse(filePath, clientInstance);
 			bufError = shutdown(clientInstance, SD_SEND);		// shutdown the connection since no more data will be sent
 			if (bufError == SOCKET_ERROR)
 			{
@@ -148,7 +147,9 @@ void HttpServer::processRequest(SOCKET clientInstance)
 		{
 			this->lockPrint.lock();
 			std::cerr << "recv failed: " << WSAGetLastError() << '\n';
+			std::string response(HTMLResponse::internalServerError());
 			this->lockPrint.unlock();
+			this->sendFile(response, clientInstance);
 		}
 	} while (recvMsgSize > 0);
 	bufError = shutdown(clientInstance, SD_RECEIVE);
@@ -170,68 +171,37 @@ void HttpServer::processRequest(SOCKET clientInstance)
 	}
 }
 
-void HttpServer::openFileWithPathAndSend(std::string filePath, SOCKET clientInstance)
+void HttpServer::sendResponse(std::string filePath, SOCKET clientInstance)
 {
-	FILE* file;
-	errno_t err;
-	err = fopen_s(&file, filePath.c_str(), "r");
-	if (err == 0)
+	std::ifstream file(filePath);
+	std::string response("");
+	if (file.is_open())
 	{
-		sendFile(file, clientInstance);
+		std::string html("");
+		html.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		this->lockPrint.lock();
+		response = HTMLResponse::ok(html);
+		this->lockPrint.unlock();
+		this->sendFile(response, clientInstance);
+		file.close();
 	}
 	else
 	{
 		this->lockPrint.lock();
-		std::string responseNotFound(HTMLResponse::notFound());
+		response = HTMLResponse::notFound();
 		this->lockPrint.unlock();
-		send(clientInstance, responseNotFound.c_str(), (int)responseNotFound.size(), 0);
-	}
-	if (file)
-	{
-		err = fclose(file);
-		if (err != 0)
-		{
-			this->lockPrint.lock();
-			std::cerr << "The file was not closed\n";
-			this->lockPrint.unlock();
-		}
+		this->sendFile(response, clientInstance);
 	}
 }
 
-void HttpServer::sendFile(FILE* file, SOCKET clientInstance)
+void HttpServer::sendFile(const std::string httpResponse, SOCKET clientInstance)
 {
-	std::string statusLine = "HTTP/1.0 200 OK\r\n";
-	std::string contentTypeLine = "Content-Type: text/html\r\n";
-	fseek(file, 0, SEEK_END);
-	int bufferSize = ftell(file);
-	rewind(file);
-	std::unique_ptr<char[]> myBufferedFile = std::make_unique<char[]>(bufferSize);
-	int numRead = fread_s(myBufferedFile.get(), bufferSize, sizeof(char), bufferSize, file);
-	int totalSend = bufferSize + statusLine.size() + contentTypeLine.size();
-	std::unique_ptr<char[]> myUniqueBufferToSend = std::make_unique<char[]>(totalSend);
-	std::memcpy(myUniqueBufferToSend.get(), statusLine.c_str(), statusLine.size());
-	std::memcpy(myUniqueBufferToSend.get() + statusLine.size(), &contentTypeLine, contentTypeLine.size());
-	std::memcpy(myUniqueBufferToSend.get() + statusLine.size() + contentTypeLine.size(), myBufferedFile.get(), bufferSize);
-	int iResult = send(clientInstance, myUniqueBufferToSend.get(), totalSend, 0);
-	if (iResult == SOCKET_ERROR)
+	if (send(clientInstance, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCKET_ERROR)
 	{
 		this->lockPrint.lock();
 		std::cerr << "send failed with error: " << WSAGetLastError() << '\n';
 		this->lockPrint.unlock();
 		closesocket(clientInstance);
 		WSACleanup();
-	}
-	this->lockPrint.lock();
-	std::cout << "Client response: " << statusLine << '\n';
-	this->lockPrint.unlock();
-}
-
-//support function to check what is in the buffer
-void HttpServer::printBuffer(char* bufferPtr, int size)
-{
-	for (int i = 0; i < size; i++)
-	{
-		std::cout << *bufferPtr;
-		bufferPtr++;
 	}
 }
