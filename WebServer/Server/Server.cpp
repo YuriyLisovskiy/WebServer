@@ -7,10 +7,8 @@ HttpServer::HttpServer()
 
 void HttpServer::start()
 {
-	FILE* logFile;
-	int err;
-	err = fopen_s(&logFile, "logFile.txt", "wb");
-	if (err == 0)
+	std::ofstream logFile("logFile.txt", std::ios::app);
+	if (logFile.is_open())
 	{
 		std::cout << "Log file was created and opened.\n";
 	}
@@ -26,23 +24,17 @@ void HttpServer::start()
 		std::cerr << "WSAStartup failed: " << status << '\n';
 		throw std::exception("WSAStartup failed: " + status + '\n');
 	}
-	std::vector<std::thread> portThreads;	//this is vector which holds all my diferent servers on diferent ports
-	int startPort = 2000;					//the starting and also main listening port which will accept all trafic and sends out the ports for connecting
-	int numServerPorts = 5;					//number of ports which is server listening on
-	for (int i = 0; i <= numServerPorts; i++)
+	std::thread newThread(&HttpServer::startThread, this, START_PORT, ref(logFile));
+	if (newThread.joinable())
 	{
-		portThreads.push_back(std::thread(&HttpServer::startThread, this, startPort + i, logFile));	//create one thread per one port
+		newThread.join();
 	}
-	for (auto& portThread : portThreads)
-	{
-		portThread.join();
-	}
-	fclose(logFile);
+	logFile.close();
 	WSACleanup();
 	std::cin.ignore();
 }
 
-void HttpServer::startThread(const int port, FILE* logFile)
+void HttpServer::startThread(const int port, std::ofstream& logFile)
 {
 	//create my listening socket and client socket which will be different client each time
 	SOCKET listenSock;
@@ -74,32 +66,25 @@ void HttpServer::startThread(const int port, FILE* logFile)
 	{
 		std::cerr << "Listen function failed with error: " << WSAGetLastError() << '\n';
 	}
-	//	std::cout << "Thread with id " << GetCurrentThreadId() << "is on port: " << port << '\n';
-	int clientNum = 0;
 	int breakAfterServed = 100; //this is the number of clients that will be served by the server
 	bool listening = true;
 	while (listening)
 	{
 		//if you want to change the number of clients than you have to change the number when server stop running
-		if (clientNum == breakAfterServed / 5 && port != 2000)
+		if ((clientNum == breakAfterServed / 5 && port != START_PORT) || (clientNum == breakAfterServed && port == START_PORT))
 		{
 			std::chrono::milliseconds duration(2000);
 			std::this_thread::sleep_for(duration);
 			break;
 		}
-		if (clientNum == breakAfterServed && port == 2000)
+		else if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCKET)
 		{
-			std::chrono::milliseconds duration(2000);
-			std::this_thread::sleep_for(duration);
-			break;
-		}
-		if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCKET)
-		{
-			g_lockPrint.lock();
-			g_lockPrint.unlock();
-			std::thread t(&HttpServer::serveClient, this, client, port, logFile);
-			t.detach(); //this will allow the thread run on its own
-			clientNum++;
+			std::thread newClient(&HttpServer::serveClient, this, client, this->portNumber++, std::ref(logFile));
+			newClient.detach();
+			this->clientId++;
+			this->clientNum++;
+	//		g_lockPrint.lock();
+	//		g_lockPrint.unlock();
 		}
 		else
 		{
@@ -109,52 +94,29 @@ void HttpServer::startThread(const int port, FILE* logFile)
 	}
 }
 
-void HttpServer::serveClient(SOCKET clientInstance, int port, FILE* logfile)
+void HttpServer::serveClient(SOCKET clientInstance, int port, std::ofstream& logfile)
 {
-	if (port == 2000)
-	{
-		this->putClientOnDiferrentPort(clientInstance, this->getNextPort(port));
-	}
-	else
-	{
-		//this is the timing part of the code
-		std::chrono::time_point<std::chrono::system_clock> start, end;
-		start = std::chrono::system_clock::now();
-		this->getClientPortAndIP(clientInstance, port, logfile);
+	clock_t start, finish;
+	start = clock();
 
-		getClientResource(clientInstance);	//this function will get the webpage for client or page not found
+	this->getClientPortAndIP(clientInstance, port, logfile);
 
-		end = std::chrono::system_clock::now();
-		std::chrono::duration<double> elapsed_seconds = end - start;
-		std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-		wchar_t buf[26];
-		errno_t err;
-		err = _wctime_s(buf, 26, &end_time);
-		if (err != 0)
-		{
-			std::cerr << "Invalid Arguments for _wctime_s. Error Code: " << err << '\n';
-		}
-		fwrite(buf, sizeof(wchar_t), 26, logfile);
-		std::string requestTook = "Request took: " + std::to_string(elapsed_seconds.count()) + " seconds. \r\n";
-		fwrite(requestTook.c_str(), sizeof(char), requestTook.size(), logfile);
-	}
+	getClientResource(clientInstance);	//this function will get the webpage for client or page not found
+
+	finish = clock();
+	float servingTime = (float)(finish - start) / CLOCKS_PER_SEC;
+	
+	time_t now = time(0);
+	struct tm tstruct;
+	char buf[80];
+	localtime_s(&tstruct, &now);
+	strftime(buf, sizeof(buf), "%a %b %d %Y [%r]", &tstruct);
+	g_lockPrint.lock();
+	logfile << buf << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n";
+	g_lockPrint.unlock();
 }
 
-//this will guaratee that each port will get diferent number
-int HttpServer::getNextPort(int port)
-{
-	std::lock_guard<std::mutex> lock(this->g_lockPrint);//this allow to change the wariable only in one thread
-	this->g_clientId++;
-	port = port + this->g_counter;
-	this->g_counter++;
-	if (this->g_counter == 6)
-	{
-		this->g_counter = 1;
-	}
-	return port;
-}
-
-void HttpServer::getClientPortAndIP(SOCKET clientInstance, int port, FILE* logfile)
+void HttpServer::getClientPortAndIP(SOCKET clientInstance, int port, std::ofstream& logfile)
 {
 	//this gets clients ip from sock_addr_in
 	struct sockaddr_in addr;
@@ -164,58 +126,15 @@ void HttpServer::getClientPortAndIP(SOCKET clientInstance, int port, FILE* logfi
 	int ipAddr = pV4Addr->sin_addr.s_addr;
 	char clientIp[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
-	std::string cId = "ID: " + std::to_string(g_clientId) + " ";
-	std::string portStr = "The Client port is: " + std::to_string(port) + " ";
+	std::string cId = "ID: " + std::to_string(this->clientId) + "\n";
+	std::string portStr = "The Client port is: " + std::to_string(port) + "=P\n";
 	std::string clientIP = "The Client IP is: ";
 	clientIP.append(clientIp);
-	clientIP.append(" ");
+	clientIP.append("\n");
 
-	fwrite(cId.c_str(), sizeof(char), cId.size(), logfile);
-	fwrite(portStr.c_str(), sizeof(char), portStr.size(), logfile);
-	fwrite(clientIP.c_str(), sizeof(char), clientIP.size(), logfile);
-}
-
-void HttpServer::putClientOnDiferrentPort(SOCKET clientInstance, int port)
-{
-	char buffer[1024];
-	int recvMsgSize;
-	int sendResult;
-	do
-	{
-		recvMsgSize = recv(clientInstance, buffer, 1024, 0);
-		if (recvMsgSize == SOCKET_ERROR)
-		{
-			std::cerr << "recv failed: " << WSAGetLastError() << '\n';
-		}
-	} while (recvMsgSize > 0);
-	sendResult = shutdown(clientInstance, SD_RECEIVE);
-	if (sendResult == SOCKET_ERROR)
-	{
-		std::cerr << "Shutdown failed with error: " << WSAGetLastError() << '\n';
-		closesocket(clientInstance);
-		WSACleanup();
-	}
-	std::string portS = std::to_string(port);
-	sendResult = send(clientInstance, portS.c_str(), (int)portS.size(), 0);
-	if (sendResult == SOCKET_ERROR)
-	{
-		std::cerr << "Send failed with error: " << WSAGetLastError() << '\n';
-		closesocket(clientInstance);
-		WSACleanup();
-	}
-	sendResult = shutdown(clientInstance, SD_SEND);	//shutdown the connection since no more data will be sent
-	if (sendResult == SOCKET_ERROR)
-	{
-		std::cerr << "shutdown failed with error: " << WSAGetLastError() << '\n';
-		closesocket(clientInstance);
-		WSACleanup();
-	}
-	sendResult = closesocket(clientInstance);	// close the socket
-	if (sendResult == SOCKET_ERROR)
-	{
-		std::cerr << "close failed with error: " << WSAGetLastError() << '\n';
-		WSACleanup();
-	}
+	g_lockPrint.lock();
+	logfile << cId << portStr << clientIP;
+	g_lockPrint.unlock();
 }
 
 void HttpServer::getClientResource(SOCKET clientInstance)

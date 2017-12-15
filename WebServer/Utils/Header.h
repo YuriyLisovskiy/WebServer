@@ -18,3 +18,5 @@
 static const char SERVER_IP[] = "127.0.0.1"; //default server ip (localhost)
 
 static const std::string REGEX_GET = R"((GET)\s\/(.+)\s(HTTP.+))";
+
+#define START_PORT 8000
