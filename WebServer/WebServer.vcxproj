@@ -115,6 +115,7 @@
     <ClCompile Include="BL\Parser.cpp" />
     <ClCompile Include="Server\Server.cpp" />
     <ClCompile Include="Utils\HtmlResponse.cpp" />
+    <ClCompile Include="Utils\Request.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BL\Parser.h" />
@@ -122,6 +123,7 @@
     <ClInclude Include="Utils\Header.h" />
     <ClInclude Include="Utils\HtmlResponse.h" />
     <ClInclude Include="Utils\RegularExpressions.h" />
+    <ClInclude Include="Utils\Request.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test.html" />

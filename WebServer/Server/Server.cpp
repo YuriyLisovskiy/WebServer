@@ -127,11 +127,9 @@ void HttpServer::processRequest(SOCKET clientInstance)
 		recvMsgSize = recv(clientInstance, buffer, 1024, 0);
 		if (recvMsgSize > 0)
 		{
-			std::string firstLine(HttpParser::getRequestData(buffer));
 			this->lockPrint.lock();
-			std::cout << "\nClient request: " << firstLine << '\n';
+			filePath = HttpParser::parseRequestData(buffer);
 			this->lockPrint.unlock();
-			filePath = HttpParser::parseRequestData(firstLine);
 			this->sendResponse(filePath, clientInstance);
 			bufError = shutdown(clientInstance, SD_SEND);		// shutdown the connection since no more data will be sent
 			if (bufError == SOCKET_ERROR)

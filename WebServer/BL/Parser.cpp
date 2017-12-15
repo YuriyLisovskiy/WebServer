@@ -2,6 +2,7 @@
 #include "../Utils/RegularExpressions.h"
 #include <ws2tcpip.h>
 #include <regex>
+#include <iostream>
 
 std::string HttpParser::getClientData(SOCKET clientInstance, int port, int clientID)
 {
@@ -17,7 +18,7 @@ std::string HttpParser::getClientData(SOCKET clientInstance, int port, int clien
 	return result;
 }
 
-std::string HttpParser::getRequestData(char* bufferPtr)
+std::string HttpParser::getFirstLine(char* bufferPtr)
 {
 	std::string firstLine("");
 	while (*bufferPtr != '\r')
@@ -28,11 +29,13 @@ std::string HttpParser::getRequestData(char* bufferPtr)
 	return firstLine;
 }
 
-std::string HttpParser::parseRequestData(std::string toParse)
+std::string HttpParser::parseRequestData(char* toParse)
 {
-	std::string url("");
+	std::string firstLine(HttpParser::getFirstLine(toParse));
+	std::cout << "\nClient request: " << firstLine << '\n';
 	std::smatch pieces_match;
-	if (std::regex_match(toParse, pieces_match, std::regex(REGEX::REQUEST_REGEX)))
+	std::string url("");
+	if (std::regex_match(firstLine, pieces_match, std::regex(REGEX::REQUEST_REGEX)))
 	{
 		url = pieces_match[2].str();
 	}
