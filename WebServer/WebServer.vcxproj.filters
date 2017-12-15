@@ -24,11 +24,11 @@
     <ClCompile Include="Server\Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\HtmlResponse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BL\Parser.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Server\Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,6 +36,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils\RegularExpressions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\HtmlResponse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BL\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

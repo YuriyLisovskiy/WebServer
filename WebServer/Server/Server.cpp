@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "../BL/Parser.h"
+#include "../Utils/HtmlResponse.h"
 #include <thread>
 #include <iostream>
 
@@ -180,12 +181,9 @@ void HttpServer::openFileWithPathAndSend(std::string filePath, SOCKET clientInst
 	}
 	else
 	{
-		std::string responseNotFound = "HTTP/1.0 404 Not Found \r\n";
 		this->lockPrint.lock();
-		std::cout << "Client response: " << responseNotFound;
+		std::string responseNotFound(HTMLResponse::notFound());
 		this->lockPrint.unlock();
-		responseNotFound.append("Content-Type: text/html \r\n");
-		responseNotFound.append("<!DOCTYPE html>\n<html>\n\n<head>\n<title>Not Found</title>\n</head>\n\n<body>\n<h1>Not Found</h1>\n</body>\n\n</html>\n");
 		send(clientInstance, responseNotFound.c_str(), (int)responseNotFound.size(), 0);
 	}
 	if (file)
