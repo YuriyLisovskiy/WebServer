@@ -3,4 +3,5 @@
 void main()
 {
 	HttpServer server;
+	server.startServer();
 }

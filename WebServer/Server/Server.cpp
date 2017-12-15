@@ -1,11 +1,16 @@
 #include "Server.h"
+#include "../BL/Parser.h"
+#include <thread>
+#include <iostream>
 
 HttpServer::HttpServer()
 {
-	this->start();
+	this->clientId = 0;
+	this->clientNum = 0;
+	this->portNumber = START_PORT;
 }
 
-void HttpServer::start()
+void HttpServer::startServer()
 {
 	std::ofstream logFile("logFile.txt", std::ios::app);
 	if (logFile.is_open())
@@ -71,7 +76,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 	while (listening)
 	{
 		//if you want to change the number of clients than you have to change the number when server stop running
-		if ((clientNum == breakAfterServed / 5 && port != START_PORT) || (clientNum == breakAfterServed && port == START_PORT))
+		if (this->clientNum == breakAfterServed)
 		{
 			std::chrono::milliseconds duration(2000);
 			std::this_thread::sleep_for(duration);
@@ -83,61 +88,36 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 			newClient.detach();
 			this->clientId++;
 			this->clientNum++;
-	//		g_lockPrint.lock();
-	//		g_lockPrint.unlock();
 		}
 		else
 		{
 			std::cerr << "Invalid client socket\n";
-			std::cin.ignore();
+			std::cin.get();
 		}
 	}
 }
 
 void HttpServer::serveClient(SOCKET clientInstance, int port, std::ofstream& logfile)
 {
+	lockPrint.lock();
+	logfile << HttpParser::getClientData(clientInstance, port, this->clientId);
+	lockPrint.unlock();
 	clock_t start, finish;
 	start = clock();
-
-	this->getClientPortAndIP(clientInstance, port, logfile);
-
-	getClientResource(clientInstance);	//this function will get the webpage for client or page not found
-
+	this->processRequest(clientInstance);	//this function will get the webpage for client or page not found
 	finish = clock();
 	float servingTime = (float)(finish - start) / CLOCKS_PER_SEC;
-	
 	time_t now = time(0);
 	struct tm tstruct;
 	char buf[80];
 	localtime_s(&tstruct, &now);
 	strftime(buf, sizeof(buf), "%a %b %d %Y [%r]", &tstruct);
-	g_lockPrint.lock();
+	lockPrint.lock();
 	logfile << buf << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n";
-	g_lockPrint.unlock();
+	lockPrint.unlock();
 }
 
-void HttpServer::getClientPortAndIP(SOCKET clientInstance, int port, std::ofstream& logfile)
-{
-	//this gets clients ip from sock_addr_in
-	struct sockaddr_in addr;
-	socklen_t addr_size = sizeof(struct sockaddr_in);
-	int res = getsockname(clientInstance, (struct sockaddr *)&addr, &addr_size);
-	sockaddr_in* pV4Addr = (struct sockaddr_in*)&addr;
-	int ipAddr = pV4Addr->sin_addr.s_addr;
-	char clientIp[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
-	std::string cId = "ID: " + std::to_string(this->clientId) + "\n";
-	std::string portStr = "The Client port is: " + std::to_string(port) + "=P\n";
-	std::string clientIP = "The Client IP is: ";
-	clientIP.append(clientIp);
-	clientIP.append("\n");
-
-	g_lockPrint.lock();
-	logfile << cId << portStr << clientIP;
-	g_lockPrint.unlock();
-}
-
-void HttpServer::getClientResource(SOCKET clientInstance)
+void HttpServer::processRequest(SOCKET clientInstance)
 {
 	std::string filePath("");
 	char buffer[1024];
@@ -147,32 +127,44 @@ void HttpServer::getClientResource(SOCKET clientInstance)
 		recvMsgSize = recv(clientInstance, buffer, 1024, 0);
 		if (recvMsgSize > 0)
 		{
-			filePath = processRequest(buffer);
+			std::string firstLine(HttpParser::getRequestData(buffer));
+			this->lockPrint.lock();
+			std::cout << "\nClient request: " << firstLine << '\n';
+			this->lockPrint.unlock();
+			filePath = HttpParser::parseRequestData(firstLine);
 			openFileWithPathAndSend(filePath, clientInstance);
 			bufError = shutdown(clientInstance, SD_SEND);		// shutdown the connection since no more data will be sent
 			if (bufError == SOCKET_ERROR)
 			{
+				this->lockPrint.lock();
 				std::cerr << "shutdown failed with error: " << WSAGetLastError() << '\n';
+				this->lockPrint.unlock();
 				closesocket(clientInstance);
 				WSACleanup();
 			}
 		}
 		else if (recvMsgSize < 0)
 		{
+			this->lockPrint.lock();
 			std::cerr << "recv failed: " << WSAGetLastError() << '\n';
+			this->lockPrint.unlock();
 		}
 	} while (recvMsgSize > 0);
 	bufError = shutdown(clientInstance, SD_RECEIVE);
 	if (bufError == SOCKET_ERROR)
 	{
+		this->lockPrint.lock();
 		std::cerr << "shutdown failed with error: " << WSAGetLastError() << '\n';
+		this->lockPrint.unlock();
 		closesocket(clientInstance);
 		WSACleanup();
 	}
 	bufError = closesocket(clientInstance);		// close the socket
 	if (bufError == SOCKET_ERROR)
 	{
+		this->lockPrint.lock();
 		std::cerr << "close failed with error: " << WSAGetLastError() << '\n';
+		this->lockPrint.unlock();
 		WSACleanup();
 	}
 }
@@ -189,7 +181,9 @@ void HttpServer::openFileWithPathAndSend(std::string filePath, SOCKET clientInst
 	else
 	{
 		std::string responseNotFound = "HTTP/1.0 404 Not Found \r\n";
+		this->lockPrint.lock();
 		std::cout << "Client response: " << responseNotFound;
+		this->lockPrint.unlock();
 		responseNotFound.append("Content-Type: text/html \r\n");
 		responseNotFound.append("<!DOCTYPE html>\n<html>\n\n<head>\n<title>Not Found</title>\n</head>\n\n<body>\n<h1>Not Found</h1>\n</body>\n\n</html>\n");
 		send(clientInstance, responseNotFound.c_str(), (int)responseNotFound.size(), 0);
@@ -199,64 +193,39 @@ void HttpServer::openFileWithPathAndSend(std::string filePath, SOCKET clientInst
 		err = fclose(file);
 		if (err != 0)
 		{
+			this->lockPrint.lock();
 			std::cerr << "The file was not closed\n";
+			this->lockPrint.unlock();
 		}
 	}
 }
 
 void HttpServer::sendFile(FILE* file, SOCKET clientInstance)
 {
-	char statusLine[] = "HTTP/1.0 200 OK\r\n";
-	char contentTypeLine[] = "Content-Type: text/html\r\n";
-
+	std::string statusLine = "HTTP/1.0 200 OK\r\n";
+	std::string contentTypeLine = "Content-Type: text/html\r\n";
 	fseek(file, 0, SEEK_END);
 	int bufferSize = ftell(file);
 	rewind(file);
-
-	std::unique_ptr<char[]> myBufferedFile = std::make_unique<char[]>(bufferSize);	// this creates unique pointer to my array 
-
-	int numRead = fread_s(myBufferedFile.get(), bufferSize, sizeof(char), bufferSize, file);	//this reads whole file into buffer.
-
-	int totalSend = bufferSize + strlen(statusLine) + strlen(contentTypeLine);
-
+	std::unique_ptr<char[]> myBufferedFile = std::make_unique<char[]>(bufferSize);
+	int numRead = fread_s(myBufferedFile.get(), bufferSize, sizeof(char), bufferSize, file);
+	int totalSend = bufferSize + statusLine.size() + contentTypeLine.size();
 	std::unique_ptr<char[]> myUniqueBufferToSend = std::make_unique<char[]>(totalSend);
-
-	std::memcpy(myUniqueBufferToSend.get(), &statusLine, strlen(statusLine));
-	std::memcpy(myUniqueBufferToSend.get() + strlen(statusLine), &contentTypeLine, strlen(contentTypeLine));
-	std::memcpy(myUniqueBufferToSend.get() + strlen(statusLine) + strlen(contentTypeLine), myBufferedFile.get(), bufferSize);
-
+	std::memcpy(myUniqueBufferToSend.get(), statusLine.c_str(), statusLine.size());
+	std::memcpy(myUniqueBufferToSend.get() + statusLine.size(), &contentTypeLine, contentTypeLine.size());
+	std::memcpy(myUniqueBufferToSend.get() + statusLine.size() + contentTypeLine.size(), myBufferedFile.get(), bufferSize);
 	int iResult = send(clientInstance, myUniqueBufferToSend.get(), totalSend, 0);
 	if (iResult == SOCKET_ERROR)
 	{
+		this->lockPrint.lock();
 		std::cerr << "send failed with error: " << WSAGetLastError() << '\n';
+		this->lockPrint.unlock();
 		closesocket(clientInstance);
 		WSACleanup();
 	}
+	this->lockPrint.lock();
 	std::cout << "Client response: " << statusLine << '\n';
-}
-
-std::string HttpServer::processRequest(char* bufferPtr)
-{
-	std::string firstLine("");
-	while (*bufferPtr != '\r')	//extract the first line from buffer
-	{
-		firstLine += *bufferPtr;
-		bufferPtr++;
-	}
-	std::cout << "\nClient request: " << firstLine << '\n';
-	return getFilePath(firstLine);
-}
-
-std::string HttpServer::getFilePath(std::string toParse)
-{
-	std::regex rx(REGEX_GET);
-	std::string extractedSubmatchPath("");
-	std::smatch pieces_match;
-	if (std::regex_match(toParse, pieces_match, rx))
-	{
-		extractedSubmatchPath = pieces_match[2].str();
-	}
-	return extractedSubmatchPath;	//if there is no match so the request is not HTTP it will return empty string
+	this->lockPrint.unlock();
 }
 
 //support function to check what is in the buffer

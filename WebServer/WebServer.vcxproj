@@ -119,6 +119,7 @@
     <ClInclude Include="BL\Parser.h" />
     <ClInclude Include="Server\Server.h" />
     <ClInclude Include="Utils\Header.h" />
+    <ClInclude Include="Utils\RegularExpressions.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test.html" />
