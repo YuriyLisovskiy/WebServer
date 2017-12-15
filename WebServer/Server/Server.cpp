@@ -131,7 +131,7 @@ void HttpServer::processRequest(SOCKET clientInstance)
 			filePath = HttpParser::parseRequestData(buffer);
 			this->lockPrint.unlock();
 			this->sendResponse(filePath, clientInstance);
-			bufError = shutdown(clientInstance, SD_SEND);		// shutdown the connection since no more data will be sent
+			bufError = shutdown(clientInstance, SD_SEND);
 			if (bufError == SOCKET_ERROR)
 			{
 				this->lockPrint.lock();
@@ -159,7 +159,7 @@ void HttpServer::processRequest(SOCKET clientInstance)
 		closesocket(clientInstance);
 		WSACleanup();
 	}
-	bufError = closesocket(clientInstance);		// close the socket
+	bufError = closesocket(clientInstance);
 	if (bufError == SOCKET_ERROR)
 	{
 		this->lockPrint.lock();

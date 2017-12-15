@@ -18,26 +18,37 @@ std::string HttpParser::getClientData(SOCKET clientInstance, int port, int clien
 	return result;
 }
 
-std::string HttpParser::getFirstLine(char* bufferPtr)
-{
-	std::string firstLine("");
-	while (*bufferPtr != '\r')
-	{
-		firstLine += *bufferPtr;
-		bufferPtr++;
-	}
-	return firstLine;
-}
-
 std::string HttpParser::parseRequestData(char* toParse)
 {
-	std::string firstLine(HttpParser::getFirstLine(toParse));
-	std::cout << "\nClient request: " << firstLine << '\n';
-	std::smatch pieces_match;
-	std::string url("");
-	if (std::regex_match(firstLine, pieces_match, std::regex(REGEX::REQUEST_REGEX)))
+	std::string firstLine("");
+	while (*toParse != '\r')
 	{
-		url = pieces_match[2].str();
+		firstLine += *toParse;
+		toParse++;
 	}
+	toParse += 2;
+	std::cout << "\nClient request: " << firstLine << '\n';
+	std::string url(""), method("");
+	std::smatch data;
+	if (std::regex_match(firstLine, data, std::regex(REGEX::FIRST_LINE_REQUEST)))
+	{
+		method = data[1].str();
+		url = HttpParser::parseUrl(data[2].str());
+	}
+	std::string body(toParse);
+	body = std::string(body.begin(), body.begin() + body.find_last_of("\\\r"));
+	body = std::regex_replace(body, std::regex("\\r+"), "");
+	Request request(body, method, url);
 	return url;
+}
+
+std::string HttpParser::parseUrl(const std::string url)
+{
+	std::string result(url);
+	size_t pos = url.find('?');
+	if (pos != std::string::npos)
+	{
+		result.assign(url.begin(), url.begin() + pos);
+	}
+	return result;
 }
