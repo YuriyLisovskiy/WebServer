@@ -14,6 +14,7 @@ std::string HTMLResponse::HttpResponse(const std::string filePath, const std::st
 	std::string response("HTTP/1.0 " + std::to_string(statusCode) + " " + status + " \r\n");
 	response += "Content-Type: text/html \r\n";
 	response += html;
+	std::cout << "HTTP/1.0 " + std::to_string(statusCode) + " " + status + "\n";
 	return response;
 }
 std::string HTMLResponse::errorPage(const size_t code, const std::string msg)
@@ -23,6 +24,7 @@ std::string HTMLResponse::errorPage(const size_t code, const std::string msg)
 	response += "<!DOCTYPE html>\n<html>\n\n<head>\n<title>" + 
 		msg + "</title>\n</head>\n\n<body>\n<h1 style=\"text-align: center;\">" +
 		std::to_string(code) + " " + msg + "</h1>\n</body>\n\n</html>\n";
+	std::cout << "HTTP/1.0 " + std::to_string(code) + " " + msg + "\n";
 	return response;
 }
 std::string HTMLResponse::NotFound()

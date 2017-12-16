@@ -11,6 +11,7 @@ HttpServer::HttpServer()
 	this->clientId = 0;
 	this->clientNum = 0;
 	this->portNumber = START_PORT;
+	this->setView();
 }
 
 void HttpServer::setView(View* view)
@@ -47,7 +48,6 @@ void HttpServer::startServer()
 	}
 	logFile.close();
 	WSACleanup();
-	std::cin.ignore();
 }
 
 void HttpServer::startThread(const int port, std::ofstream& logFile)
@@ -176,10 +176,31 @@ void HttpServer::processRequest(SOCKET client)
 void HttpServer::sendResponse(Request& request, SOCKET clientInstance)
 {
 	std::string html("");
-	html = HTMLResponse::HttpResponse(request.DATA.get("url"));
-	this->lockPrint.lock();
-	std::cout << "Client response: HTTP/1.0 200 OK\n";
-	this->lockPrint.unlock();
+	if (this->view->hasUrl(request.DATA.get("url")))
+	{
+		switch (HttpParser::getRequestMethod(request.DATA.get("method")))
+		{
+		case rMethod::Get:
+			html = this->view->Get(request);
+			break;
+		case rMethod::Post:
+			html = this->view->Post(request);
+			break;
+		case rMethod::Put:
+			html = this->view->Put(request);
+			break;
+		case rMethod::Delete:
+			html = this->view->Delete(request);
+			break;
+		default:
+			html = HTMLResponse::MethodNotAllowed();
+			break;
+		}
+	}
+	else
+	{
+		html = HTMLResponse::NotFound();
+	}
 	this->sendFile(html, clientInstance);
 }
 

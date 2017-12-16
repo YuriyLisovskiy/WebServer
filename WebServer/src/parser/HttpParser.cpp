@@ -39,3 +39,27 @@ Request HttpParser::parseRequestData(char* toParse)
 	body = std::regex_replace(body, std::regex("\\r+"), "");
 	return Request(body, method, url);
 }
+
+rMethod HttpParser::getRequestMethod(const std::string method)
+{
+	rMethod result = rMethod::None;
+	std::string methodToLower(method);
+	std::transform(methodToLower.begin(), methodToLower.end(), methodToLower.begin(), ::tolower);
+	if (methodToLower == "get")
+	{
+		result = rMethod::Get;
+	}
+	else if (methodToLower == "post")
+	{
+		result = rMethod::Post;
+	}
+	else if (methodToLower == "put")
+	{
+		result = rMethod::Put;
+	}
+	else if (methodToLower == "delete")
+	{
+		result = rMethod::Delete;
+	}
+	return result;
+}

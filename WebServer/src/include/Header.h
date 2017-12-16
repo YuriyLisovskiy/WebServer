@@ -12,3 +12,12 @@
 #include <unistd.h>
 #define BASE_DIR std::string(getcwd(0, 0)) + "/"
 #endif
+
+enum rMethod
+{
+	Get,
+	Post,
+	Put,
+	Delete,
+	None
+};
