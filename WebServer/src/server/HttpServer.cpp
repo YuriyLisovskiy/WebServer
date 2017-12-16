@@ -18,7 +18,18 @@ void HttpServer::setView(View* view)
 {
 	if (view)
 	{
-		this->view = view;
+		this->views.push_back(view);
+	}
+}
+
+void HttpServer::setViews(std::vector<View*> views)
+{
+	for (const auto& view : views)
+	{
+		if (view)
+		{
+			this->views.push_back(view);
+		}
 	}
 }
 
@@ -114,13 +125,9 @@ void HttpServer::serveClient(SOCKET client, int port, std::ofstream& logfile)
 	this->processRequest(client);
 	finish = clock();
 	float servingTime = (float)(finish - start) / CLOCKS_PER_SEC;
-	time_t now = time(0);
-	struct tm tstruct;
-	char buf[80];
-	localtime_s(&tstruct, &now);
-	strftime(buf, sizeof(buf), "%a %b %d %Y [%r]", &tstruct);
 	lockPrint.lock();
-	logfile << buf << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n";
+	DATE_TIME_NOW(logfile);
+	logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n";
 	lockPrint.unlock();
 }
 
@@ -176,21 +183,22 @@ void HttpServer::processRequest(SOCKET client)
 void HttpServer::sendResponse(Request& request, SOCKET clientInstance)
 {
 	std::string html("");
-	if (this->view->hasUrl(request.DATA.get("url")))
+	View* view = HttpParser::urlIsAvailable(this->views, request.DATA.get("url"));
+	if (view)
 	{
 		switch (HttpParser::getRequestMethod(request.DATA.get("method")))
 		{
 		case rMethod::Get:
-			html = this->view->Get(request);
+			html = view->Get(request);
 			break;
 		case rMethod::Post:
-			html = this->view->Post(request);
+			html = view->Post(request);
 			break;
 		case rMethod::Put:
-			html = this->view->Put(request);
+			html = view->Put(request);
 			break;
 		case rMethod::Delete:
-			html = this->view->Delete(request);
+			html = view->Delete(request);
 			break;
 		default:
 			html = HTMLResponse::MethodNotAllowed();

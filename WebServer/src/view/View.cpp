@@ -2,9 +2,13 @@
 #include "../include/HtmlResponse.h"
 #include "../include/Header.h"
 
-View::View(const std::string directory)
+View::View(const std::string dir)
 {
-	this->dir = BASE_DIR + directory;
+	this->setDirectory(BASE_DIR + dir);
+}
+void View::setDirectory(const std::string dir)
+{
+	this->dir = dir;
 }
 std::string View::Get(Request& request)
 {
@@ -24,5 +28,12 @@ std::string View::Delete(Request& request)
 }
 bool View::hasUrl(const std::string url)
 {
-	return this->urls.find(url) != this->urls.end();
+	for (const auto& currentUrl : this->urls)
+	{
+		if (currentUrl == url)
+		{
+			return true;
+		}
+	}
+	return false;
 }

@@ -1,7 +1,6 @@
-#include "src/include/HttpServer.h"
+#include "test/test.h"
 
 void main()
 {
-	HttpServer server;
-	server.startServer();
+	TEST();
 }

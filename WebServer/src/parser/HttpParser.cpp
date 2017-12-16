@@ -27,7 +27,9 @@ Request HttpParser::parseRequestData(char* toParse)
 		toParse++;
 	}
 	toParse += 2;
-	std::cout << "\nClient request: " << firstLine << '\n';
+	std::cout << "\n";
+	DATE_TIME_NOW(std::cout);
+	std::cout << " " << firstLine << '\n';
 	std::string url(""), method("");
 	std::smatch data;
 	if (std::regex_match(firstLine, data, std::regex(REGEX::FIRST_LINE_REQUEST)))
@@ -62,4 +64,16 @@ rMethod HttpParser::getRequestMethod(const std::string method)
 		result = rMethod::Delete;
 	}
 	return result;
+}
+
+View* HttpParser::urlIsAvailable(std::vector<View*> views, const std::string url)
+{
+	for (const auto& view : views)
+	{
+		if (view->hasUrl(url))
+		{
+			return view;
+		}
+	}
+	return nullptr;
 }
