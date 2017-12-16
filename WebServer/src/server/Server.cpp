@@ -1,7 +1,7 @@
-#include "Server.h"
-#include "../BL/Parser.h"
-#include "../Utils/Response/HtmlResponse.h"
-#include "../Utils/Header.h"
+#include "../include/Server.h"
+#include "../include/Parser.h"
+#include "../include/HtmlResponse.h"
+#include "../include/Header.h"
 #include <thread>
 #include <iostream>
 #include <ws2tcpip.h>

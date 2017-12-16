@@ -1,5 +1,5 @@
-#include "Parser.h"
-#include "../Utils/RegularExpressions.h"
+#include "../include/Parser.h"
+#include "../include/RegularExpressions.h"
 #include <ws2tcpip.h>
 #include <regex>
 #include <iostream>
