@@ -31,6 +31,13 @@
 *.out
 *.app
 
-/.vs
+# Visual Studio files and folders
+.vs/
 Debug/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# Other
 *.txt
+
