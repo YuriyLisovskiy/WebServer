@@ -8,5 +8,5 @@ class HttpParser
 {
 public:
 	static std::string getClientData(SOCKET clientInstance, int port, int clientID);
-	static std::string parseRequestData(char* toParse);
+	static Request parseRequestData(char* toParse);
 };

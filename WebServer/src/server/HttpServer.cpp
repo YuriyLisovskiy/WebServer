@@ -13,6 +13,14 @@ HttpServer::HttpServer()
 	this->portNumber = START_PORT;
 }
 
+void HttpServer::setView(View* view)
+{
+	if (view)
+	{
+		this->view = view;
+	}
+}
+
 void HttpServer::startServer()
 {
 	std::ofstream logFile("logFile.txt", std::ios::app);
@@ -118,7 +126,6 @@ void HttpServer::serveClient(SOCKET client, int port, std::ofstream& logfile)
 
 void HttpServer::processRequest(SOCKET client)
 {
-	std::string filePath("");
 	char buffer[1024];
 	int recvMsgSize, bufError;
 	do
@@ -127,9 +134,9 @@ void HttpServer::processRequest(SOCKET client)
 		if (recvMsgSize > 0)
 		{
 			this->lockPrint.lock();
-			filePath = HttpParser::parseRequestData(buffer);
+			Request request(HttpParser::parseRequestData(buffer));
 			this->lockPrint.unlock();
-			this->sendResponse(filePath, client);
+			this->sendResponse(request, client);
 			bufError = shutdown(client, SD_SEND);
 			if (bufError == SOCKET_ERROR)
 			{
@@ -166,27 +173,14 @@ void HttpServer::processRequest(SOCKET client)
 	}
 }
 
-void HttpServer::sendResponse(std::string filePath, SOCKET clientInstance)
+void HttpServer::sendResponse(Request& request, SOCKET clientInstance)
 {
-	std::ifstream file(filePath);
-	std::string response("");
-	if (file.is_open())
-	{
-		std::string html("");
-		html.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-		this->lockPrint.lock();
-		response = HTMLResponse::HttpResponse(html);
-		this->lockPrint.unlock();
-		this->sendFile(response, clientInstance);
-		file.close();
-	}
-	else
-	{
-		this->lockPrint.lock();
-		response = HTMLResponse::NotFound();
-		this->lockPrint.unlock();
-		this->sendFile(response, clientInstance);
-	}
+	std::string html("");
+	html = HTMLResponse::HttpResponse(request.DATA.get("url"));
+	this->lockPrint.lock();
+	std::cout << "Client response: HTTP/1.0 200 OK\n";
+	this->lockPrint.unlock();
+	this->sendFile(html, clientInstance);
 }
 
 void HttpServer::sendFile(const std::string httpResponse, SOCKET client)

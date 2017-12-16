@@ -18,7 +18,7 @@ std::string HttpParser::getClientData(SOCKET clientInstance, int port, int clien
 	return result;
 }
 
-std::string HttpParser::parseRequestData(char* toParse)
+Request HttpParser::parseRequestData(char* toParse)
 {
 	std::string firstLine("");
 	while (*toParse != '\r')
@@ -37,6 +37,5 @@ std::string HttpParser::parseRequestData(char* toParse)
 	}
 	std::string body(toParse);
 	body = std::regex_replace(body, std::regex("\\r+"), "");
-	Request request(body, method, url);
-	return request.DATA.get("url");
+	return Request(body, method, url);
 }

@@ -1,10 +1,17 @@
 #include "../include/HtmlResponse.h"
 #include <iostream>
+#include <fstream>
 
-std::string HTMLResponse::HttpResponse(const std::string html, const std::string status, const size_t statusCode)
+std::string HTMLResponse::HttpResponse(const std::string filePath, const std::string status, const size_t statusCode)
 {
+	std::ifstream file(filePath);
+	std::string html("");
+	if (file.is_open())
+	{
+		html.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		file.close();
+	}
 	std::string response("HTTP/1.0 " + std::to_string(statusCode) + " " + status + " \r\n");
-	std::cout << "Client response: " << response;
 	response += "Content-Type: text/html \r\n";
 	response += html;
 	return response;
@@ -12,7 +19,6 @@ std::string HTMLResponse::HttpResponse(const std::string html, const std::string
 std::string HTMLResponse::errorPage(const size_t code, const std::string msg)
 {
 	std::string response("HTTP/1.0 " + std::to_string(code) + " " + msg + " \r\n");
-	std::cout << "Client response: " << response;
 	response += "Content-Type: text/html \r\n";
 	response += "<!DOCTYPE html>\n<html>\n\n<head>\n<title>" + 
 		msg + "</title>\n</head>\n\n<body>\n<h1 style=\"text-align: center;\">" +
