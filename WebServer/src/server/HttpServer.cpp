@@ -144,9 +144,7 @@ void HttpServer::processRequest(SOCKET client)
 		{
 			this->lockPrint.lock();
 			std::cerr << "recv failed: " << WSAGetLastError() << '\n';
-			std::string response(HTMLResponse::internalServerError());
 			this->lockPrint.unlock();
-			this->sendFile(response, client);
 		}
 	} while (recvMsgSize > 0);
 	bufError = shutdown(client, SD_RECEIVE);
@@ -177,7 +175,7 @@ void HttpServer::sendResponse(std::string filePath, SOCKET clientInstance)
 		std::string html("");
 		html.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 		this->lockPrint.lock();
-		response = HTMLResponse::ok(html);
+		response = HTMLResponse::HttpResponse(html);
 		this->lockPrint.unlock();
 		this->sendFile(response, clientInstance);
 		file.close();
@@ -185,7 +183,7 @@ void HttpServer::sendResponse(std::string filePath, SOCKET clientInstance)
 	else
 	{
 		this->lockPrint.lock();
-		response = HTMLResponse::notFound();
+		response = HTMLResponse::NotFound();
 		this->lockPrint.unlock();
 		this->sendFile(response, clientInstance);
 	}
