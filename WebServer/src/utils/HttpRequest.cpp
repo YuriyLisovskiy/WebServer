@@ -1,4 +1,4 @@
-#include "../include/Request.h"
+#include "../include/HttpRequest.h"
 #include "../include/RegularExpressions.h"
 #include <algorithm>
 #include <regex>

@@ -1,5 +1,5 @@
 #pragma once
-#include "../include/Request.h"
+#include "../include/HttpRequest.h"
 #include <winsock2.h>
 #include <fstream>
 #include <vector>

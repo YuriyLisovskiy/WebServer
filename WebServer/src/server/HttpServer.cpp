@@ -1,5 +1,5 @@
-#include "../include/Server.h"
-#include "../include/Parser.h"
+#include "../include/HttpServer.h"
+#include "../include/HttpParser.h"
 #include "../include/HtmlResponse.h"
 #include "../include/Header.h"
 #include <thread>
