@@ -92,7 +92,6 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 		else
 		{
 			std::cerr << "Invalid client socket\n";
-			std::cin.get();
 		}
 	}
 }
@@ -104,7 +103,7 @@ void HttpServer::serveClient(SOCKET client, int port, std::ofstream& logfile)
 	lockPrint.unlock();
 	clock_t start, finish;
 	start = clock();
-	this->processRequest(client);	//this function will get the webpage for client or page not found
+	this->processRequest(client);
 	finish = clock();
 	float servingTime = (float)(finish - start) / CLOCKS_PER_SEC;
 	time_t now = time(0);
