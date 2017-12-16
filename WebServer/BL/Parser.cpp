@@ -33,22 +33,10 @@ std::string HttpParser::parseRequestData(char* toParse)
 	if (std::regex_match(firstLine, data, std::regex(REGEX::FIRST_LINE_REQUEST)))
 	{
 		method = data[1].str();
-		url = HttpParser::parseUrl(data[2].str());
+		url = data[2].str();
 	}
 	std::string body(toParse);
-	body = std::string(body.begin(), body.begin() + body.find_last_of("\\\r"));
 	body = std::regex_replace(body, std::regex("\\r+"), "");
 	Request request(body, method, url);
-	return url;
-}
-
-std::string HttpParser::parseUrl(const std::string url)
-{
-	std::string result(url);
-	size_t pos = url.find('?');
-	if (pos != std::string::npos)
-	{
-		result.assign(url.begin(), url.begin() + pos);
-	}
-	return result;
+	return request.DATA.get("url");
 }

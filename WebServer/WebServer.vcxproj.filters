@@ -24,10 +24,10 @@
     <ClCompile Include="Server\Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\HtmlResponse.cpp">
+    <ClCompile Include="Utils\Request\Request.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\Request.cpp">
+    <ClCompile Include="Utils\Response\HtmlResponse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,13 +41,13 @@
     <ClInclude Include="Utils\RegularExpressions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\HtmlResponse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BL\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\Request.h">
+    <ClInclude Include="Utils\Request\Request.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Response\HtmlResponse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

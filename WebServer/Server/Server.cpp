@@ -1,6 +1,6 @@
 #include "Server.h"
 #include "../BL/Parser.h"
-#include "../Utils/HtmlResponse.h"
+#include "../Utils/Response/HtmlResponse.h"
 #include "../Utils/Header.h"
 #include <thread>
 #include <iostream>
@@ -97,14 +97,14 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 	}
 }
 
-void HttpServer::serveClient(SOCKET clientInstance, int port, std::ofstream& logfile)
+void HttpServer::serveClient(SOCKET client, int port, std::ofstream& logfile)
 {
 	lockPrint.lock();
-	logfile << HttpParser::getClientData(clientInstance, port, this->clientId);
+	logfile << HttpParser::getClientData(client, port, this->clientId);
 	lockPrint.unlock();
 	clock_t start, finish;
 	start = clock();
-	this->processRequest(clientInstance);	//this function will get the webpage for client or page not found
+	this->processRequest(client);	//this function will get the webpage for client or page not found
 	finish = clock();
 	float servingTime = (float)(finish - start) / CLOCKS_PER_SEC;
 	time_t now = time(0);
@@ -117,27 +117,27 @@ void HttpServer::serveClient(SOCKET clientInstance, int port, std::ofstream& log
 	lockPrint.unlock();
 }
 
-void HttpServer::processRequest(SOCKET clientInstance)
+void HttpServer::processRequest(SOCKET client)
 {
 	std::string filePath("");
 	char buffer[1024];
 	int recvMsgSize, bufError;
 	do
 	{
-		recvMsgSize = recv(clientInstance, buffer, 1024, 0);
+		recvMsgSize = recv(client, buffer, 1024, 0);
 		if (recvMsgSize > 0)
 		{
 			this->lockPrint.lock();
 			filePath = HttpParser::parseRequestData(buffer);
 			this->lockPrint.unlock();
-			this->sendResponse(filePath, clientInstance);
-			bufError = shutdown(clientInstance, SD_SEND);
+			this->sendResponse(filePath, client);
+			bufError = shutdown(client, SD_SEND);
 			if (bufError == SOCKET_ERROR)
 			{
 				this->lockPrint.lock();
 				std::cerr << "shutdown failed with error: " << WSAGetLastError() << '\n';
 				this->lockPrint.unlock();
-				closesocket(clientInstance);
+				closesocket(client);
 				WSACleanup();
 			}
 		}
@@ -147,19 +147,19 @@ void HttpServer::processRequest(SOCKET clientInstance)
 			std::cerr << "recv failed: " << WSAGetLastError() << '\n';
 			std::string response(HTMLResponse::internalServerError());
 			this->lockPrint.unlock();
-			this->sendFile(response, clientInstance);
+			this->sendFile(response, client);
 		}
 	} while (recvMsgSize > 0);
-	bufError = shutdown(clientInstance, SD_RECEIVE);
+	bufError = shutdown(client, SD_RECEIVE);
 	if (bufError == SOCKET_ERROR)
 	{
 		this->lockPrint.lock();
 		std::cerr << "shutdown failed with error: " << WSAGetLastError() << '\n';
 		this->lockPrint.unlock();
-		closesocket(clientInstance);
+		closesocket(client);
 		WSACleanup();
 	}
-	bufError = closesocket(clientInstance);
+	bufError = closesocket(client);
 	if (bufError == SOCKET_ERROR)
 	{
 		this->lockPrint.lock();
@@ -192,14 +192,14 @@ void HttpServer::sendResponse(std::string filePath, SOCKET clientInstance)
 	}
 }
 
-void HttpServer::sendFile(const std::string httpResponse, SOCKET clientInstance)
+void HttpServer::sendFile(const std::string httpResponse, SOCKET client)
 {
-	if (send(clientInstance, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCKET_ERROR)
+	if (send(client, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCKET_ERROR)
 	{
 		this->lockPrint.lock();
 		std::cerr << "send failed with error: " << WSAGetLastError() << '\n';
 		this->lockPrint.unlock();
-		closesocket(clientInstance);
+		closesocket(client);
 		WSACleanup();
 	}
 }
