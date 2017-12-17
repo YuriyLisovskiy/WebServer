@@ -4,7 +4,6 @@
 #include "../include/Header.h"
 #include <thread>
 #include <iostream>
-#include <ws2tcpip.h>
 
 HttpServer::HttpServer()
 {
