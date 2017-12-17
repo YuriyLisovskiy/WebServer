@@ -37,6 +37,7 @@ Debug/
 *.sln
 *.vcxproj
 *.vcxproj.filters
+*.vcxproj.user
 
 # Other
 *.txt
