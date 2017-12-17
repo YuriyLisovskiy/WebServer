@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-class HTMLResponse
+class Response
 {
 public:
 	static std::string HttpResponse(const std::string filePath, const std::string status = "OK", const size_t statusCode = 200);

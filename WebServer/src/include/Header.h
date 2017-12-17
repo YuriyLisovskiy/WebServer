@@ -1,9 +1,9 @@
 #pragma once
 #pragma comment (lib, "Ws2_32.lib")
 
-#define SERVER_IP "0.0.0.0"		// server id (default is localhost)
+#define SERVER_IP "0.0.0.0"		// server ip
 #define START_PORT 8000			// port for starting the server
-#define MAX_SERVERD 100			// max number of clinets per one port.
+#define MAX_SERVERD 1000		// max number of clinets per one port.
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <direct.h>
@@ -29,6 +29,13 @@ enum rMethod
 	struct tm tstruct;											\
 	char buf[80];												\
 	localtime_s(&tstruct, &now);								\
-	strftime(buf, sizeof(buf), "%F [%r]", &tstruct);			\
+	strftime(buf, sizeof(buf), "[%d/%b/%Y %r]", &tstruct);		\
 	(stream) << buf;											\
+}
+#define PRINT_SERVER_DATA(stream, IP, PORT)						\
+{																\
+	DATE_TIME_NOW(stream);										\
+	(stream) << "\nWeb server version 1.0\n"					\
+	"Started server at http://" << IP << ":" << PORT << "/\n"	\
+	"Quit the server with CTRL - BREAK.\n";						\
 }

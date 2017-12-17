@@ -1,6 +1,6 @@
 #include "../include/HttpServer.h"
-#include "../include/HttpParser.h"
-#include "../include/HtmlResponse.h"
+#include "../include/Parser.h"
+#include "../include/HttpResponse.h"
 #include "../include/Header.h"
 #include <thread>
 #include <iostream>
@@ -33,16 +33,12 @@ void HttpServer::setViews(std::vector<View*> views)
 	}
 }
 
-void HttpServer::startServer()
+void HttpServer::run()
 {
 	std::ofstream logFile("logFile.txt", std::ios::app);
-	if (logFile.is_open())
+	if (!logFile.is_open())
 	{
-		std::cout << "Log file was created and opened.\n";
-	}
-	else
-	{
-		std::cerr << "Error\n";
+		std::cerr << "File 'logFile.txt' is not opened.\n";
 	}
 	int status;
 	WSADATA wsaData;
@@ -50,7 +46,7 @@ void HttpServer::startServer()
 	if (status != 0)
 	{
 		std::cerr << "WSAStartup failed: " << status << '\n';
-		throw std::exception("WSAStartup failed: " + status + '\n');
+		return;
 	}
 	std::thread newThread(&HttpServer::startThread, this, START_PORT, ref(logFile));
 	if (newThread.joinable())
@@ -93,6 +89,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 		std::cerr << "Listen function failed with error: " << WSAGetLastError() << '\n';
 	}
 	bool listening = true;
+	PRINT_SERVER_DATA(std::cout, Parser::getIP(listenSock), START_PORT);
 	while (listening)
 	{
 		if (this->clientNum == MAX_SERVERD)
@@ -106,7 +103,6 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 			std::thread newClient(&HttpServer::serveClient, this, client, this->portNumber++, std::ref(logFile));
 			newClient.detach();
 			this->clientId++;
-			this->clientNum++;
 		}
 		else
 		{
@@ -118,7 +114,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 void HttpServer::serveClient(SOCKET client, int port, std::ofstream& logfile)
 {
 	lockPrint.lock();
-	logfile << HttpParser::getClientData(client, port, this->clientId);
+	logfile << Parser::getClientData(client, port, this->clientId);
 	lockPrint.unlock();
 	clock_t start, finish;
 	start = clock();
@@ -140,9 +136,7 @@ void HttpServer::processRequest(SOCKET client)
 		recvMsgSize = recv(client, buffer, 1024, 0);
 		if (recvMsgSize > 0)
 		{
-			this->lockPrint.lock();
-			Request request(HttpParser::parseRequestData(buffer));
-			this->lockPrint.unlock();
+			Request request(Parser::parseRequestData(buffer, this->lockPrint));
 			this->sendResponse(request, client);
 			bufError = shutdown(client, SD_SEND);
 			if (bufError == SOCKET_ERROR)
@@ -183,10 +177,10 @@ void HttpServer::processRequest(SOCKET client)
 void HttpServer::sendResponse(Request& request, SOCKET clientInstance)
 {
 	std::string html("");
-	View* view = HttpParser::urlIsAvailable(this->views, request.DATA.get("url"));
+	View* view = Parser::urlIsAvailable(this->views, request.DATA.get("url"));
 	if (view)
 	{
-		switch (HttpParser::getRequestMethod(request.DATA.get("method")))
+		switch (Parser::getRequestMethod(request.DATA.get("method")))
 		{
 		case rMethod::Get:
 			html = view->Get(request);
@@ -201,13 +195,13 @@ void HttpServer::sendResponse(Request& request, SOCKET clientInstance)
 			html = view->Delete(request);
 			break;
 		default:
-			html = HTMLResponse::MethodNotAllowed();
+			html = Response::MethodNotAllowed();
 			break;
 		}
 	}
 	else
 	{
-		html = HTMLResponse::NotFound();
+		html = Response::NotFound();
 	}
 	this->sendFile(html, clientInstance);
 }

@@ -1,24 +1,17 @@
-#include "../include/HttpParser.h"
+#include "../include/Parser.h"
 #include "../include/RegularExpressions.h"
 #include <ws2tcpip.h>
 #include <regex>
 #include <iostream>
 
-std::string HttpParser::getClientData(SOCKET clientInstance, int port, int clientID)
+std::string Parser::getClientData(SOCKET client, int port, int clientID)
 {
-	struct sockaddr_in addr;
-	socklen_t addr_size = sizeof(struct sockaddr_in);
-	int res = getsockname(clientInstance, (struct sockaddr *)&addr, &addr_size);
-	sockaddr_in* pV4Addr = (struct sockaddr_in*)&addr;
-	int ipAddr = pV4Addr->sin_addr.s_addr;
-	char clientIp[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
 	std::string result("ID: " + std::to_string(clientID) + "\nThe Client port is: " + 
-		std::to_string(port) + "\nThe Client IP is: " + clientIp + '\n');
+		std::to_string(port) + "\nThe Client IP is: " + Parser::getIP(client) + '\n');
 	return result;
 }
 
-Request HttpParser::parseRequestData(char* toParse)
+Request Parser::parseRequestData(char* toParse, std::mutex& lock)
 {
 	std::string firstLine("");
 	while (*toParse != '\r')
@@ -27,9 +20,11 @@ Request HttpParser::parseRequestData(char* toParse)
 		toParse++;
 	}
 	toParse += 2;
+	lock.lock();
 	std::cout << "\n";
 	DATE_TIME_NOW(std::cout);
 	std::cout << " " << firstLine << '\n';
+	lock.unlock();
 	std::string url(""), method("");
 	std::smatch data;
 	if (std::regex_match(firstLine, data, std::regex(REGEX::FIRST_LINE_REQUEST)))
@@ -42,7 +37,7 @@ Request HttpParser::parseRequestData(char* toParse)
 	return Request(body, method, url);
 }
 
-rMethod HttpParser::getRequestMethod(const std::string method)
+rMethod Parser::getRequestMethod(const std::string method)
 {
 	rMethod result = rMethod::None;
 	std::string methodToLower(method);
@@ -66,7 +61,7 @@ rMethod HttpParser::getRequestMethod(const std::string method)
 	return result;
 }
 
-View* HttpParser::urlIsAvailable(std::vector<View*> views, const std::string url)
+View* Parser::urlIsAvailable(std::vector<View*> views, const std::string url)
 {
 	for (const auto& view : views)
 	{
@@ -76,4 +71,16 @@ View* HttpParser::urlIsAvailable(std::vector<View*> views, const std::string url
 		}
 	}
 	return nullptr;
+}
+
+std::string Parser::getIP(SOCKET socket)
+{
+	struct sockaddr_in addr;
+	socklen_t addr_size = sizeof(struct sockaddr_in);
+	int res = getsockname(socket, (struct sockaddr *)&addr, &addr_size);
+	sockaddr_in* pV4Addr = (struct sockaddr_in*)&addr;
+	int ipAddr = pV4Addr->sin_addr.s_addr;
+	char clientIp[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
+	return clientIp;
 }

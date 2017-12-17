@@ -10,7 +10,7 @@ class HttpServer
 {
 public:
 	HttpServer();
-	void startServer();
+	void run();
 	void setView(View* view = new View());
 	void setViews(std::vector<View*> views);
 
