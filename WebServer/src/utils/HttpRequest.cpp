@@ -29,10 +29,6 @@ std::string Request::parseUrl(const std::string url)
 	if (posBegin != std::string::npos)
 	{
 		result = std::string(url.begin(), url.begin() + posBegin);
-		while (result[result.size() - 1] == '/')
-		{
-			result.pop_back();
-		}
 		size_t posEnd = url.find('&');
 		std::string line("");
 		std::smatch data;
@@ -55,6 +51,10 @@ std::string Request::parseUrl(const std::string url)
 				this->GET.dict[data[1].str()] = Request::parseValue(data[2].str());
 			}
 		}
+	}
+	while (result[result.size() - 1] == '/')
+	{
+		result.pop_back();
 	}
 	return result;
 }
