@@ -4,18 +4,9 @@
 #define START_PORT 8000			// port for starting the server
 #define MAX_SERVERD 1000		// max number of clinets per one port.
 
-#if defined(_WIN32) || defined(_WIN64)
 #include <direct.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
 #pragma comment (lib, "Ws2_32.lib")
 #define BASE_DIR std::string(_getcwd(0, 0)) + "/"
-#elif defined(__unix) || defined(__unix__) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#define BASE_DIR std::string(getcwd(0, 0)) + "/"
-#endif
 
 enum rMethod
 {

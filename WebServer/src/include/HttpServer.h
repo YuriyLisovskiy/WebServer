@@ -5,6 +5,7 @@
 #include <fstream>
 #include <mutex>
 #include <vector>
+#include <winsock2.h>
 
 class HttpServer
 {
