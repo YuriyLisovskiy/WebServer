@@ -45,5 +45,7 @@ public:
 		static std::string getHeaders(const std::string request);
 		static void parseBody(Request& request);
 		static void parseFormUrlEncoded(Request& request);
+		static char codeToSymbol(const std::string str);
+		static void percentDecode(std::string& str);
 	};
 };

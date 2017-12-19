@@ -1,5 +1,7 @@
 #include "../include/HttpRequest.h"
 
+#include <iostream>
+
 Request::Request(const std::string request, const std::string method, const std::string url)
 {
 	std::string headers("");
@@ -14,6 +16,10 @@ Request::Request(const std::string request, const std::string method, const std:
 		this->DATA.dict["url"] = url;
 		this->POST.body = Request::Parser::getBody(request);
 		Request::Parser::parseBody(*this);
+	}
+	for (auto& var : this->POST.dict)
+	{
+		std::cout << var.first << " - " << var.second << "\n";
 	}
 };
 

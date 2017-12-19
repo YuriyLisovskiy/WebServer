@@ -232,6 +232,7 @@ void Request::Parser::parseBody(Request& request)
 
 void Request::Parser::parseFormUrlEncoded(Request& request)
 {
+	Request::Parser::percentDecode(request.POST.body);
 	std::string form(request.POST.body);
 	size_t posBegin = 0, posEnd = form.find('&');
 	std::string line("");
@@ -253,5 +254,96 @@ void Request::Parser::parseFormUrlEncoded(Request& request)
 		{
 			request.POST.dict[data[1].str()] = Parser::parseVal(data[2].str());
 		}
+	}
+}
+
+char Request::Parser::codeToSymbol(const std::string str)
+{
+	if (str == "%20")
+	{
+		return ' ';
+	}
+	else if (str == "%21")
+	{
+		return '!';
+	}
+	else if (str == "%23")
+	{
+		return '#';
+	}
+	else if (str == "%24")
+	{
+		return '$';
+	}
+	else if (str == "%26")
+	{
+		return '&';
+	}
+	else if (str == "%27")
+	{
+		return '\'';
+	}
+	else if (str == "%28")
+	{
+		return '(';
+	}
+	else if (str == "%29")
+	{
+		return ')';
+	}
+	else if (str == "%2A")
+	{
+		return '*';
+	}
+	else if (str == "%2B")
+	{
+		return '+';
+	}
+	else if (str == "%2C")
+	{
+		return ',';
+	}
+	else if (str == "%2F")
+	{
+		return '/';
+	}
+	else if (str == "%3A")
+	{
+		return ':';
+	}
+	else if (str == "%3B")
+	{
+		return ';';
+	}
+	else if (str == "%3D")
+	{
+		return '=';
+	}
+	else if (str == "%3F")
+	{
+		return '?';
+	}
+	else if (str == "%40")
+	{
+		return '@';
+	}
+	else if (str == "%5B")
+	{
+		return '[';
+	}
+	else if (str == " %5D")
+	{
+		return ']';
+	}
+}
+
+void Request::Parser::percentDecode(std::string& str)
+{
+	size_t pos = str.find('%');
+	while (pos != std::string::npos)
+	{
+		str.insert(str.begin() + pos, 1, Request::Parser::codeToSymbol(std::string(str.begin() + pos, str.begin() + pos + 3)));
+		str.erase(str.begin() + pos + 1, str.begin() + pos + 4);
+		pos = str.find('%');
 	}
 }
