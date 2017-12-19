@@ -4,6 +4,7 @@ Request::Request(const std::string request, const std::string method, const std:
 {
 	std::string headers("");
 	this->DATA.dict["method"] = method;
+	Request::Parser::parseHeaders(Request::Parser::getHeaders(request), this->HEADERS.dict, this->COOKIE.dict);
 	if (method == "GET")
 	{
 		this->DATA.dict["url"] = Request::Parser::parseUrl(url, this->GET.dict);
@@ -12,9 +13,8 @@ Request::Request(const std::string request, const std::string method, const std:
 	{
 		this->DATA.dict["url"] = url;
 		this->POST.body = Request::Parser::getBody(request);
-		// TODO: parse form input.
+		Request::Parser::parseBody(*this);
 	}
-	Request::Parser::parseHeaders(Request::Parser::getHeaders(request), this->HEADERS.dict, this->COOKIES.dict);
 };
 
 std::string Request::RequestData::get(const std::string key)

@@ -222,3 +222,41 @@ std::string Request::Parser::getHeaders(const std::string request)
 	}
 	return headers;
 }
+
+void Request::Parser::parseBody(Request& request)
+{
+	switch (Request::Parser::getContentType(request.HEADERS.get("content-type")))
+	{
+	case CONTENT_TYPE::X_WWW_FORM_URLENCODED:
+		Request::Parser::parseFormUrlEncoded(request);
+		break;
+	default:
+		throw std::exception("invalid content type");
+	}
+}
+
+void Request::Parser::parseFormUrlEncoded(Request& request)
+{
+	std::string form(request.POST.body);
+	size_t posBegin = 0, posEnd = form.find('&');
+	std::string line("");
+	std::smatch data;
+	while (posEnd != std::string::npos)
+	{
+		line = std::string(form.begin() + posBegin, form.begin() + posEnd);
+		if (std::regex_match(line, data, std::regex(REGEX::REQUEST_GET_PARAM)))
+		{
+			request.POST.dict[data[1].str()] = Parser::parseVal(data[2].str());
+		}
+		posBegin = posEnd + 1;
+		posEnd = form.find('&', posBegin + 1);
+	}
+	if (posBegin < form.size())
+	{
+		line = std::string(form.begin() + posBegin, form.end());
+		if (std::regex_match(line, data, std::regex(REGEX::REQUEST_GET_PARAM)))
+		{
+			request.POST.dict[data[1].str()] = Parser::parseVal(data[2].str());
+		}
+	}
+}

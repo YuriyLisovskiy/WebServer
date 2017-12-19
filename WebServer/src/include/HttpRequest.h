@@ -28,7 +28,7 @@ public:
 	RequestData DATA;
 	RequestData GET;
 	RequestPost POST;
-	RequestData COOKIES;
+	RequestData COOKIE;
 	Request(const std::string request, const std::string method, const std::string url);
 
 	class Parser
@@ -43,5 +43,7 @@ public:
 		static CONTENT_TYPE getContentType(const std::string contentTypeStr);
 		static std::string getBody(const std::string request);
 		static std::string getHeaders(const std::string request);
+		static void parseBody(Request& request);
+		static void parseFormUrlEncoded(Request& request);
 	};
 };
