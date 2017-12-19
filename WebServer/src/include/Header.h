@@ -8,15 +8,6 @@
 #pragma comment (lib, "Ws2_32.lib")
 #define BASE_DIR std::string(_getcwd(0, 0)) + "/"
 
-enum rMethod
-{
-	Get,
-	Post,
-	Put,
-	Delete,
-	None
-};
-
 #include <time.h>
 #define DATE_TIME_NOW(stream)									\
 {																\

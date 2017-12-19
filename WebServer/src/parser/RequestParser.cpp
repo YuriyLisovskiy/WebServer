@@ -1,17 +1,10 @@
-#include "../include/Parser.h"
+#include "../include/HttpRequest.h"
+#include "../include/Header.h"
 #include "../include/RegularExpressions.h"
-#include <ws2tcpip.h>
 #include <regex>
 #include <iostream>
 
-std::string Parser::getClientData(SOCKET client, int port, int clientID)
-{
-	std::string result("ID: " + std::to_string(clientID) + "\nThe Client port is: " + 
-		std::to_string(port) + "\nThe Client IP is: " + Parser::getIP(client) + '\n');
-	return result;
-}
-
-Request Parser::parseRequestData(char* toParse, std::mutex& lock)
+Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock)
 {
 	std::string firstLine("");
 	while (*toParse != '\r')
@@ -41,7 +34,7 @@ Request Parser::parseRequestData(char* toParse, std::mutex& lock)
 	return Request(body, method, url);
 }
 
-rMethod Parser::getRequestMethod(const std::string method)
+rMethod Request::Parser::getRequestMethod(const std::string method)
 {
 	rMethod result = rMethod::None;
 	std::string methodToLower(method);
@@ -65,31 +58,7 @@ rMethod Parser::getRequestMethod(const std::string method)
 	return result;
 }
 
-View* Parser::urlIsAvailable(std::vector<View*> views, const std::string url)
-{
-	for (const auto& view : views)
-	{
-		if (view->hasUrl(url))
-		{
-			return view;
-		}
-	}
-	return nullptr;
-}
-
-std::string Parser::getIP(SOCKET socket)
-{
-	struct sockaddr_in addr;
-	socklen_t addr_size = sizeof(struct sockaddr_in);
-	int res = getsockname(socket, (struct sockaddr *)&addr, &addr_size);
-	sockaddr_in* pV4Addr = (struct sockaddr_in*)&addr;
-	int ipAddr = pV4Addr->sin_addr.s_addr;
-	char clientIp[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
-	return clientIp;
-}
-
-std::string Parser::parseUrl(const std::string url, std::map<std::string, std::string>& container)
+std::string Request::Parser::parseUrl(const std::string url, std::map<std::string, std::string>& container)
 {
 	std::string result(url);
 	size_t posBegin = url.find('?');
@@ -126,12 +95,12 @@ std::string Parser::parseUrl(const std::string url, std::map<std::string, std::s
 	return result;
 }
 
-std::string Parser::parseValue(const std::string value)
+std::string Request::Parser::parseValue(const std::string value)
 {
 	return std::regex_replace(value, std::regex("\\+"), " ");
 }
 
-void Parser::parseCookies(const std::string cookies, std::map<std::string, std::string>& container)
+void Request::Parser::parseCookies(const std::string cookies, std::map<std::string, std::string>& container)
 {
 	if (!cookies.empty())
 	{
@@ -159,7 +128,7 @@ void Parser::parseCookies(const std::string cookies, std::map<std::string, std::
 	}
 }
 
-void Parser::parseHeaders(const std::string headers, std::map<std::string, std::string>& container, std::map<std::string, std::string>& cookiesContainer)
+void Request::Parser::parseHeaders(const std::string headers, std::map<std::string, std::string>& container, std::map<std::string, std::string>& cookiesContainer)
 {
 	if (!headers.empty())
 	{
@@ -202,4 +171,9 @@ void Parser::parseHeaders(const std::string headers, std::map<std::string, std::
 			}
 		} while (posEnd != std::string::npos);
 	}
+}
+
+contentType Request::Parser::getContentType(const std::string contentTypeStr)
+{
+	return contentType::JSON;
 }

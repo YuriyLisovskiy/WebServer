@@ -1,5 +1,4 @@
 #include "../include/HttpServer.h"
-#include "../include/Parser.h"
 #include "../include/HttpResponse.h"
 #include "../include/Header.h"
 #include <thread>
@@ -159,7 +158,7 @@ void HttpServer::processRequest(SOCKET client)
 	} while (recvMsgSize >= MAX_BUFF_SIZE);
 	try
 	{
-		Request request(Parser::parseRequestData((char*)data.c_str(), this->lockPrint));
+		Request request(Request::Parser::parseRequestData((char*)data.c_str(), this->lockPrint));
 		this->sendResponse(request, client);
 	}
 	catch (...)
@@ -201,7 +200,7 @@ void HttpServer::sendResponse(Request& request, SOCKET clientInstance)
 	View* view = Parser::urlIsAvailable(this->views, request.DATA.get("url"));
 	if (view)
 	{
-		switch (Parser::getRequestMethod(request.DATA.get("method")))
+		switch (Request::Parser::getRequestMethod(request.DATA.get("method")))
 		{
 		case rMethod::Get:
 			html = view->Get(request);
