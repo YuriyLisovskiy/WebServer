@@ -184,14 +184,6 @@ CONTENT_TYPE Request::Parser::getContentType(const std::string contentTypeStr)
 	{
 		type = CONTENT_TYPE::JSON;
 	}
-	else if (contentTypeStr == TEXT_HTML_TYPE)
-	{
-		type = CONTENT_TYPE::TEXT_HTML;
-	}
-	else if (contentTypeStr == FORM_DATA_TYPE)
-	{
-		type = CONTENT_TYPE::FORM_DATA;
-	}
 	return type;
 }
 
@@ -229,6 +221,9 @@ void Request::Parser::parseBody(Request& request)
 	{
 	case CONTENT_TYPE::X_WWW_FORM_URLENCODED:
 		Request::Parser::parseFormUrlEncoded(request);
+		break;
+	case CONTENT_TYPE::JSON:
+		request.POST.body = request.HEADERS.get("content-type") + '\n' + request.POST.body;
 		break;
 	default:
 		throw std::exception("invalid content type");
