@@ -1,6 +1,5 @@
 #include "../include/HttpResponse.h"
 #include "../include/Header.h"
-//#include "../include/HttpServer.h"
 #include <fstream>
 #include <iostream>
 
@@ -13,22 +12,25 @@ std::string Response::HttpResponse(const std::string filePath, const std::string
 		html.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 		file.close();
 	}
-	std::string response("HTTP/1.0 " + std::to_string(statusCode) + " " + status + " \r\n");
-	response += "Content-Type: text/html \r\n";
+	std::string response("HTTP/1.1 " + std::to_string(statusCode) + " " + status + " \r\n");
+	response += "Content-Type: text/html; charset=utf-8 \r\n";
+	response += "Content-Length: " + std::to_string(html.length()) + " \r\n\n";
 	response += html;
 	std::cout << statusCode << '\n';
 	return response;
 }
 std::string Response::errorPage(const size_t code, const std::string msg)
 {
-	std::string response("HTTP/1.0 " + std::to_string(code) + " " + msg + " \r\n");
-	response += "Content-Type: text/html \r\n";
-	response += "<!DOCTYPE html>\n<html>\n\n<head>\n"
+	std::string html("<!DOCTYPE html>\n<html>\n<head>\n"
 		"<link rel=\"icon\" "
 		"href=\"http://www.freeiconspng.com/uploads/delete-error-exit-remove-stop-x-cross-icon--28.png\" "
-		"type=\"image/png\"><title>" + 
-		msg + "</title>\n</head>\n\n<body>\n<h1 style=\"text-align: center;\">" +
-		std::to_string(code) + " " + msg + "</h1>\n</body>\n\n</html>\n";
+		"type=\"image/png\"><title>" +
+		msg + "</title>\n</head>\n<body>\n<h1 style=\"text-align: center;\">" +
+		std::to_string(code) + " " + msg + "</h1>\n</body>\n</html>\n");
+	std::string response("HTTP/1.0 " + std::to_string(code) + " " + msg + " \r\n");
+	response += "Content-Type: text/html\r\n";
+	response += "Content-Length: " + std::to_string(html.length()) + " \r\n\n";
+	response += html;
 	std::cout << code << '\n';
 	return response;
 }
@@ -47,4 +49,8 @@ std::string Response::MethodNotAllowed()
 std::string Response::InternalServerError()
 {
 	return Response::errorPage(500, "Internal Server Error");
+}
+std::string Response::BadRequest()
+{
+	return Response::errorPage(400, "Bad Request");
 }

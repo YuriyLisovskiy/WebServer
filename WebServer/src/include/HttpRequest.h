@@ -13,10 +13,6 @@ private:
 	public:
 		std::string get(const std::string key);
 	};
-	std::string parseUrl(const std::string url);
-	std::string parseValue(const std::string value);
-	void parseCookies(const std::string cookies);
-	void parseHeaders(const std::string headers);
 public:
 	RequestData HEADERS;
 	RequestData DATA;

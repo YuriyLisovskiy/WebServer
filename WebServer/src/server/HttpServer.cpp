@@ -72,6 +72,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 	{
 		std::cerr << "SERVER ERROR: 'HttpServer::startThread()': 'socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)' failed with error #" << WSAGetLastError() << '\n';
 		WSACleanup();
+		return;
 	}
 	status = bind(listenSock, (sockaddr*)&addr, sizeof(sockaddr_in));
 	if (status == SOCKET_ERROR)
@@ -83,10 +84,12 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 			std::cerr << "SERVER ERROR: 'HttpServer::startThread()': 'closesocket(listenSock)' failed with error #" << WSAGetLastError() << '\n';
 		}
 		WSACleanup();
+		return;
 	}
 	if (listen(listenSock, SOMAXCONN) == SOCKET_ERROR)
 	{
 		std::cerr << "SERVER ERROR: 'HttpServer::startThread()': 'listen(listenSock, SOMAXCONN)' failed with error #" << WSAGetLastError() << '\n';
+		return;
 	}
 	bool listening = true;
 	PRINT_SERVER_DATA(std::cout, Parser::getIP(listenSock), START_PORT);
@@ -139,8 +142,15 @@ void HttpServer::processRequest(SOCKET client)
 		recvMsgSize = recv(client, buffer, 1024, 0);
 		if (recvMsgSize > 0)
 		{
-			Request request(Parser::parseRequestData(buffer, this->lockPrint));
-			this->sendResponse(request, client);
+			try
+			{
+				Request request(Parser::parseRequestData(buffer, this->lockPrint));
+				this->sendResponse(request, client);
+			}
+			catch (...)
+			{
+				this->sendFile(Response::BadRequest(), client);
+			}
 			bufError = shutdown(client, SD_SEND);
 			if (bufError == SOCKET_ERROR)
 			{

@@ -9,6 +9,7 @@ public:
 	static std::string Forbidden();
 	static std::string MethodNotAllowed();
 	static std::string InternalServerError();
+	static std::string BadRequest();
 private:
 	static std::string errorPage(const size_t code, const std::string msg);
 };

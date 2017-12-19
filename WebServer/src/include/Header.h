@@ -1,8 +1,8 @@
 #pragma once
 
-#define SERVER_IP "127.0.0.1"	// server ip
+#define SERVER_IP "127.0.0.1"	// server ip (localhost)
 #define START_PORT 8000			// port for starting the server
-#define MAX_SERVERD 1000		// max number of clinets per one port.
+#define MAX_SERVERD 1000		// max number of clinets per port.
 
 #include <direct.h>
 #pragma comment (lib, "Ws2_32.lib")
@@ -34,3 +34,6 @@ enum rMethod
 	"Started server at http://" << IP << ":" << PORT << "/\n"	\
 	"Quit the server with CTRL - BREAK.\n";						\
 }
+
+#define HTTP_BEGIN namespace http {
+#define HTTP_END }
