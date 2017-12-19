@@ -3,10 +3,8 @@
 
 Request::Request(const std::string body, const std::string method, const std::string url)
 {
-	size_t pos = body.rfind("\n\n");
 	std::string headers("");
-	headers = std::string(body.begin(), body.begin() + pos);
-	this->DATA.dict["headers"] = headers;
+	this->DATA.dict["headers"] = body;
 	this->DATA.dict["method"] = method;
 	if (method == "GET")
 	{
@@ -17,7 +15,7 @@ Request::Request(const std::string body, const std::string method, const std::st
 		this->DATA.dict["url"] = url;
 		// TODO: parse form input.
 	}
-	Parser::parseHeaders(headers, this->HEADERS.dict, this->COOKIES.dict);
+	Parser::parseHeaders(body, this->HEADERS.dict, this->COOKIES.dict);
 };
 
 std::string Request::RequestData::get(const std::string key)

@@ -4,6 +4,7 @@
 
 View::View(const std::string dir)
 {
+	this->url = "";
 	this->setCustomDir(BASE_DIR + dir);
 }
 void View::setCustomDir(const std::string dir)
@@ -28,5 +29,17 @@ std::string View::Delete(Request& request)
 }
 bool View::hasUrl(const std::string url)
 {
-	return this->url == url;
+	std::string urlToCompare(this->url);
+	if (!this->url.empty())
+	{
+		while (urlToCompare.back() == '/')
+		{
+			urlToCompare.pop_back();
+		}
+		if (urlToCompare.front() == '/')
+		{
+			urlToCompare = std::string(urlToCompare.begin() + 1, urlToCompare.end());
+		}
+	}
+	return urlToCompare == url;
 }

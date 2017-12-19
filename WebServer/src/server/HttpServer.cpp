@@ -18,12 +18,14 @@ void HttpServer::setView(View* view)
 {
 	if (view)
 	{
+		this->views.clear();
 		this->views.push_back(view);
 	}
 }
 
 void HttpServer::setViews(std::vector<View*> views)
 {
+	this->views.clear();
 	for (const auto& view : views)
 	{
 		if (view)
@@ -135,31 +137,18 @@ void HttpServer::serveClient(SOCKET client, int port, std::ofstream& logfile)
 
 void HttpServer::processRequest(SOCKET client)
 {
-	char buffer[1024];
+	char buffer[MAX_BUFF_SIZE];
 	int recvMsgSize, bufError;
+	std::string data("");
+	size_t size = 0;
 	do
 	{
-		recvMsgSize = recv(client, buffer, 1024, 0);
+		recvMsgSize = recv(client, buffer, MAX_BUFF_SIZE, 0);
 		if (recvMsgSize > 0)
 		{
-			try
-			{
-				Request request(Parser::parseRequestData(buffer, this->lockPrint));
-				this->sendResponse(request, client);
-			}
-			catch (...)
-			{
-				this->sendFile(Response::BadRequest(), client);
-			}
-			bufError = shutdown(client, SD_SEND);
-			if (bufError == SOCKET_ERROR)
-			{
-				this->lockPrint.lock();
-				std::cerr << "SERVER ERROR: 'HttpServer::processRequest()': 'shutdown(client, SD_SEND)' failed with error #" << WSAGetLastError() << '\n';
-				this->lockPrint.unlock();
-				closesocket(client);
-				WSACleanup();
-			}
+			data += buffer;
+			size += recvMsgSize;
+			data = data.substr(0, size);
 		}
 		else if (recvMsgSize < 0)
 		{
@@ -167,7 +156,26 @@ void HttpServer::processRequest(SOCKET client)
 			std::cerr << "SERVER ERROR: 'HttpServer::processRequest()': 'recv(client, buffer, 1024, 0)' failed with error #" << WSAGetLastError() << '\n';
 			this->lockPrint.unlock();
 		}
-	} while (recvMsgSize > 0);
+	} while (recvMsgSize >= MAX_BUFF_SIZE);
+	try
+	{
+		Request request(Parser::parseRequestData((char*)data.c_str(), this->lockPrint));
+		this->sendResponse(request, client);
+	}
+	catch (...)
+	{
+		this->sendFile(Response::BadRequest(), client);
+	}
+	bufError = shutdown(client, SD_SEND);
+	if (bufError == SOCKET_ERROR)
+	{
+		this->lockPrint.lock();
+		std::cerr << "SERVER ERROR: 'HttpServer::processRequest()': 'shutdown(client, SD_SEND)' failed with error #" << WSAGetLastError() << '\n';
+		this->lockPrint.unlock();
+		closesocket(client);
+		WSACleanup();
+	}
+
 	bufError = shutdown(client, SD_RECEIVE);
 	if (bufError == SOCKET_ERROR)
 	{

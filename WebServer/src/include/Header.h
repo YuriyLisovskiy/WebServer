@@ -35,5 +35,7 @@ enum rMethod
 	"Quit the server with CTRL - BREAK.\n";						\
 }
 
-#define HTTP_BEGIN namespace http {
-#define HTTP_END }
+#define __HTTP_BEGIN namespace http {
+#define __HTTP_END }
+
+#define MAX_BUFF_SIZE 1024

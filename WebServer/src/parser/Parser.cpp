@@ -119,7 +119,7 @@ std::string Parser::parseUrl(const std::string url, std::map<std::string, std::s
 			}
 		}
 	}
-	while (result[result.size() - 1] == '/')
+	while (!result.empty() && result[result.size() - 1] == '/')
 	{
 		result.pop_back();
 	}
