@@ -1,6 +1,6 @@
 #include "../include/View.h"
 #include "../include/HttpResponse.h"
-#include "../include/Header.h"
+#include "../include/ServerMacros.h"
 
 View::View(const std::string dir)
 {

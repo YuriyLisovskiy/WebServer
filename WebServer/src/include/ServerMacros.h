@@ -1,4 +1,5 @@
 #pragma once
+#include "CommonMacros.h"
 
 #define SERVER_IP "127.0.0.1"	// server ip (localhost)
 #define START_PORT 8000			// port for starting the server
@@ -8,16 +9,6 @@
 #pragma comment (lib, "Ws2_32.lib")
 #define BASE_DIR std::string(_getcwd(0, 0)) + "/"
 
-#include <time.h>
-#define DATE_TIME_NOW(stream)									\
-{																\
-	time_t now = time(nullptr);									\
-	struct tm tstruct;											\
-	char buf[80];												\
-	localtime_s(&tstruct, &now);								\
-	strftime(buf, sizeof(buf), "[%d/%b/%Y %r]", &tstruct);		\
-	(stream) << buf;											\
-}
 #define PRINT_SERVER_DATA(stream, IP, PORT)						\
 {																\
 	DATE_TIME_NOW(stream);										\
