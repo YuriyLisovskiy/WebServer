@@ -202,16 +202,16 @@ void HttpServer::sendResponse(Request& request, SOCKET clientInstance)
 	{
 		switch (Request::Parser::getRequestMethod(request.DATA.get("method")))
 		{
-		case rMethod::Get:
+		case REQUEST_METHOD::GET:
 			html = view->Get(request);
 			break;
-		case rMethod::Post:
+		case REQUEST_METHOD::POST:
 			html = view->Post(request);
 			break;
-		case rMethod::Put:
+		case REQUEST_METHOD::PUT:
 			html = view->Put(request);
 			break;
-		case rMethod::Delete:
+		case REQUEST_METHOD::DElETE:
 			html = view->Delete(request);
 			break;
 		default:

@@ -21,5 +21,4 @@ void TEST()
 	HttpServer server;
 	server.setView(new TestView());
 	server.run();
-	system("pause");
 }

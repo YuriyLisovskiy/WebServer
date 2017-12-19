@@ -1,21 +1,21 @@
 #pragma once
 
-enum rMethod
+enum REQUEST_METHOD
 {
-	Get,
-	Post,
-	Put,
-	Delete,
-	None
+	GET,
+	POST,
+	PUT,
+	DElETE,
+	none
 };
 
-enum contentType
+enum CONTENT_TYPE
 {
 	JSON,
 	TEXT_HTML,
 	X_WWW_FORM_URLENCODED,
 	FORM_DATA,
-	none
+	NONE
 };
 
 #define JSON_TYPE "application/json"

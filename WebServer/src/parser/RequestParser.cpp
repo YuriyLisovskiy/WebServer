@@ -34,26 +34,26 @@ Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock)
 	return Request(body, method, url);
 }
 
-rMethod Request::Parser::getRequestMethod(const std::string method)
+REQUEST_METHOD Request::Parser::getRequestMethod(const std::string method)
 {
-	rMethod result = rMethod::None;
+	REQUEST_METHOD result = REQUEST_METHOD::none;
 	std::string methodToLower(method);
 	std::transform(methodToLower.begin(), methodToLower.end(), methodToLower.begin(), ::tolower);
 	if (methodToLower == "get")
 	{
-		result = rMethod::Get;
+		result = REQUEST_METHOD::GET;
 	}
 	else if (methodToLower == "post")
 	{
-		result = rMethod::Post;
+		result = REQUEST_METHOD::POST;
 	}
 	else if (methodToLower == "put")
 	{
-		result = rMethod::Put;
+		result = REQUEST_METHOD::PUT;
 	}
 	else if (methodToLower == "delete")
 	{
-		result = rMethod::Delete;
+		result = REQUEST_METHOD::DElETE;
 	}
 	return result;
 }
@@ -73,7 +73,7 @@ std::string Request::Parser::parseUrl(const std::string url, std::map<std::strin
 			line = std::string(url.begin() + posBegin + 1, url.begin() + posEnd);
 			if (std::regex_match(line, data, std::regex(REGEX::REQUEST_GET_PARAM)))
 			{
-				container[data[1].str()] = Parser::parseValue(data[2].str());
+				container[data[1].str()] = Parser::parseVal(data[2].str());
 			}
 			posBegin = posEnd;
 			posEnd = url.find('&', posBegin + 1);
@@ -84,7 +84,7 @@ std::string Request::Parser::parseUrl(const std::string url, std::map<std::strin
 			line = std::string(url.begin() + posBegin, url.end());
 			if (std::regex_match(line, data, std::regex(REGEX::REQUEST_GET_PARAM)))
 			{
-				container[data[1].str()] = Parser::parseValue(data[2].str());
+				container[data[1].str()] = Parser::parseVal(data[2].str());
 			}
 		}
 	}
@@ -95,7 +95,7 @@ std::string Request::Parser::parseUrl(const std::string url, std::map<std::strin
 	return result;
 }
 
-std::string Request::Parser::parseValue(const std::string value)
+std::string Request::Parser::parseVal(const std::string value)
 {
 	return std::regex_replace(value, std::regex("\\+"), " ");
 }
@@ -128,52 +128,97 @@ void Request::Parser::parseCookies(const std::string cookies, std::map<std::stri
 	}
 }
 
-void Request::Parser::parseHeaders(const std::string headers, std::map<std::string, std::string>& container, std::map<std::string, std::string>& cookiesContainer)
+void Request::Parser::parseHeaders(const std::string request, std::map<std::string, std::string>& headers, std::map<std::string, std::string>& cookies)
 {
-	if (!headers.empty())
+	if (!request.empty())
 	{
-		size_t posBegin = 0, posEnd = headers.find(':');
+		size_t posBegin = 0, posEnd = request.find(':');
 		std::string key(""), value("");
 		do
 		{
-			key = std::string(headers.begin() + posBegin, headers.begin() + posEnd);
+			key = std::string(request.begin() + posBegin, request.begin() + posEnd);
 			std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 			if (key == "cookie")
 			{
 				posBegin = posEnd + 1;
-				posEnd = headers.find('\n', posBegin);
-				std::string cookies("");
+				posEnd = request.find('\n', posBegin);
+				std::string cookie("");
 				if (posEnd == std::string::npos)
 				{
-					cookies = std::string(headers.begin() + posBegin, headers.end());
+					cookie = std::string(request.begin() + posBegin, request.end());
 				}
 				else
 				{
-					cookies = std::string(headers.begin() + posBegin, headers.begin() + posEnd);
+					cookie = std::string(request.begin() + posBegin, request.begin() + posEnd);
 				}
-				Parser::parseCookies(cookies, cookiesContainer);
+				Parser::parseCookies(cookie, cookies);
 			}
 			else
 			{
 				posBegin = posEnd + 1;
-				posEnd = headers.find('\n', posBegin);
+				posEnd = request.find('\n', posBegin);
 				if (posEnd == std::string::npos)
 				{
-					value = std::string(headers.begin() + posBegin, headers.end());
+					value = std::string(request.begin() + posBegin, request.end());
 				}
 				else
 				{
-					value = std::string(headers.begin() + posBegin, headers.begin() + posEnd);
+					value = std::string(request.begin() + posBegin, request.begin() + posEnd);
 				}
 				posBegin = posEnd + 1;
-				posEnd = headers.find(':', posEnd);
-				container[key] = std::regex_replace(value, std::regex("^\\s+"), "");
+				posEnd = request.find(':', posEnd);
+				headers[key] = std::regex_replace(value, std::regex("^\\s+"), "");
 			}
 		} while (posEnd != std::string::npos);
 	}
 }
 
-contentType Request::Parser::getContentType(const std::string contentTypeStr)
+CONTENT_TYPE Request::Parser::getContentType(const std::string contentTypeStr)
 {
-	return contentType::JSON;
+	CONTENT_TYPE type = CONTENT_TYPE::NONE;
+	if (contentTypeStr == X_WWW_FORM_URLENCODED_TYPE)
+	{
+		type = CONTENT_TYPE::X_WWW_FORM_URLENCODED;
+	}
+	else if (contentTypeStr == JSON_TYPE)
+	{
+		type = CONTENT_TYPE::JSON;
+	}
+	else if (contentTypeStr == TEXT_HTML_TYPE)
+	{
+		type = CONTENT_TYPE::TEXT_HTML;
+	}
+	else if (contentTypeStr == FORM_DATA_TYPE)
+	{
+		type = CONTENT_TYPE::FORM_DATA;
+	}
+	return type;
+}
+
+std::string Request::Parser::getBody(const std::string request)
+{
+	std::string requestBody("");
+	if (!request.empty())
+	{
+		size_t pos = request.find("\n\n");
+		if (pos != std::string::npos)
+		{
+			requestBody = std::string(request.begin() + pos + 2, request.end());
+		}
+	}
+	return requestBody;
+}
+
+std::string Request::Parser::getHeaders(const std::string request)
+{
+	std::string headers("");
+	if (!request.empty())
+	{
+		size_t pos = request.find("\n\n");
+		if (pos != std::string::npos)
+		{
+			headers = std::string(request.begin(), request.begin() + pos);
+		}
+	}
+	return headers;
 }
