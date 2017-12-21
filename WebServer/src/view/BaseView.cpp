@@ -1,33 +1,33 @@
-#include "../include/View.h"
+#include "../include/BaseView.h"
 #include "../include/HttpResponse.h"
 #include "../include/ServerMacros.h"
 
-View::View(const std::string dir)
+BaseView::BaseView(const std::string dir)
 {
 	this->url = "";
 	this->setCustomDir(BASE_DIR + dir);
 }
-void View::setCustomDir(const std::string dir)
+void BaseView::setCustomDir(const std::string dir)
 {
 	this->dir = dir;
 }
-std::string View::Get(Request& request)
+std::string BaseView::Get(Request& request)
 {
 	return Response::MethodNotAllowed();
 }
-std::string View::Post(Request& request)
+std::string BaseView::Post(Request& request)
 {
 	return Response::MethodNotAllowed();
 }
-std::string View::Put(Request& request)
+std::string BaseView::Put(Request& request)
 {
 	return Response::MethodNotAllowed();
 }
-std::string View::Delete(Request& request)
+std::string BaseView::Delete(Request& request)
 {
 	return Response::MethodNotAllowed();
 }
-bool View::hasUrl(const std::string url)
+bool BaseView::hasUrl(const std::string url)
 {
 	std::string urlToCompare(this->url);
 	if (!this->url.empty())

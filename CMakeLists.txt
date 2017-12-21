@@ -13,12 +13,13 @@ add_executable(WebServer
 		WebServer/src/include/RegularExpressions.h
 		WebServer/src/include/RequestMacros.h
 		WebServer/src/include/ServerMacros.h
-		WebServer/src/include/View.h
 		WebServer/src/parser/RequestParser.cpp
 		WebServer/src/parser/ServerParser.cpp
 		WebServer/src/server/HttpServer.cpp
 		WebServer/src/utils/HttpRequest.cpp
 		WebServer/src/utils/HttpResponse.cpp
-		WebServer/src/view/View.cpp
 		WebServer/test/test.cpp
-		WebServer/test/test.h WebServer/src/utils/Helper.cpp)
+		WebServer/test/test.h
+		WebServer/src/utils/Helper.cpp
+		WebServer/src/view/BaseView.cpp
+		WebServer/src/include/BaseView.h)

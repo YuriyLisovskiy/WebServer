@@ -1,5 +1,5 @@
 #pragma once
-#include "View.h"
+#include "BaseView.h"
 #include "ServerMacros.h"
 #include <string>
 #include <fstream>
@@ -11,15 +11,15 @@ class HttpServer
 public:
 	HttpServer();
 	void run();
-	void setView(View* view = new View());
-	void setViews(std::vector<View*> views);
+	void setView(BaseView* view = new BaseView());
+	void setViews(std::vector<BaseView*> views);
 
 private:
 	std::mutex lockPrint;
 	int clientId;
 	int portNumber;
 	int clientNum;
-	std::vector<View*> views;
+	std::vector<BaseView*> views;
 
 	void startThread(const int port, std::ofstream& logFile);
 	void serveClient(SOCK client, int port, std::ofstream& logfile);
@@ -31,7 +31,7 @@ private:
 	{
 	public:
 		static std::string getClientData(SOCK client, int port, int clientID);
-		static View* urlIsAvailable(std::vector<View*> views, const std::string url);
+		static BaseView* urlIsAvailable(std::vector<BaseView*> views, const std::string url);
 		static std::string getIP(SOCK socket);
 	};
 };

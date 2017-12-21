@@ -1,12 +1,12 @@
 #pragma once
-#include "../src/include/View.h"
+#include "../src/include/BaseView.h"
 #include "../src/include/HttpResponse.h"
 #include "../src/include/HttpServer.h"
 
-class TestView : public View
+class TestView : public BaseView
 {
 public:
-	TestView() : View("test/")
+	TestView() : BaseView("test/")
 	{
 		this->url = "site/welcome";
 	};

@@ -9,7 +9,7 @@ std::string HttpServer::Parser::getClientData(SOCK client, int port, int clientI
 	return result;
 }
 
-View* HttpServer::Parser::urlIsAvailable(std::vector<View*> views, const std::string url)
+BaseView* HttpServer::Parser::urlIsAvailable(std::vector<BaseView*> views, const std::string url)
 {
 	for (const auto& view : views)
 	{

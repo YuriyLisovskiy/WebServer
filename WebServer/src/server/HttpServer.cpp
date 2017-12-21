@@ -11,7 +11,7 @@ HttpServer::HttpServer()
 	this->setView();
 }
 
-void HttpServer::setView(View* view)
+void HttpServer::setView(BaseView* view)
 {
 	if (view)
 	{
@@ -20,7 +20,7 @@ void HttpServer::setView(View* view)
 	}
 }
 
-void HttpServer::setViews(std::vector<View*> views)
+void HttpServer::setViews(std::vector<BaseView*> views)
 {
 	this->views.clear();
 	for (const auto& view : views)
@@ -189,7 +189,7 @@ void HttpServer::processRequest(SOCK client)
 void HttpServer::sendResponse(Request& request, SOCK clientInstance)
 {
 	std::string html;
-	View* view = Parser::urlIsAvailable(this->views, request.DATA.get("url"));
+	BaseView* view = Parser::urlIsAvailable(this->views, request.DATA.get("url"));
 	if (view)
 	{
 		switch (Request::Parser::getRequestMethod(request.DATA.get("method")))

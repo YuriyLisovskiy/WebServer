@@ -1,16 +1,20 @@
 #pragma once
+
+#ifndef WEBSERVER_BASEVIEW_H
+#define WEBSERVER_BASEVIEW_H
+
 #include "HttpRequest.h"
 #include <string>
 #include <vector>
 
-class View
+class BaseView
 {
 protected:
 	std::string url;
 	std::string dir;
 
 public:
-	View(const std::string directory = "");
+	explicit BaseView(const std::string directory = "");
 	virtual std::string Get(Request& request);
 	virtual std::string Post(Request& request);
 	virtual std::string Put(Request& request);
@@ -18,3 +22,6 @@ public:
 	bool hasUrl(const std::string url);
 	void setCustomDir(const std::string dir);
 };
+
+
+#endif //WEBSERVER_BASEVIEW_H

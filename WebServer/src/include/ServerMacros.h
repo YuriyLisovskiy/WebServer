@@ -68,6 +68,6 @@ std::string getRootDir();
 #define SOCK_SEND SHUT_RDWR
 #define SOCK_RECEIVE SHUT_RDWR
 #define WSA_LAST_ERR '\n'
-#define WSA_STARTUP(word, lpwsaData) /**/
+#define WSA_STARTUP /**/
 
 #endif
