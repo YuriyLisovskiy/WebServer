@@ -5,7 +5,6 @@
 #include <fstream>
 #include <mutex>
 #include <vector>
-#include <winsock2.h>
 
 class HttpServer
 {
@@ -23,16 +22,16 @@ private:
 	std::vector<View*> views;
 
 	void startThread(const int port, std::ofstream& logFile);
-	void serveClient(SOCKET clientInstance, int port, std::ofstream& logfile);
-	void processRequest(SOCKET clientInstance);
-	void sendResponse(Request& request, SOCKET clientInstance);
-	void sendFile(const std::string html, SOCKET clientInstance);
+	void serveClient(SOCK client, int port, std::ofstream& logfile);
+	void processRequest(SOCK client);
+	void sendResponse(Request& request, SOCK client);
+	void sendFile(const std::string html, SOCK client);
 
 	class Parser
 	{
 	public:
-		static std::string getClientData(SOCKET clientInstance, int port, int clientID);
+		static std::string getClientData(SOCK client, int port, int clientID);
 		static View* urlIsAvailable(std::vector<View*> views, const std::string url);
-		static std::string getIP(SOCKET socket);
+		static std::string getIP(SOCK socket);
 	};
 };

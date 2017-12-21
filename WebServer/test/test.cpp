@@ -1,8 +1,9 @@
 #include "test.h"
 #include <iostream>
 
-void main()
+int main()
 {
 	TEST();
 	std::cin.get();
+	return 0;
 }

@@ -27,7 +27,7 @@ Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock)
 	}
 	else
 	{
-		throw std::exception("bad request");
+		throw "bad request";
 	}
 	std::string body(toParse);
 	body = std::regex_replace(body, std::regex("\\r+"), "");
@@ -226,7 +226,7 @@ void Request::Parser::parseBody(Request& request)
 		request.POST.body = request.HEADERS.get("content-type") + '\n' + request.POST.body;
 		break;
 	default:
-		throw std::exception("invalid content type");
+		throw "invalid content type";
 	}
 }
 

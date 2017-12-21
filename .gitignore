@@ -39,6 +39,10 @@ Debug/
 *.vcxproj.filters
 *.vcxproj.user
 
+# CLion files
+.idea/
+cmake-build-debug/
+
 # Other
 *.txt
 

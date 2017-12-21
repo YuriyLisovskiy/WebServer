@@ -1,10 +1,9 @@
 #include "../include/HttpServer.h"
 #include "../include/RegularExpressions.h"
-#include <ws2tcpip.h>
 #include <regex>
 #include <iostream>
 
-std::string HttpServer::Parser::getClientData(SOCKET client, int port, int clientID)
+std::string HttpServer::Parser::getClientData(SOCK client, int port, int clientID)
 {
 	std::string result("ID: " + std::to_string(clientID) + "\nThe Client port is: " + 
 		std::to_string(port) + "\nThe Client IP is: " + Parser::getIP(client) + '\n');
@@ -23,7 +22,7 @@ View* HttpServer::Parser::urlIsAvailable(std::vector<View*> views, const std::st
 	return nullptr;
 }
 
-std::string HttpServer::Parser::getIP(SOCKET socket)
+std::string HttpServer::Parser::getIP(SOCK socket)
 {
 	struct sockaddr_in addr;
 	socklen_t addr_size = sizeof(struct sockaddr_in);
