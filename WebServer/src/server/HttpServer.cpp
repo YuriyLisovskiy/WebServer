@@ -1,6 +1,5 @@
 #include "../include/HttpServer.h"
 #include "../include/HttpResponse.h"
-#include "../include/ServerMacros.h"
 #include <thread>
 #include <iostream>
 
@@ -100,7 +99,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 	PRINT_SERVER_DATA(std::cout, Parser::getIP(listenSock), START_PORT);
 	while (listening)
 	{
-		if (this->clientNum == MAX_SERVERD)
+		if (this->clientNum == MAX_SERVED)
 		{
 			std::chrono::milliseconds duration(2000);
 			std::this_thread::sleep_for(duration);
@@ -142,8 +141,8 @@ void HttpServer::processRequest(SOCK client)
 {
 	char buffer[MAX_BUFF_SIZE];
 	int recvMsgSize, bufError;
-	std::string data("");
-	size_t size = 0;
+	std::string data;
+	int size = 0;
 	do
 	{
 		recvMsgSize = recv(client, buffer, MAX_BUFF_SIZE, 0);
@@ -200,7 +199,7 @@ void HttpServer::processRequest(SOCK client)
 
 void HttpServer::sendResponse(Request& request, SOCK clientInstance)
 {
-	std::string html("");
+	std::string html;
 	View* view = Parser::urlIsAvailable(this->views, request.DATA.get("url"));
 	if (view)
 	{

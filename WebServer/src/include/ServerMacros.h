@@ -3,14 +3,14 @@
 
 #define SERVER_IP "127.0.0.1"	// server ip (localhost)
 #define START_PORT 8000			// port for starting the server
-#define MAX_SERVERD 1000		// max number of clinets per port.
+#define MAX_SERVED 1000		    // max number of clinets per port.
 
-#define PRINT_SERVER_DATA(stream, IP, PORT)						\
-{																\
-	DATE_TIME_NOW(stream);										\
-	(stream) << "\nWeb server version 1.0\n"					\
-	"Started server at http://" << IP << ":" << PORT << "/\n"	\
-	"Quit the server with CTRL - BREAK.\n";						\
+#define PRINT_SERVER_DATA(stream, IP, PORT)						    \
+{																    \
+	DATE_TIME_NOW(stream);									    	\
+	(stream) << "\nWeb server version 1.0\n"					    \
+	"Started server at http://" << (IP) << ":" << (PORT) << "/\n"	\
+	"Quit the server with CTRL - BREAK.\n";						    \
 }
 
 #define __HTTP_BEGIN namespace http {
