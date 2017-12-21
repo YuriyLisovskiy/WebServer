@@ -34,7 +34,8 @@ void HttpServer::setViews(std::vector<BaseView*> views)
 
 void HttpServer::run()
 {
-	std::ofstream logFile("logFile.txt", std::ios::app);
+	std::ofstream logFile;
+	logFile.open(BASE_DIR + "test/logFile.txt", std::ios::app | std::ios::out);
 	if (!logFile.is_open())
 	{
 		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'logFile.txt' is not opened.\n";

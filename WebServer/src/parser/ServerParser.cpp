@@ -4,8 +4,11 @@
 
 std::string HttpServer::Parser::getClientData(SOCK client, int port, int clientID)
 {
-	std::string result("ID: " + std::to_string(clientID) + "\nThe Client port is: " +
-		std::to_string(port) + "\nThe Client IP is: " + Parser::getIP(client) + '\n');
+	std::string result = "ID: " + std::to_string(clientID) + "\nThe Client port is: ";
+	result += std::to_string(port);
+	result += "\nThe Client IP is: ";
+	result += Parser::getIP(client);
+	result += '\n';
 	return result;
 }
 
