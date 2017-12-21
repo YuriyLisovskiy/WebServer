@@ -39,25 +39,14 @@ void HttpServer::run()
 	{
 		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'logFile.txt' is not opened.\n";
 	}
-	#if defined(_WIN32) || defined(_WIN64)
-	int status;
-	WSADATA wsaData;
-	status = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (status != 0)
-	{
-		std::cerr << "SERVER ERROR: 'HttpServer::run()': 'WSAStartup(MAKEWORD(2, 2), &wsaData)' failed with error #" << status << '\n';
-		return;
-	}
-	#endif
+	WSA_STARTUP;
 	std::thread newThread(&HttpServer::startThread, this, START_PORT, ref(logFile));
 	if (newThread.joinable())
 	{
 		newThread.join();
 	}
 	logFile.close();
-	#if defined(_WIN32) || defined(_WIN64)
-	WSACleanup();
-	#endif
+	WSA_CLEANUP;
 }
 
 void HttpServer::startThread(const int port, std::ofstream& logFile)

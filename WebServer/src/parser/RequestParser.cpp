@@ -335,6 +335,10 @@ char Request::Parser::codeToSymbol(const std::string str)
 	{
 		return ']';
 	}
+	else
+	{
+		return '?';
+	}
 }
 
 void Request::Parser::percentDecode(std::string& str)
