@@ -73,7 +73,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 //	addr.sin_addr.s_addr = htonl(SERVER_IP);
 	inet_pton(AF_INET, SERVER_IP, &(addr.sin_addr));
 	listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (listenSock == INVAL_SOCK)
+	if (listenSock == INVALID_SOCK)
 	{
 		std::cerr << "SERVER ERROR: 'HttpServer::startThread()': 'socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)' failed with error #\n";// << WSAGetLastError() << '\n';
 		WSA_CLEANUP;
@@ -106,7 +106,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 			std::this_thread::sleep_for(duration);
 			break;
 		}
-		else if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVAL_SOCK)
+		else if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
 		{
 			std::thread newClient(&HttpServer::serveClient, this, client, this->portNumber++, std::ref(logFile));
 			newClient.detach();

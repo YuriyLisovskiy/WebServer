@@ -41,7 +41,7 @@
 #define SOCK int
 std::string getRootDir();
 #define BASE_DIR getRootDir()
-#define INVAL_SOCK (-1)
+#define INVALID_SOCK (-1)
 #define CLOSE_SOCK(sock) close(sock)
 #define WSA_CLEANUP /**/
 #define SOCK_ERROR (-1)
