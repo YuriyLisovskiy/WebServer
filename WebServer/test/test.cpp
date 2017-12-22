@@ -4,6 +4,7 @@
 int main()
 {
 	TEST();
+//	TEST_DB();
 	std::cin.get();
 	return 0;
 }

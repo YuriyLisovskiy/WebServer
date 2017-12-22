@@ -45,5 +45,6 @@ cmake-build-debug/
 
 # Other
 *.txt
+*.db
 !CMakeLists.txt
 

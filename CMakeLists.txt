@@ -22,4 +22,6 @@ add_executable(WebServer
 		WebServer/test/test.h
 		WebServer/src/utils/Helper.cpp
 		WebServer/src/view/BaseView.cpp
-		WebServer/src/include/BaseView.h)
+		WebServer/src/include/BaseView.h
+		WebServer/test/helpers/Helpers.cpp
+		WebServer/test/helpers/Helpers.h)
