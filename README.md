@@ -24,12 +24,12 @@ necessary methods which must return `std::string` data type. Available methods: 
 Example:
 
 ```
-class TestView : public BaseView
+class SomeView : public BaseView
 {
 public:
-	TestView() : BaseView("template_dir/")
+	SomeView() : BaseView("template_dir/")
 	{
-	    this->url = "site/get_url";
+	    this->url = "some/site_url/";
 	};
 	std::string Get(Request& request) final
 	{
@@ -57,7 +57,7 @@ public:
 * Set all views and run the server.
 ```
 HttpServer server;
-server.setView(new TestView());
+server.setView(new SomeView());
 server.run();
 ```
 
