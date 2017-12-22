@@ -24,22 +24,37 @@ necessary methods which must return `std::string` data type. Available methods: 
 Example:
 
 ```
-class TestView : public View
+class TestView : public BaseView
 {
 public:
-	TestView() : View("template_dir/")
+	TestView() : BaseView("template_dir/")
 	{
-		this->url = "site/url";
+	    this->url = "site/get_url";
 	};
 	std::string Get(Request& request) final
 	{
-		return Response::HttpResponse(this->dir + "test.html");
+	    /* Some logic */
+	    return Response::HttpResponse(this->dir + "get_request.html");
 	}
+	std::string Post(Request& request) final
+        {
+            /* Some logic */
+    	    return Response::HttpResponse(this->dir + "post_request.html");
+        }
+        std::string Put(Request& request) final
+        {
+            /* Some logic */
+            return Response::HttpResponse(this->dir + "put_request.html");
+        }
+        std::string Delete(Request& request) final
+        {
+            /* Some logic */
+            return Response::HttpResponse(this->dir + "delete_request.html");
+        }
+        
 };
 ```
 * Set all views and run the server.
-
-Example:
 ```
 HttpServer server;
 server.setView(new TestView());
