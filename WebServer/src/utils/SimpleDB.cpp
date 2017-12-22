@@ -122,10 +122,6 @@ void SimpleDB::remove(std::pair<std::string, std::string> data)
 				posToDel += pos;
 				dbData.erase(dbData.begin() + posToDel, dbData.begin() + posToDel + data.second.size() + 2);
 			}
-			else
-			{
-				std::cerr << "Error occurred in 'SimpleDB::write()': data '" << data.second << "' does not exist.\n";
-			}
 		}
 	}
 	else

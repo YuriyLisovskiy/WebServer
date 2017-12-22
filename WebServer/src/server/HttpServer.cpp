@@ -127,8 +127,10 @@ void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 		this->lockPrint.lock();
 		std::stringstream ss;
 		DATE_TIME_NOW(ss);
-		this->db.write({"statistic", ss.str() + "\nRequest took: " + std::to_string(servingTime) + " seconds."});
+		this->db.write({"statistic", ss.str() + "\n</td>\n<td>\n" + std::to_string(servingTime) + " second(s)"});
+		logfile << '[';
 		DATE_TIME_NOW(logfile);
+		logfile << ']';
 		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 		this->lockPrint.unlock();
 	}

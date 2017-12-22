@@ -13,7 +13,7 @@
 	struct tm tstruct;											\
 	char buf[80];												\
 	localtime_s(&tstruct, &now);								\
-	strftime(buf, sizeof(buf), "[%d/%b/%Y %r]", &tstruct);		\
+	strftime(buf, sizeof(buf), "%d/%b/%Y %r", &tstruct);		\
 	(stream) << buf;											\
 }
 
@@ -25,7 +25,7 @@
 	struct tm tstruct;											\
 	char buf[80];												\
 	localtime_r(&now, &tstruct);								\
-	strftime(buf, sizeof(buf), "[%d/%b/%Y %r]", &tstruct);		\
+	strftime(buf, sizeof(buf), "%d/%b/%Y %r", &tstruct);		\
 	(stream) << buf;											\
 }
 

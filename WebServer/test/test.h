@@ -17,12 +17,15 @@ public:
 	{
 		std::vector<std::string> data = db.read("statistic");
 		std::string statistic("");
-		for (std::vector<std::string>::iterator it = data.begin(); it < data.end() - 1; it++)
+		if (!data.empty())
 		{
-			statistic += "<p>" + *it + "</p>\n";
+			for (std::vector<std::string>::iterator it = data.begin(); it < data.end() - 1; it++)
+			{
+				statistic += "<tr><td>\n" + *it + "\n</td>\n</tr>\n";
+			}
+			statistic += "<tr><td><h3>Last request:</h3></td></tr>\n";
+			statistic += "<tr><td>" + data.back() + "\n</td>\n</tr>\n";
 		}
-		statistic += "<h3>Last request:</h3>\n";
-		statistic += "<p>" + data.back() + "</p>";
 		std::map<std::string, std::string> context = {
 			{"statistic", statistic }
 		};
