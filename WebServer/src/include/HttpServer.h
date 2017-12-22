@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef WEB_SERVER_HTTP_SERVER_H
+#define WEB_SERVER_HTTP_SERVER_H
+
 #include "BaseView.h"
 #include "ServerMacros.h"
 #include <string>
@@ -35,3 +39,5 @@ private:
 		static std::string getIP(SOCK socket);
 	};
 };
+
+#endif

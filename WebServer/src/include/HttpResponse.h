@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef WEB_SERVER_HTTP_RESPONSE_H
+#define WEB_SERVER_HTTP_RESPONSE_H
+
 #include <string>
 
 class Response
@@ -13,3 +17,5 @@ public:
 private:
 	static std::string errorPage(const size_t code, const std::string msg);
 };
+
+#endif

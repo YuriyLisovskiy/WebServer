@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef WEBSERVER_BASEVIEW_H
-#define WEBSERVER_BASEVIEW_H
+#ifndef WEB_SERVER_BASE_VIEW_H
+#define WEB_SERVER_BASE_VIEW_H
 
 #include "HttpRequest.h"
 #include <string>
@@ -24,4 +24,4 @@ public:
 };
 
 
-#endif //WEBSERVER_BASEVIEW_H
+#endif

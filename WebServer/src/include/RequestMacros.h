@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef WEB_SERVER_REQUEST_MACROS_H
+#define WEB_SERVER_REQUEST_MACROS_H
+
 enum REQUEST_METHOD
 {
 	GET,
@@ -18,3 +21,5 @@ enum CONTENT_TYPE
 
 #define JSON_TYPE "application/json"
 #define X_WWW_FORM_URLENCODED_TYPE "application/x-www-form-urlencoded"
+
+#endif

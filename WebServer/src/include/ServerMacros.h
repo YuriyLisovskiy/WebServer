@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef WEB_SERVER_SERVER_MACROS_H
+#define WEB_SERVER_SERVER_MACROS_H
+
 #include "CommonMacros.h"
 
 #define SERVER_IP "127.0.0.1"	// server ip (localhost)
@@ -69,5 +73,7 @@ std::string getRootDir();
 #define SOCK_RECEIVE SHUT_RDWR
 #define WSA_LAST_ERR '\n'
 #define WSA_STARTUP /**/
+
+#endif
 
 #endif

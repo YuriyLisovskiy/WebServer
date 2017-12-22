@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef WEB_SERVER_COMMON_MACROS_H
+#define WEB_SERVER_COMMON_MACROS_H
+
 #include <ctime>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -25,5 +28,7 @@
 	strftime(buf, sizeof(buf), "[%d/%b/%Y %r]", &tstruct);		\
 	(stream) << buf;											\
 }
+
+#endif
 
 #endif

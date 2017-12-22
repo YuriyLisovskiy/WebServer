@@ -100,6 +100,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 			std::thread newClient(&HttpServer::serveClient, this, client, this->portNumber++, std::ref(logFile));
 			newClient.detach();
 			this->clientId++;
+			this->clientNum++;
 		}
 		else
 		{
@@ -110,9 +111,9 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 
 void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 {
-	lockPrint.lock();
-	logfile << Parser::getClientData(client, port, this->clientId);
-	lockPrint.unlock();
+//	lockPrint.lock();
+//	logfile << Parser::getClientData(client, port, this->clientId);
+//	lockPrint.unlock();
 	clock_t start, finish;
 	start = clock();
 	this->processRequest(client);
@@ -122,7 +123,7 @@ void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 	{
 		this->lockPrint.lock();
 		DATE_TIME_NOW(logfile);
-		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n";
+		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 		this->lockPrint.unlock();
 	}
 }

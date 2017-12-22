@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef WEB_SERVER_HTTP_REQUEST_H
+#define WEB_SERVER_HTTP_REQUEST_H
+
 #include "RequestMacros.h"
 #include <string>
 #include <map>
@@ -49,3 +53,5 @@ public:
 		static void percentDecode(std::string& str);
 	};
 };
+
+#endif
