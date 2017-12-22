@@ -5,7 +5,7 @@
 
 #include "CommonMacros.h"
 
-#define SERVER_IP "127.0.0.1"	// server ip (localhost)
+#define SERVER_IP "0.0.0.0"	// server ip (localhost)
 #define START_PORT 8000			// port for starting the server
 #define MAX_SERVED 1000		    // max number of clinets per port.
 

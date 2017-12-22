@@ -23,5 +23,5 @@ add_executable(WebServer
 		WebServer/src/utils/Helper.cpp
 		WebServer/src/view/BaseView.cpp
 		WebServer/src/include/BaseView.h
-		WebServer/test/helpers/Helpers.cpp
-		WebServer/test/helpers/Helpers.h)
+		WebServer/src/include/SimpleDB.h
+		WebServer/src/utils/SimpleDB.cpp)

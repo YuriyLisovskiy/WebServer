@@ -3,6 +3,8 @@
 #include "../src/include/HttpResponse.h"
 #include "../src/include/HttpServer.h"
 
+static SimpleDB db(BASE_DIR + "test/test.db");
+
 class TestView : public BaseView
 {
 public:
@@ -18,12 +20,12 @@ public:
 
 void TEST()
 {
-	HttpServer server;
+	HttpServer server(db);
 	server.setView(new TestView());
 	server.run();
 }
 
-#include "helpers/Helpers.h"
+#include "../src/include/SimpleDB.h"
 #include <iostream>
 
 void TEST_DB()

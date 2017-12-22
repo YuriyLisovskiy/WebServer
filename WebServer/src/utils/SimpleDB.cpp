@@ -1,4 +1,4 @@
-#include "Helpers.h"
+#include "../include/SimpleDB.h"
 #include <fstream>
 #include <iostream>
 
@@ -16,6 +16,10 @@ SimpleDB::SimpleDB(const std::string& db)
 		fileRead.close();
 	}
 }
+void SimpleDB::setDB(const std::string& db)
+{
+	this->db = db;
+}
 void SimpleDB::write(std::pair<std::string, std::string> data, bool unique)
 {
 	std::ifstream fileRead(this->db);
@@ -30,20 +34,20 @@ void SimpleDB::write(std::pair<std::string, std::string> data, bool unique)
 			size_t posToInsert = dbData.find('}', pos + data.first.size());
 			if (!unique)
 			{
-				dbData.insert(posToInsert, data.second + "\n");
+				dbData.insert(posToInsert, data.second + "\r\n");
 			}
 			else
 			{
 				std::string search(dbData.begin() + pos + data.first.size() + 1, dbData.begin() + posToInsert);
 				if (search.find(data.second) == std::string::npos)
 				{
-					dbData.insert(posToInsert, data.second + "\n");
+					dbData.insert(posToInsert, data.second + "\r\n");
 				}
 			}
 		}
 		else
 		{
-			dbData.append(data.first + "{\n" + data.second + "\n}");
+			dbData.append(data.first + "{\n" + data.second + "\r\n}\n");
 		}
 	}
 	else
@@ -79,12 +83,12 @@ std::vector<std::string> SimpleDB::read(std::string keyword)
 			size_t posEnd = dbData.find('}', pos + keyword.size());
 			std::string dataToParse(dbData.begin() + pos + keyword.size() + 1, dbData.begin() + posEnd);
 			pos = 0;
-			posEnd = dataToParse.find('\n');
+			posEnd = dataToParse.find("\r\n");
 			while(posEnd != std::string::npos)
 			{
 				list.emplace_back(std::string(dataToParse.begin() + pos, dataToParse.begin() + posEnd));
 				pos = posEnd + 1;
-				posEnd = dataToParse.find('\n', pos);
+				posEnd = dataToParse.find("\r\n", pos);
 			}
 		}
 		else

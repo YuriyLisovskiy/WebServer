@@ -2,13 +2,15 @@
 #include "../include/HttpResponse.h"
 #include <thread>
 #include <iostream>
+#include <sstream>
 
-HttpServer::HttpServer()
+HttpServer::HttpServer(const SimpleDB& db)
 {
 	this->clientId = 0;
 	this->clientNum = 0;
 	this->portNumber = START_PORT;
 	this->setView();
+	this->db = db;
 }
 
 void HttpServer::setView(BaseView* view)
@@ -111,9 +113,10 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 
 void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 {
-//	lockPrint.lock();
+	lockPrint.lock();
 //	logfile << Parser::getClientData(client, port, this->clientId);
-//	lockPrint.unlock();
+	this->db.write({"clients", Parser::getIP(client)}, true);
+	lockPrint.unlock();
 	clock_t start, finish;
 	start = clock();
 	this->processRequest(client);
@@ -122,6 +125,9 @@ void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 	if (logfile.is_open())
 	{
 		this->lockPrint.lock();
+		std::stringstream ss;
+		DATE_TIME_NOW(ss);
+		this->db.write({"statistic", ss.str() + "\nRequest took: " + std::to_string(servingTime) + " seconds."});
 		DATE_TIME_NOW(logfile);
 		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 		this->lockPrint.unlock();
