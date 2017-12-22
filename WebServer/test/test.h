@@ -15,19 +15,24 @@ public:
 	};
 	std::string Get(Request& request) final
 	{
-		std::vector<std::string> data = db.read("statistic");
+		std::vector<std::string> dates = db.read("statistic_date");
+		std::vector<std::string> speeds = db.read("statistic_speed");
 		std::string statistic("");
-		if (!data.empty())
+		if (!dates.empty() && !speeds.empty())
 		{
-			for (std::vector<std::string>::iterator it = data.begin(); it < data.end() - 1; it++)
+			std::vector<std::string>::iterator itDates = dates.begin(), endDates = dates.end() - 1;
+			std::vector<std::string>::iterator itSpeeds = speeds.begin(), endSpeeds = speeds.end() - 1;
+			while (itDates != endDates && itSpeeds != endSpeeds)
 			{
-				statistic += "<tr><td>\n" + *it + "\n</td>\n</tr>\n";
+				statistic += "<tr><td>\n" + *itDates + "\n</td>\n";
+				statistic += "<td>\n" + *itSpeeds + "\n</td>\n</tr>\n";
+				itDates++;
+				itSpeeds++;
 			}
-			statistic += "<tr><td><h3>Last request:</h3></td></tr>\n";
-			statistic += "<tr><td>" + data.back() + "\n</td>\n</tr>\n";
 		}
 		std::map<std::string, std::string> context = {
-			{"statistic", statistic }
+			{"statistic", statistic },
+			{"last_request", "<tr><td>\n" + dates.back() + "\n</td>\n<td>\n" + speeds.back() + "\n</td>\n</tr>\n" }
 		};
 		return Response::render(this->dir + "test.html", context);
 	}
@@ -39,7 +44,7 @@ public:
 
 void TEST()
 {
-	HttpServer server(db);
+	HttpServer server(&db);
 	server.setView(new TestView());
 	server.run();
 }

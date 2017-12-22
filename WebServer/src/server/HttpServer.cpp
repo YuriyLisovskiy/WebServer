@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-HttpServer::HttpServer(const SimpleDB& db)
+HttpServer::HttpServer(SimpleDB* db)
 {
 	this->clientId = 0;
 	this->clientNum = 0;
@@ -113,10 +113,12 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 
 void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 {
-	lockPrint.lock();
-//	logfile << Parser::getClientData(client, port, this->clientId);
-	this->db.write({"clients", Parser::getIP(client)}, true);
-	lockPrint.unlock();
+	if (this->db)
+	{
+		lockPrint.lock();
+		this->db->write({ "clients", Parser::getIP(client) }, true);
+		lockPrint.unlock();
+	}
 	clock_t start, finish;
 	start = clock();
 	this->processRequest(client);
@@ -125,15 +127,18 @@ void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 	if (logfile.is_open())
 	{
 		this->lockPrint.lock();
-		std::stringstream ss;
-		DATE_TIME_NOW(ss);
-		this->db.write({"statistic", ss.str() + "\n</td>\n<td>\n" + std::to_string(servingTime) + " second(s)"});
 		logfile << '[';
 		DATE_TIME_NOW(logfile);
 		logfile << ']';
 		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 		this->lockPrint.unlock();
 	}
+	this->lockPrint.lock();
+	std::stringstream ss;
+	DATE_TIME_NOW(ss);
+	this->db->write({ "statistic_date", ss.str() });
+	this->db->write({ "statistic_speed", std::to_string(servingTime) + " second(s)"});
+	this->lockPrint.unlock();
 }
 
 void HttpServer::processRequest(SOCK client)

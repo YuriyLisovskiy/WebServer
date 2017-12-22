@@ -14,7 +14,7 @@
 class HttpServer
 {
 public:
-	explicit HttpServer(const SimpleDB& db);
+	explicit HttpServer(SimpleDB* db = nullptr);
 	void run();
 	void setView(BaseView* view = new BaseView());
 	void setViews(std::vector<BaseView*> views);
@@ -25,7 +25,7 @@ private:
 	int portNumber;
 	int clientNum;
 	std::vector<BaseView*> views;
-	SimpleDB db;
+	SimpleDB* db;
 
 	void startThread(const int port, std::ofstream& logFile);
 	void serveClient(SOCK client, int port, std::ofstream& logfile);
