@@ -33,12 +33,12 @@ public:
 	RequestData GET;
 	RequestPost POST;
 	RequestData COOKIE;
-	Request(const std::string request, const std::string method, const std::string url);
+	Request(const std::string request, const std::string method, const std::string url, const std::string client);
 
 	class Parser
 	{
 	public:
-		static Request parseRequestData(char* toParse, std::mutex& lock);
+		static Request parseRequestData(char* toParse, std::mutex& lock, const std::string client);
 		static REQUEST_METHOD getRequestMethod(const std::string method);
 		static std::string parseUrl(const std::string url, std::map<std::string, std::string>& container);
 		static std::string parseVal(const std::string value);

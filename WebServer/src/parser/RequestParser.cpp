@@ -4,7 +4,7 @@
 #include <regex>
 #include <iostream>
 
-Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock)
+Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const std::string client)
 {
 	std::string firstLine("");
 	while (*toParse != '\r')
@@ -31,7 +31,7 @@ Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock)
 	}
 	std::string body(toParse);
 	body = std::regex_replace(body, std::regex("\\r+"), "");
-	return Request(body, method, url);
+	return Request(body, method, url, client);
 }
 
 REQUEST_METHOD Request::Parser::getRequestMethod(const std::string method)

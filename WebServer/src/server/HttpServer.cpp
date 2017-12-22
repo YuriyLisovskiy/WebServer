@@ -158,7 +158,7 @@ void HttpServer::processRequest(SOCK client)
 	} while (recvMsgSize >= MAX_BUFF_SIZE);
 	try
 	{
-		Request request(Request::Parser::parseRequestData((char*)data.c_str(), this->lockPrint));
+		Request request(Request::Parser::parseRequestData((char*)data.c_str(), this->lockPrint, HttpServer::Parser::getIP(client)));
 		this->sendResponse(request, client);
 	}
 	catch (...)

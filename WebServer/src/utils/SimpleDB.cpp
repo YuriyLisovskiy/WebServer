@@ -102,3 +102,47 @@ std::vector<std::string> SimpleDB::read(std::string keyword)
 	}
 	return list;
 }
+void SimpleDB::remove(std::pair<std::string, std::string> data)
+{
+	std::ifstream fileRead(this->db);
+	std::string dbData("");
+	if (fileRead.is_open())
+	{
+		dbData.assign((std::istreambuf_iterator<char>(fileRead)), std::istreambuf_iterator<char>());
+		fileRead.close();
+		size_t pos = dbData.find(data.first);
+		if (pos != std::string::npos)
+		{
+			pos += data.first.size() + 1;
+			size_t posToDel = dbData.find('}', pos);
+			std::string search(dbData.begin() + pos, dbData.begin() + posToDel);
+			posToDel = search.find(data.second);
+			if (posToDel != std::string::npos)
+			{
+				posToDel += pos;
+				dbData.erase(dbData.begin() + posToDel, dbData.begin() + posToDel + data.second.size() + 2);
+			}
+			else
+			{
+				std::cerr << "Error occurred in 'SimpleDB::write()': data '" << data.second << "' does not exist.\n";
+			}
+		}
+	}
+	else
+	{
+		std::cerr << "Error occurred in 'SimpleDB::write()' while reading db: cannot open '" << db << "' for reading.\n";
+	}
+	if (!dbData.empty())
+	{
+		std::ofstream fileWrite(this->db);
+		if (fileWrite.is_open())
+		{
+			fileWrite << dbData;
+			fileWrite.close();
+		}
+		else
+		{
+			std::cerr << "Error occurred in 'SimpleDB::write()' while writing to db: cannot open '" << db << "' for writing.\n";
+		}
+	}
+}

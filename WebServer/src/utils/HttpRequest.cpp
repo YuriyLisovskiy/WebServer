@@ -1,9 +1,10 @@
 #include "../include/HttpRequest.h"
 
-Request::Request(const std::string request, const std::string method, const std::string url)
+Request::Request(const std::string request, const std::string method, const std::string url, const std::string client)
 {
 	std::string headers("");
 	this->DATA.dict["method"] = method;
+	this->DATA.dict["client"] = client;
 	Request::Parser::parseHeaders(Request::Parser::getHeaders(request), this->HEADERS.dict, this->COOKIE.dict);
 	if (method == "GET")
 	{

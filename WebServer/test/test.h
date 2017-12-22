@@ -2,6 +2,7 @@
 #include "../src/include/BaseView.h"
 #include "../src/include/HttpResponse.h"
 #include "../src/include/HttpServer.h"
+#include <iostream>
 
 static SimpleDB db(BASE_DIR + "test/test.db");
 
@@ -14,6 +15,21 @@ public:
 	};
 	std::string Get(Request& request) final
 	{
+		std::vector<std::string> data = db.read("statistic");
+		std::string statistic("");
+		for (std::vector<std::string>::iterator it = data.begin(); it < data.end() - 1; it++)
+		{
+			statistic += "<p>" + *it + "</p>\n";
+		}
+		statistic += "<h3>Last request:</h3>\n";
+		statistic += "<p>" + data.back() + "</p>";
+		std::map<std::string, std::string> context = {
+			{"statistic", statistic }
+		};
+		return Response::render(this->dir + "test.html", context);
+	}
+	std::string Post(Request& request) final
+	{
 		return Response::HttpResponse(this->dir + "test.html");
 	}
 };
@@ -25,19 +41,17 @@ void TEST()
 	server.run();
 }
 
-#include "../src/include/SimpleDB.h"
-#include <iostream>
-
 void TEST_DB()
 {
-	SimpleDB db(BASE_DIR + "test/test.db");
-	db.write({"table_1", "some_data_1"}, true);
-	db.write({"table_2", "some_data_2"}, true);
-	db.write({"table_1", "some_data_3"}, true);
-	db.write({"table_2", "some_data_4"}, true);
-	db.write({"table_2", "some_data_4"}, true);
+	SimpleDB testDB(BASE_DIR + "test/test.db");
+	testDB.write({"table_1", "some_data_1"}, true);
+//	testDB.write({"table_2", "some_data_2"}, true);
+	testDB.write({"table_1", "some_data_3"}, true);
+//	testDB.write({"table_2", "some_data_4"}, true);
+//	testDB.write({"table_2", "some_data_4"}, true);
 
-	std::vector<std::string> data = db.read("table_1");
+	std::vector<std::string> data = testDB.read("table_1");
+	testDB.remove({ "table_1", "some_data_1" });
 	std::cout << "First table:\n";
 	for (const auto& val : data)
 	{
@@ -45,11 +59,10 @@ void TEST_DB()
 	}
 	std::cout << "\n\n";
 	data.clear();
-	data = db.read("table_2");
-	std::cout << "Second table:\n";
+	data = testDB.read("table_1");
+	std::cout << "First table:\n";
 	for (const auto& val : data)
 	{
 		std::cout << val << "\n";
 	}
-	std::cout << "\n\n";
 }

@@ -2,6 +2,7 @@
 #include "../include/ServerMacros.h"
 #include <fstream>
 #include <iostream>
+#include <regex>
 
 std::string Response::HttpResponse(const std::string filePath, const std::string status, const size_t statusCode)
 {
@@ -53,4 +54,35 @@ std::string Response::InternalServerError()
 std::string Response::BadRequest()
 {
 	return Response::errorPage(400, "Bad Request");
+}
+std::string Response::render(const std::string filePath, std::map<std::string, std::string> context, const std::string status, const size_t statusCode)
+{
+	std::ifstream file(filePath);
+	std::string html("");
+	if (file.is_open())
+	{
+		html.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		file.close();
+	}
+	html = Parser::parseTemplate(html, context);
+	std::string response("HTTP/1.1 " + std::to_string(statusCode) + " " + status + " \r\n");
+	response += "Content-Type: text/html; charset=utf-8 \r\n";
+	response += "Content-Length: " + std::to_string(html.length()) + " \r\n\n";
+	response += html;
+	std::cout << statusCode << '\n';
+	return response;
+}
+std::string Response::Parser::parseTemplate(const std::string html, std::map<std::string, std::string> context)
+{
+	std::string result(""), copy(html);
+	std::regex exp(R"(\{\s*\{\s*(\w+)\s*\}\s*\})");
+	std::smatch data;
+	while (std::regex_search(copy, data, exp))
+	{
+		result += data.prefix();
+		result += context[data[1].str()];
+		copy = data.suffix();
+	}
+	result += std::string(html.begin() + html.find_last_of('}') + 1, html.end());
+	return result;
 }
