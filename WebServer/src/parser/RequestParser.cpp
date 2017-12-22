@@ -14,9 +14,9 @@ Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const
 	}
 	toParse += 2;
 	lock.lock();
-	std::cout << '\n';
+	std::cout << "\n[";
 	DATE_TIME_NOW(std::cout);
-	std::cout << " \"" << firstLine << "\" ";
+	std::cout << "] \"" << firstLine << "\" ";
 	lock.unlock();
 	std::string url(""), method("");
 	std::smatch data;

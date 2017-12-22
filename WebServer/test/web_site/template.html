@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Index</title>
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Home_font_awesome.svg/200px-Home_font_awesome.svg.png" type="image/png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: center;
+            vertical-align: middle;
+            padding: 8px;
+        }
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+        .back-to-top {
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: none;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $('.content').scroll(function () {
+                if ($(this).scrollTop() > 50) {
+                    $('#back-to-top').fadeIn();
+                } else {
+                    $('#back-to-top').fadeOut();
+                }
+            });
+            $('#back-to-top').click(function () {
+                $('#back-to-top').tooltip('hide');
+                $('.content').animate({
+                    scrollTop: 0
+                }, 800);
+                return false;
+            });
+            $('#back-to-top').tooltip('show');
+        });
+    </script>
+</head>
+<body>
+    <div style="text-align: center;">
+        <h2>Server is working fine!</h2>
+        <div><h3><span class="glyphicon glyphicon-star" style="font-size: 24px;"></span> {{ stars }}</h3></div>
+        <form method="post">
+           <button type="submit" class="btn btn-default" style="width: 100px; height: 40px; font-size: 18px; font-weight: bold;">{{ button_text }}</button>
+        </form>
+        <div>
+            <h2>Statistic:</h2>
+            <div style="overflow-y: scroll; height: 500px; width: 50%; margin-left: auto; margin-right: auto;" class="content">
+                <table class="table">
+                    <thead class="thead">
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Request took</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ statistic }}
+                    </tbody>
+                </table>
+                <h3>Last request:</h3>
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">
+                                {{ last_request }}
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+                <a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top" role="button" title="Click to return on the top page" data-toggle="tooltip" data-placement="left">
+                    <span class="glyphicon glyphicon-chevron-up"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

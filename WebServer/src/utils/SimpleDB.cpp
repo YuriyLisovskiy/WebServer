@@ -1,6 +1,7 @@
 #include "../include/SimpleDB.h"
 #include <fstream>
 #include <iostream>
+#include <regex>
 
 SimpleDB::SimpleDB(const std::string& db)
 {
@@ -28,21 +29,28 @@ void SimpleDB::write(std::pair<std::string, std::string> data, bool unique)
 	{
 		dbData.assign((std::istreambuf_iterator<char>(fileRead)), std::istreambuf_iterator<char>());
 		fileRead.close();
-		size_t pos = dbData.find(data.first);
+		size_t pos = dbData.find(data.first + "{\n");
 		if (pos != std::string::npos)
 		{
-			size_t posToInsert = dbData.find('}', pos + data.first.size());
+			pos += data.first.size() + 2;
+			size_t posToInsert = dbData.find('}', pos);
 			if (!unique)
 			{
 				dbData.insert(posToInsert, data.second + "\r\n");
 			}
 			else
 			{
-				std::string search(dbData.begin() + pos + data.first.size() + 1, dbData.begin() + posToInsert);
-				if (search.find(data.second) == std::string::npos)
+				std::string search(dbData.begin() + pos, dbData.begin() + posToInsert);
+				posToInsert = search.find(data.second);
+				if (posToInsert != std::string::npos)
 				{
-					dbData.insert(posToInsert, data.second + "\r\n");
+					posToInsert = data.second.size() + 2;
 				}
+				else
+				{
+					posToInsert = 0;
+				}
+				dbData.insert(pos + posToInsert, data.second + "\r\n");
 			}
 		}
 		else
@@ -77,7 +85,7 @@ std::vector<std::string> SimpleDB::read(std::string keyword)
 		std::string dbData;
 		dbData.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 		file.close();
-		size_t pos = dbData.find(keyword);
+		size_t pos = dbData.find(keyword + "{");
 		if (pos != std::string::npos)
 		{
 			size_t posEnd = dbData.find('}', pos + keyword.size());
@@ -93,7 +101,7 @@ std::vector<std::string> SimpleDB::read(std::string keyword)
 		}
 		else
 		{
-			std::cerr << "Error occurred in 'SimpleDB::read()' while searching for db data: keyword '" << keyword << "' does not exist.\n";
+		//	std::cerr << "Error occurred in 'SimpleDB::read()' while searching for db data: keyword '" << keyword << "' does not exist.\n";
 		}
 	}
 	else
@@ -110,10 +118,10 @@ void SimpleDB::remove(std::pair<std::string, std::string> data)
 	{
 		dbData.assign((std::istreambuf_iterator<char>(fileRead)), std::istreambuf_iterator<char>());
 		fileRead.close();
-		size_t pos = dbData.find(data.first);
+		size_t pos = dbData.find(data.first + "{");
 		if (pos != std::string::npos)
 		{
-			pos += data.first.size() + 1;
+			pos += data.first.size() + 2;
 			size_t posToDel = dbData.find('}', pos);
 			std::string search(dbData.begin() + pos, dbData.begin() + posToDel);
 			posToDel = search.find(data.second);
@@ -140,5 +148,32 @@ void SimpleDB::remove(std::pair<std::string, std::string> data)
 		{
 			std::cerr << "Error occurred in 'SimpleDB::write()' while writing to db: cannot open '" << db << "' for writing.\n";
 		}
+	}
+}
+bool SimpleDB::exists(std::pair<std::string, std::string> data)
+{
+	std::ifstream fileRead(this->db);
+	std::string dbData("");
+	if (fileRead.is_open())
+	{
+		dbData.assign((std::istreambuf_iterator<char>(fileRead)), std::istreambuf_iterator<char>());
+		fileRead.close();
+		size_t pos = dbData.find(data.first + "{");
+		if (pos != std::string::npos)
+		{
+			pos += data.first.size() + 2;
+			size_t posToFind = dbData.find('}', pos);
+			std::string search(dbData.begin() + pos, dbData.begin() + posToFind);
+			return std::regex_search(search, std::smatch(), std::regex(data.second));
+		}
+	}
+	return false;
+}
+void SimpleDB::replace(std::pair<std::string, std::string> oldData, std::string newValue)
+{
+	if (this->exists(oldData))
+	{
+		this->remove(oldData);
+		this->write({ oldData.first, newValue });
 	}
 }

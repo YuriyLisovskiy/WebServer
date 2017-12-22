@@ -74,15 +74,19 @@ std::string Response::render(const std::string filePath, std::map<std::string, s
 }
 std::string Response::Parser::parseTemplate(const std::string html, std::map<std::string, std::string> context)
 {
-	std::string result(""), copy(html);
-	std::regex exp(R"(\{\s*\{\s*(\w+)\s*\}\s*\})");
-	std::smatch data;
-	while (std::regex_search(copy, data, exp))
+	std::string result("");
+	if (!html.empty())
 	{
-		result += data.prefix();
-		result += context[data[1].str()];
-		copy = data.suffix();
+		std::string copy(html);
+		std::regex exp(R"(\{\s*\{\s*(\w+)\s*\}\s*\})");
+		std::smatch data;
+		while (std::regex_search(copy, data, exp))
+		{
+			result += data.prefix();
+			result += context[data[1].str()];
+			copy = data.suffix();
+		}
+		result += std::string(html.begin() + html.find_last_of("}") + 2, html.end());
 	}
-	result += std::string(html.begin() + html.find_last_of('}') + 1, html.end());
 	return result;
 }

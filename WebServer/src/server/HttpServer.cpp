@@ -37,10 +37,10 @@ void HttpServer::setViews(std::vector<BaseView*> views)
 void HttpServer::run()
 {
 	std::ofstream logFile;
-	logFile.open(BASE_DIR + "test/logFile.txt", std::ios::app | std::ios::out);
+	logFile.open(BASE_DIR + "test/web_site/log.txt", std::ios::app | std::ios::out);
 	if (!logFile.is_open())
 	{
-		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'logFile.txt' is not opened.\n";
+		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'log.txt' is not opened.\n";
 	}
 	WSA_STARTUP;
 	std::thread newThread(&HttpServer::startThread, this, START_PORT, ref(logFile));
