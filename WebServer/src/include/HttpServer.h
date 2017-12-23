@@ -11,6 +11,8 @@
 #include <mutex>
 #include <vector>
 
+__HTTP_BEGIN
+
 class HttpServer
 {
 public:
@@ -41,5 +43,7 @@ private:
 		static std::string getIP(SOCK socket);
 	};
 };
+
+__HTTP_END
 
 #endif

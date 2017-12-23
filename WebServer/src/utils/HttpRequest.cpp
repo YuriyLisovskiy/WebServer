@@ -5,16 +5,16 @@ Request::Request(const std::string request, const std::string method, const std:
 	std::string headers("");
 	this->DATA.dict["method"] = method;
 	this->DATA.dict["client"] = client;
-	Request::Parser::parseHeaders(Request::Parser::getHeaders(request), this->HEADERS.dict, this->COOKIE.dict);
+	Parser::parseHeaders(Parser::getHeaders(request), this->HEADERS.dict, this->COOKIE.dict);
 	if (method == "GET")
 	{
-		this->DATA.dict["url"] = Request::Parser::parseUrl(url, this->GET.dict);
+		this->DATA.dict["url"] = Parser::parseUrl(url, this->GET.dict);
 	}
 	else
 	{
 		this->DATA.dict["url"] = url;
-		this->POST.body = Request::Parser::getBody(request);
-		Request::Parser::parseBody(*this);
+		this->POST.body = Parser::getBody(request);
+		Parser::parseBody(*this);
 	}
 };
 

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-HttpServer::HttpServer(SimpleDB* db)
+HTTP::HttpServer::HttpServer(SimpleDB* db)
 {
 	this->clientId = 0;
 	this->clientNum = 0;
@@ -13,7 +13,7 @@ HttpServer::HttpServer(SimpleDB* db)
 	this->db = db;
 }
 
-void HttpServer::setView(BaseView* view)
+void HTTP::HttpServer::setView(BaseView* view)
 {
 	if (view)
 	{
@@ -22,7 +22,7 @@ void HttpServer::setView(BaseView* view)
 	}
 }
 
-void HttpServer::setViews(std::vector<BaseView*> views)
+void HTTP::HttpServer::setViews(std::vector<BaseView*> views)
 {
 	this->views.clear();
 	for (const auto& view : views)
@@ -34,7 +34,7 @@ void HttpServer::setViews(std::vector<BaseView*> views)
 	}
 }
 
-void HttpServer::run()
+void HTTP::HttpServer::run()
 {
 	std::ofstream logFile;
 	logFile.open(BASE_DIR + "test/web_site/log.txt", std::ios::app | std::ios::out);
@@ -52,7 +52,7 @@ void HttpServer::run()
 	WSA_CLEANUP;
 }
 
-void HttpServer::startThread(const int port, std::ofstream& logFile)
+void HTTP::HttpServer::startThread(const int port, std::ofstream& logFile)
 {
 	SOCK listenSock;
 	SOCK client;
@@ -111,7 +111,7 @@ void HttpServer::startThread(const int port, std::ofstream& logFile)
 	}
 }
 
-void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
+void HTTP::HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 {
 	if (this->db)
 	{
@@ -141,7 +141,7 @@ void HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
 	this->lockPrint.unlock();
 }
 
-void HttpServer::processRequest(SOCK client)
+void HTTP::HttpServer::processRequest(SOCK client)
 {
 	char buffer[MAX_BUFF_SIZE];
 	int recvMsgSize, bufError;
@@ -165,7 +165,7 @@ void HttpServer::processRequest(SOCK client)
 	} while (recvMsgSize >= MAX_BUFF_SIZE);
 	try
 	{
-		Request request(Request::Parser::parseRequestData((char*)data.c_str(), this->lockPrint, HttpServer::Parser::getIP(client)));
+		Request request(Request::Parser::parseRequestData((char*)data.c_str(), this->lockPrint, Parser::getIP(client)));
 		this->sendResponse(request, client);
 	}
 	catch (...)
@@ -201,7 +201,7 @@ void HttpServer::processRequest(SOCK client)
 	}
 }
 
-void HttpServer::sendResponse(Request& request, SOCK clientInstance)
+void HTTP::HttpServer::sendResponse(Request& request, SOCK clientInstance)
 {
 	std::string html;
 	BaseView* view = Parser::urlIsAvailable(this->views, request.DATA.get("url"));
@@ -233,7 +233,7 @@ void HttpServer::sendResponse(Request& request, SOCK clientInstance)
 	this->sendFile(html, clientInstance);
 }
 
-void HttpServer::sendFile(const std::string httpResponse, SOCK client)
+void HTTP::HttpServer::sendFile(const std::string httpResponse, SOCK client)
 {
 	if (send(client, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCK_ERROR)
 	{

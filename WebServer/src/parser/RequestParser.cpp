@@ -217,10 +217,10 @@ std::string Request::Parser::getHeaders(const std::string request)
 
 void Request::Parser::parseBody(Request& request)
 {
-	switch (Request::Parser::getContentType(request.HEADERS.get("content-type")))
+	switch (Parser::getContentType(request.HEADERS.get("content-type")))
 	{
 	case CONTENT_TYPE::X_WWW_FORM_URLENCODED:
-		Request::Parser::parseFormUrlEncoded(request);
+		Parser::parseFormUrlEncoded(request);
 		break;
 	case CONTENT_TYPE::JSON:
 		request.POST.body = request.HEADERS.get("content-type") + '\n' + request.POST.body;
@@ -232,7 +232,7 @@ void Request::Parser::parseBody(Request& request)
 
 void Request::Parser::parseFormUrlEncoded(Request& request)
 {
-	Request::Parser::percentDecode(request.POST.body);
+	Parser::percentDecode(request.POST.body);
 	std::string form(request.POST.body);
 	size_t posBegin = 0, posEnd = form.find('&');
 	std::string line("");
@@ -346,7 +346,7 @@ void Request::Parser::percentDecode(std::string& str)
 	size_t pos = str.find('%');
 	while (pos != std::string::npos)
 	{
-		str.insert(str.begin() + pos, 1, Request::Parser::codeToSymbol(std::string(str.begin() + pos, str.begin() + pos + 3)));
+		str.insert(str.begin() + pos, 1, Parser::codeToSymbol(std::string(str.begin() + pos, str.begin() + pos + 3)));
 		str.erase(str.begin() + pos + 1, str.begin() + pos + 4);
 		pos = str.find('%');
 	}

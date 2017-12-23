@@ -17,12 +17,13 @@ public:
 	static std::string InternalServerError();
 	static std::string BadRequest();
 private:
-	static std::string errorPage(const size_t code, const std::string msg);
-
 	class Parser
 	{
 	public:
 		static std::string parseTemplate(const std::string html, std::map<std::string, std::string> context);
+		static std::string readFile(const std::string filePath);
+		static std::string errorPage(const size_t code, const std::string msg);
+		static std::string makeResponse(const std::string html, const std::string statusStr, const size_t statusCode);
 	};
 };
 

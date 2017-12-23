@@ -31,4 +31,7 @@
 
 #endif
 
+#define __HTTP_BEGIN namespace HTTP {
+#define __HTTP_END }
+
 #endif
