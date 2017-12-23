@@ -4,7 +4,7 @@
 #include <fstream>
 #include <regex>
 
-BaseView::BaseView(const std::string templateDir, const std::string staticDir)
+BaseView::BaseView(const std::string templateDir)
 {
 	this->url = "";
 	this->setTemplateDir(BASE_DIR + templateDir);

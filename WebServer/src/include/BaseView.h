@@ -14,7 +14,7 @@ protected:
 	std::string templateDir;
 
 public:
-	explicit BaseView(const std::string directory = "", const std::string staticDir = "");
+	explicit BaseView(const std::string directory = "");
 	virtual std::string Get(Request& request);
 	virtual std::string Post(Request& request);
 	virtual std::string Put(Request& request);
