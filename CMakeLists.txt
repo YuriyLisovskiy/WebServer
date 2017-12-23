@@ -24,4 +24,7 @@ add_executable(WebServer
 		WebServer/src/view/BaseView.cpp
 		WebServer/src/include/BaseView.h
 		WebServer/src/include/SimpleDB.h
-		WebServer/src/utils/SimpleDB.cpp)
+		WebServer/src/utils/SimpleDB.cpp
+		WebServer/src/parser/ResponseParser.cpp
+		WebServer/test/web_site/site.h
+		WebServer/test/web_site/start.cpp)

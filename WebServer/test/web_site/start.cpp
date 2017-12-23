@@ -2,9 +2,10 @@
 
 using namespace HTTP;
 
-void main()
+int main()
 {
 	HttpServer server(&db);
 	server.setView(new TestView());
 	server.run();
+	return 0;
 }

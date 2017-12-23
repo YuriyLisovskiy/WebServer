@@ -8,30 +8,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <style>
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 50%;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: center;
-            vertical-align: middle;
-            padding: 8px;
-        }
-        tr:nth-child(even) {
-            background-color: #dddddd;
-        }
-        .back-to-top {
-            cursor: pointer;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: none;
-        }
         .cl-effect-1 a::before,
         .cl-effect-1 a::after {
             display: inline-block;
@@ -73,6 +52,43 @@
                 return false;
             });
             $('#back-to-top').tooltip('show');
+			var ctx = document.getElementById("myChart").getContext('2d');
+			var myChart = new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: {{ chart_labels }},
+					datasets: [{
+						label: '# of Votes',
+						data: {{ chart_values }},
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.2)',
+							'rgba(54, 162, 235, 0.2)',
+							'rgba(255, 206, 86, 0.2)',
+							'rgba(75, 192, 192, 0.2)',
+							'rgba(153, 102, 255, 0.2)',
+							'rgba(255, 159, 64, 0.2)'
+						],
+						borderColor: [
+							'rgba(255,99,132,1)',
+							'rgba(54, 162, 235, 1)',
+							'rgba(255, 206, 86, 1)',
+							'rgba(75, 192, 192, 1)',
+							'rgba(153, 102, 255, 1)',
+							'rgba(255, 159, 64, 1)'
+						],
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						yAxes: [{
+							ticks: {
+								beginAtZero:true
+							}
+						}]
+					}
+				}
+			});
         });
     </script>
 </head>
@@ -88,31 +104,8 @@
         </form>
         <div>
             <h2>Statistic:</h2>
-            <div style="overflow-y: scroll; height: 500px; width: 50%; margin-left: auto; margin-right: auto;" class="content">
-                <table class="table">
-                    <thead class="thead">
-                        <tr>
-                            <th scope="col">Date</th>
-                            <th scope="col">Request took</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{ statistic }}
-                    </tbody>
-                </table>
-                <h3>Last request:</h3>
-                <table class="table">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">
-                                {{ last_request }}
-                            </th>
-                        </tr>
-                    </thead>
-                </table>
-                <a id="back-to-top" href="#" class="btn btn-primary btn-lg back-to-top" role="button" title="Click to return on the top page" data-toggle="tooltip" data-placement="left">
-                    <span class="glyphicon glyphicon-chevron-up"></span>
-                </a>
+            <div style="height: 500px; width: 80%; margin-left: auto; margin-right: auto;">
+	            <canvas id="myChart"></canvas>
             </div>
         </div>
     </div>

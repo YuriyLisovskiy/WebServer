@@ -16,20 +16,6 @@ public:
 	{
 		std::vector<std::string> dates = db.read("statistic_date");
 		std::vector<std::string> speeds = db.read("statistic_speed");
-		std::string statistic(""), lastRequest("");
-		if (!dates.empty() && !speeds.empty())
-		{
-			std::vector<std::string>::iterator itDates = dates.begin(), endDates = dates.end() - 1;
-			std::vector<std::string>::iterator itSpeeds = speeds.begin(), endSpeeds = speeds.end() - 1;
-			while (itDates != endDates && itSpeeds != endSpeeds)
-			{
-				statistic += "<tr><td>" + *itDates + "</td>\n";
-				statistic += "<td>" + *itSpeeds + "</td>\n</tr>\n";
-				itDates++;
-				itSpeeds++;
-			}
-			lastRequest = "<tr>\n<td>" + dates.back() + "</td>\n<td>" + speeds.back() + "</td>\n</tr>\n";
-		}
 		std::vector<std::string> likes = db.read("stars");
 		std::string starsNumber = "0";
 		if (!likes.empty())
@@ -41,11 +27,13 @@ public:
 		{
 			buttonText = "Unstar";
 		}
+		std::string chartLabels(this->makeArray(dates));
+		std::string chartValues(this->makeArray(speeds, false));
 		std::map<std::string, std::string> context = {
-			{ "statistic", statistic },
-			{ "last_request", lastRequest },
 			{ "stars", starsNumber },
-			{ "button_text", buttonText }
+			{ "button_text", buttonText },
+			{ "chart_values", chartValues },
+			{ "chart_labels", chartLabels }
 		};
 		return Response::render(this->templateDir + "template.html", context);
 	}
@@ -111,5 +99,21 @@ public:
 			{ "button_text", buttonText }
 		};
 		return Response::render(this->templateDir + "template.html", context, "Edited", 201);
+	}
+	std::string makeArray(std::vector<std::string> arr, bool isStrings = true)
+	{
+		char symbol = '\"';
+		if (!isStrings)
+		{
+			symbol = '\0';
+		}
+		std::string result("[");
+		auto itBegin = arr.begin(), itEnd = arr.end() - 1;
+		while (itBegin != itEnd)
+		{
+			result += symbol + *itBegin + "" + symbol + ", ";
+		}
+		result += symbol + arr.back() + symbol + ']';
+		return result;
 	}
 };

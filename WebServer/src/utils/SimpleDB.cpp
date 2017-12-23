@@ -60,7 +60,7 @@ void SimpleDB::write(std::pair<std::string, std::string> data, bool unique)
 	}
 	else
 	{
-		std::cerr << "Error occurred in 'SimpleDB::write()' while reading db: cannot open '" << db << "' for reading.\n";
+		std::cerr << "Error occurred in 'SimpleDB::write()' while reading db: cannot open '" << this->db << "' for reading.\n";
 	}
 	if (!dbData.empty())
 	{
@@ -72,7 +72,7 @@ void SimpleDB::write(std::pair<std::string, std::string> data, bool unique)
 		}
 		else
 		{
-			std::cerr << "Error occurred in 'SimpleDB::write()' while writing to db: cannot open '" << db << "' for writing.\n";
+			std::cerr << "Error occurred in 'SimpleDB::write()' while writing to db: cannot open '" << this->db << "' for writing.\n";
 		}
 	}
 }
@@ -94,7 +94,7 @@ std::vector<std::string> SimpleDB::read(std::string keyword)
 			posEnd = dataToParse.find("\r\n");
 			while(posEnd != std::string::npos)
 			{
-				list.emplace_back(std::string(dataToParse.begin() + pos, dataToParse.begin() + posEnd));
+				list.emplace_back(std::string(dataToParse.begin() + pos + 1, dataToParse.begin() + posEnd));
 				pos = posEnd + 1;
 				posEnd = dataToParse.find("\r\n", pos);
 			}
@@ -153,9 +153,9 @@ void SimpleDB::remove(std::pair<std::string, std::string> data)
 bool SimpleDB::exists(std::pair<std::string, std::string> data)
 {
 	std::ifstream fileRead(this->db);
-	std::string dbData("");
 	if (fileRead.is_open())
 	{
+		std::string dbData("");
 		dbData.assign((std::istreambuf_iterator<char>(fileRead)), std::istreambuf_iterator<char>());
 		fileRead.close();
 		size_t pos = dbData.find(data.first + "{");
@@ -164,7 +164,8 @@ bool SimpleDB::exists(std::pair<std::string, std::string> data)
 			pos += data.first.size() + 2;
 			size_t posToFind = dbData.find('}', pos);
 			std::string search(dbData.begin() + pos, dbData.begin() + posToFind);
-			return std::regex_search(search, std::smatch(), std::regex(data.second));
+			std::smatch matchData;
+			return std::regex_search(search, matchData, std::regex(data.second));
 		}
 	}
 	return false;

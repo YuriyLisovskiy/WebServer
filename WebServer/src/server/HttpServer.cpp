@@ -137,7 +137,7 @@ void HTTP::HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile
 	std::stringstream ss;
 	DATE_TIME_NOW(ss);
 	this->db->write({ "statistic_date", ss.str() });
-	this->db->write({ "statistic_speed", std::to_string(servingTime) + " second(s)"});
+	this->db->write({ "statistic_speed", std::to_string(servingTime) });
 	this->lockPrint.unlock();
 }
 
