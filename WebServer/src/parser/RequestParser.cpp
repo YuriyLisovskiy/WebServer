@@ -7,10 +7,17 @@
 Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const std::string client)
 {
 	std::string firstLine("");
-	while (*toParse != '\r')
+	try
 	{
-		firstLine += *toParse;
-		toParse++;
+		while (*toParse != '\r')
+		{
+			firstLine += *toParse;
+			toParse++;
+		}
+	}
+	catch (...)
+	{
+		throw "bad";
 	}
 	toParse += 2;
 	lock.lock();

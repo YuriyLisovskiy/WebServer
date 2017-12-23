@@ -178,3 +178,36 @@ void SimpleDB::replace(std::pair<std::string, std::string> oldData, std::string 
 		this->write({ oldData.first, newValue });
 	}
 }
+std::string SimpleDB::readUnique(std::string keyword)
+{
+	std::string result("");
+	std::ifstream file(this->db);
+	if (file.is_open())
+	{
+		std::string dbData;
+		dbData.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		file.close();
+		size_t pos = dbData.find(keyword + "{");
+		if (pos != std::string::npos)
+		{
+			pos += keyword.size();
+			size_t posEnd = dbData.find("}", pos + 1);
+			std::string search(dbData.begin() + pos + 1, dbData.begin() + posEnd);
+			posEnd = search.find("\r\n");
+			if (posEnd == std::string::npos)
+			{
+				posEnd = search.size();
+			}
+			result = std::regex_replace(std::string(search.begin() + 1, search.begin() + posEnd), std::regex("\\r|\\n"), "");
+		}
+		else
+		{
+			//	std::cerr << "Error occurred in 'SimpleDB::read()' while searching for db data: keyword '" << keyword << "' does not exist.\n";
+		}
+	}
+	else
+	{
+		std::cerr << "Error occurred in 'SimpleDB::read()' while reading db: cannot open '" << this->db << "' for reading.\n";
+	}
+	return result;
+}

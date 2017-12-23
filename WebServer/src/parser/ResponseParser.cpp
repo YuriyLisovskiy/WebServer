@@ -28,7 +28,7 @@ std::string Response::Parser::parseTemplate(const std::string html, std::map<std
 			result += context[data[1].str()];
 			copy = data.suffix();
 		}
-		result += std::string(html.begin() + html.find_last_of("}") + 2, html.end());
+		result += std::string(html.begin() + html.find_last_of("}") + 1, html.end());
 	}
 	return result;
 }

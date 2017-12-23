@@ -138,6 +138,16 @@ void HTTP::HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile
 	DATE_TIME_NOW(ss);
 	this->db->write({ "statistic_date", ss.str() });
 	this->db->write({ "statistic_speed", std::to_string(servingTime) });
+	std::string numStr(this->db->readUnique("requests_total"));
+	if (!numStr.empty())
+	{
+		int num = std::stoi(numStr);
+		this->db->replace({ "requests_total", std::to_string(num) }, std::to_string(num + 1));
+	}
+	else
+	{
+		this->db->write({ "requests_total", std::to_string(1) }, true);
+	}
 	this->lockPrint.unlock();
 }
 
