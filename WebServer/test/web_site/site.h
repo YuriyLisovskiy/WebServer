@@ -47,7 +47,7 @@ public:
 			{ "stars", starsNumber },
 			{ "button_text", buttonText }
 		};
-		return Response::render(this->dir + "template.html", context);
+		return Response::render(this->templateDir + "template.html", context);
 	}
 	std::string Post(Request& request) final
 	{
@@ -110,6 +110,6 @@ public:
 			{ "stars", std::to_string(starsNumber) },
 			{ "button_text", buttonText }
 		};
-		return Response::render(this->dir + "template.html", context, "Edited", 201);
+		return Response::render(this->templateDir + "template.html", context, "Edited", 201);
 	}
 };

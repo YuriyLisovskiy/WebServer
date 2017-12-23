@@ -1,7 +1,9 @@
 #include "../include/HttpRequest.h"
+#include <iostream>
 
 Request::Request(const std::string request, const std::string method, const std::string url, const std::string client)
 {
+	std::cout << "\n====================\n" << request << "\n====================\n";
 	std::string headers("");
 	this->DATA.dict["method"] = method;
 	this->DATA.dict["client"] = client;

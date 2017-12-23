@@ -1,15 +1,17 @@
 #include "../include/BaseView.h"
 #include "../include/HttpResponse.h"
 #include "../include/ServerMacros.h"
+#include <fstream>
+#include <regex>
 
-BaseView::BaseView(const std::string dir)
+BaseView::BaseView(const std::string templateDir, const std::string staticDir)
 {
 	this->url = "";
-	this->setCustomDir(BASE_DIR + dir);
+	this->setTemplateDir(BASE_DIR + templateDir);
 }
-void BaseView::setCustomDir(const std::string dir)
+void BaseView::setTemplateDir(const std::string dir)
 {
-	this->dir = dir;
+	this->templateDir = dir;
 }
 std::string BaseView::Get(Request& request)
 {

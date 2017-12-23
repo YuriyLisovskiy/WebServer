@@ -14,16 +14,6 @@ std::string Response::Parser::errorPage(const size_t code, const std::string msg
 	return Parser::makeResponse(html, msg, code);
 }
 
-std::string Response::Parser::makeResponse(const std::string html, const std::string statusStr, const size_t statusCode)
-{
-	std::string response("HTTP/1.1 " + std::to_string(statusCode) + " " + statusStr + " \r\n");
-	response += "Content-Type: text/html; charset=utf-8 \r\n";
-	response += "Content-Length: " + std::to_string(html.length()) + " \r\n\n";
-	response += html;
-	std::cout << statusCode << '\n';
-	return response;
-}
-
 std::string Response::Parser::parseTemplate(const std::string html, std::map<std::string, std::string> context)
 {
 	std::string result("");
@@ -53,4 +43,14 @@ std::string Response::Parser::readFile(const std::string filePath)
 		file.close();
 	}
 	return html;
+}
+
+std::string Response::Parser::makeResponse(const std::string html, const std::string statusStr, const size_t statusCode)
+{
+	std::string response("HTTP/1.1 " + std::to_string(statusCode) + " " + statusStr + " \r\n");
+	response += "Content-Type: text/html; charset=utf-8 \r\n";
+	response += "Content-Length: " + std::to_string(html.length()) + " \r\n\n";
+	response += html;
+	std::cout << statusCode << '\n';
+	return response;
 }
