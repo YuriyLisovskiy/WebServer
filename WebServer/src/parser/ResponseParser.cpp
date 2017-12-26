@@ -11,7 +11,7 @@ std::string Response::Parser::errorPage(const size_t code, const std::string msg
 		"type=\"image/png\"><title>" +
 		msg + "</title>\n</head>\n<body>\n<h1 style=\"text-align: center;\">" +
 		std::to_string(code) + " " + msg + "</h1>\n</body>\n</html>\n");
-	return Parser::makeResponse(html, msg, code);
+	return Parser::makeResponse(html, msg, code, "html");
 }
 
 std::string Response::Parser::parseTemplate(const std::string html, std::map<std::string, std::string> context)
@@ -45,12 +45,26 @@ std::string Response::Parser::readFile(const std::string filePath)
 	return html;
 }
 
-std::string Response::Parser::makeResponse(const std::string html, const std::string statusStr, const size_t statusCode)
+std::string Response::Parser::makeResponse(const std::string html, const std::string statusStr, const size_t statusCode, const std::string requestContent)
 {
 	std::string response("HTTP/1.1 " + std::to_string(statusCode) + " " + statusStr + " \r\n");
-	response += "Content-Type: text/html; charset=utf-8 \r\n";
+	response += "Content-Type: " + Parser::setContentType(requestContent) + "; charset=utf-8 \r\n";
 	response += "Content-Length: " + std::to_string(html.length()) + " \r\n\n";
 	response += html;
 	std::cout << statusCode << '\n';
 	return response;
+}
+
+std::string Response::Parser::setContentType(const std::string requestType)
+{
+	std::string res("text/");
+	if (requestType == "js")
+	{
+		res.append("javascript");
+	}
+	else
+	{
+		res.append(requestType);
+	}
+	return res;
 }

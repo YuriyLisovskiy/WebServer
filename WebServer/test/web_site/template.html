@@ -10,23 +10,10 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-    <style>
-        canvas {
-            -moz-user-select: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-        }
-    </style>
+    <script type="text/javascript" src="script.js"></script>
+    <link rel="stylesheet" href="styles.css">
     <script>
     $(document).ready(function () {
-        $('.content').scroll(function () {
-            if ($(this).scrollTop() > 50) { $('#back-to-top').fadeIn(); } else { $('#back-to-top').fadeOut(); }
-        });
-        $('#back-to-top').click(function () {
-            $('#back-to-top').tooltip('hide'); $('.content').animate({ scrollTop: 0 }, 800);
-            return false;
-        });
-        $('#back-to-top').tooltip('show');
         var ctx = document.getElementById("myChart").getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'line',
@@ -47,7 +34,15 @@
 								beginAtZero: true
 							}
 						}]
-					}
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
 				}
 			});
         });

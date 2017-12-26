@@ -8,7 +8,7 @@ static SimpleDB db(BASE_DIR + "test/web_site/test.db");
 class TestView : public BaseView
 {
 public:
-	TestView() : BaseView("test/web_site/")
+	TestView() : BaseView("test/web_site/", "test/web_site/static/")
 	{
 		this->url = "";
 	};

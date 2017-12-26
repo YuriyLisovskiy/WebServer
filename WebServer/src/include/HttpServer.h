@@ -39,8 +39,9 @@ private:
 	{
 	public:
 		static std::string getClientData(SOCK client, int port, int clientID);
-		static BaseView* urlIsAvailable(std::vector<BaseView*> views, const std::string url);
+		static BaseView* availableView(std::vector<BaseView*> views, const std::string url);
 		static std::string getIP(SOCK socket);
+		static bool requestStatic(const std::string url);
 	};
 };
 

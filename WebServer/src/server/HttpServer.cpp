@@ -175,7 +175,12 @@ void HTTP::HttpServer::processRequest(SOCK client)
 	} while (recvMsgSize >= MAX_BUFF_SIZE);
 	try
 	{
-		Request request(Request::Parser::parseRequestData((char*)data.c_str(), this->lockPrint, Parser::getIP(client)));
+		char* dataToParse = (char*)data.c_str();
+		if (!dataToParse)
+		{
+			dataToParse = nullptr;
+		}
+		Request request(Request::Parser::parseRequestData(dataToParse, this->lockPrint, Parser::getIP(client)));
 		this->sendResponse(request, client);
 	}
 	catch (...)
@@ -214,26 +219,35 @@ void HTTP::HttpServer::processRequest(SOCK client)
 void HTTP::HttpServer::sendResponse(Request& request, SOCK clientInstance)
 {
 	std::string html;
-	BaseView* view = Parser::urlIsAvailable(this->views, request.DATA.get("url"));
+	std::string url = request.DATA.get("url");
+	BaseView* view = Parser::availableView(this->views, url);
 	if (view)
 	{
-		switch (Request::Parser::getRequestMethod(request.DATA.get("method")))
+		if (!Parser::requestStatic(url))
 		{
-		case REQUEST_METHOD::GET:
-			html = view->Get(request);
-			break;
-		case REQUEST_METHOD::POST:
-			html = view->Post(request);
-			break;
-		case REQUEST_METHOD::PUT:
-			html = view->Put(request);
-			break;
-		case REQUEST_METHOD::DElETE:
-			html = view->Delete(request);
-			break;
-		default:
-			html = Response::MethodNotAllowed();
-			break;
+			switch (Request::Parser::getRequestMethod(request.DATA.get("method")))
+			{
+			case REQUEST_METHOD::GET:
+				html = view->Get(request);
+				break;
+			case REQUEST_METHOD::POST:
+				html = view->Post(request);
+				break;
+			case REQUEST_METHOD::PUT:
+				html = view->Put(request);
+				break;
+			case REQUEST_METHOD::DElETE:
+				html = view->Delete(request);
+				break;
+			default:
+				html = Response::MethodNotAllowed();
+				break;
+			}
+		}
+		else
+		{
+			html = Response::responseStatic(view->createStaticDir(url));
+			std::cout << "\n===================\n" << html << "\n===================\n";
 		}
 	}
 	else

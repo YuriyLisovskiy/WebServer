@@ -12,11 +12,11 @@ std::string HTTP::HttpServer::Parser::getClientData(SOCK client, int port, int c
 	return result;
 }
 
-BaseView* HTTP::HttpServer::Parser::urlIsAvailable(std::vector<BaseView*> views, const std::string url)
+BaseView* HTTP::HttpServer::Parser::availableView(std::vector<BaseView*> views, const std::string url)
 {
 	for (const auto& view : views)
 	{
-		if (view->hasUrl(url))
+		if (view->urlIsAvailable(url))
 		{
 			return view;
 		}
@@ -34,4 +34,9 @@ std::string HTTP::HttpServer::Parser::getIP(SOCK socket)
 	char clientIp[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
 	return clientIp;
+}
+
+bool HTTP::HttpServer::Parser::requestStatic(const std::string url)
+{
+	return url.find('.') != std::string::npos;
 }

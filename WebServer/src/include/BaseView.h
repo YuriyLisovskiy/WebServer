@@ -9,18 +9,21 @@
 
 class BaseView
 {
-protected:
-	std::string url;
-	std::string templateDir;
-
 public:
-	explicit BaseView(const std::string directory = "");
+	explicit BaseView(const std::string templateDir = "", const std::string staticDir = "");
 	virtual std::string Get(Request& request);
 	virtual std::string Post(Request& request);
 	virtual std::string Put(Request& request);
 	virtual std::string Delete(Request& request);
-	bool hasUrl(const std::string url);
 	void setTemplateDir(const std::string dir);
+	void setStaticDir(const std::string dir);
+	bool urlIsAvailable(const std::string url);
+	bool hasStatic(const std::string fileName);
+	std::string createStaticDir(const std::string url);
+protected:
+	std::string url;
+	std::string templateDir;
+	std::string staticDir;
 };
 
 #endif
