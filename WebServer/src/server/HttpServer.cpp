@@ -91,13 +91,13 @@ void HTTP::HttpServer::startThread(const int port, std::ofstream& logFile)
 	PRINT_SERVER_DATA(std::cout, Parser::getIP(listenSock), START_PORT);
 	while (listening)
 	{
-		if (this->clientNum == MAX_SERVED)
-		{
-			std::chrono::milliseconds duration(2000);
-			std::this_thread::sleep_for(duration);
-			break;
-		}
-		else if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
+//		if (this->clientNum == MAX_SERVED)
+//		{
+//			std::chrono::milliseconds duration(2000);
+//			std::this_thread::sleep_for(duration);
+//			break;
+//		}
+		if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
 		{
 			std::thread newClient(&HttpServer::serveClient, this, client, this->portNumber++, std::ref(logFile));
 			newClient.detach();
@@ -218,7 +218,7 @@ void HTTP::HttpServer::processRequest(SOCK client)
 
 void HTTP::HttpServer::sendResponse(Request& request, SOCK clientInstance)
 {
-	std::string html;
+	std::string response;
 	std::string url = request.DATA.get("url");
 	BaseView* view = Parser::availableView(this->views, url);
 	if (view)
@@ -228,33 +228,32 @@ void HTTP::HttpServer::sendResponse(Request& request, SOCK clientInstance)
 			switch (Request::Parser::getRequestMethod(request.DATA.get("method")))
 			{
 			case REQUEST_METHOD::GET:
-				html = view->Get(request);
+				response = view->Get(request);
 				break;
 			case REQUEST_METHOD::POST:
-				html = view->Post(request);
+				response = view->Post(request);
 				break;
 			case REQUEST_METHOD::PUT:
-				html = view->Put(request);
+				response = view->Put(request);
 				break;
 			case REQUEST_METHOD::DElETE:
-				html = view->Delete(request);
+				response = view->Delete(request);
 				break;
 			default:
-				html = Response::MethodNotAllowed();
+				response = Response::MethodNotAllowed();
 				break;
 			}
 		}
 		else
 		{
-			html = Response::responseStatic(view->createStaticDir(url));
-			std::cout << "\n===================\n" << html << "\n===================\n";
+			response = Response::responseStatic(view->createStaticDir(url));
 		}
 	}
 	else
 	{
-		html = Response::NotFound();
+		response = Response::NotFound();
 	}
-	this->sendFile(html, clientInstance);
+	this->sendFile(response, clientInstance);
 }
 
 void HTTP::HttpServer::sendFile(const std::string httpResponse, SOCK client)

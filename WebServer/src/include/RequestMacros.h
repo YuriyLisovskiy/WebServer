@@ -21,5 +21,6 @@ enum CONTENT_TYPE
 
 #define JSON_TYPE "application/json"
 #define X_WWW_FORM_URLENCODED_TYPE "application/x-www-form-urlencoded"
+#define IMAGE_TYPE(type) (type) == "png" || (type) == "jpg" || (type) == "jpeg" || (type) == "ico" || (type) == "gif"
 
 #endif

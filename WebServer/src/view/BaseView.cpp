@@ -1,7 +1,5 @@
 #include "../include/BaseView.h"
 #include "../include/HttpResponse.h"
-#include "../include/ServerMacros.h"
-#include <fstream>
 #include <regex>
 
 BaseView::BaseView(const std::string templateDir, const std::string staticDir)

@@ -1,5 +1,4 @@
 #include "../include/HttpResponse.h"
-#include <fstream>
 #include <iostream>
 #include <regex>
 
@@ -28,7 +27,7 @@ std::string Response::Parser::parseTemplate(const std::string html, std::map<std
 			result += context[data[1].str()];
 			copy = data.suffix();
 		}
-		result += std::string(html.begin() + html.find_last_of("}") + 1, html.end());
+		result += std::string(html.begin() + html.find_last_of('}') + 1, html.end());
 	}
 	return result;
 }
@@ -61,6 +60,10 @@ std::string Response::Parser::setContentType(const std::string requestType)
 	if (requestType == "js")
 	{
 		res.append("javascript");
+	}
+	else if (IMAGE_TYPE(requestType))
+	{
+		res = "image/*";
 	}
 	else
 	{
