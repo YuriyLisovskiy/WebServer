@@ -31,5 +31,20 @@
 *.out
 *.app
 
-/.vs
-/Debug/
+# Visual Studio files and folders
+.vs/
+Debug/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# CLion files
+.idea/
+cmake-build-debug/
+
+# Other
+*.txt
+*.db
+!CMakeLists.txt
+
