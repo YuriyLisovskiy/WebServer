@@ -4,7 +4,7 @@
 #include <sstream>
 #include <fstream>
 
-http::Server::Server(const std::string port)
+http::Server::Server(const std::string& port)
 {
 	try
 	{
@@ -97,7 +97,7 @@ void http::Server::startThread(std::ofstream& logFile)
 		}
 	}
 }
-void http::Server::serveClient(SOCK client, std::ofstream& logfile)
+void http::Server::serveClient(const SOCK client, std::ofstream& logfile)
 {
 	clock_t start, finish;
 	start = clock();
@@ -108,7 +108,7 @@ void http::Server::serveClient(SOCK client, std::ofstream& logfile)
 		this->logData(logfile, (float)(finish - start) / CLOCKS_PER_SEC);
 	}
 }
-void http::Server::processRequest(SOCK client)
+void http::Server::processRequest(const SOCK& client)
 {
 	char buffer[MAX_BUFF_SIZE];
 	MSG_SIZE recvMsgSize;
@@ -155,7 +155,7 @@ void http::Server::processRequest(SOCK client)
 		WSA_CLEANUP;
 	}
 }
-void http::Server::sendResponse(Request& request, SOCK clientInstance)
+void http::Server::sendResponse(Request& request, const SOCK& client)
 {
 	std::string response;
 	std::string url = request.DATA.get("url");
@@ -207,9 +207,9 @@ void http::Server::sendResponse(Request& request, SOCK clientInstance)
 	{
 		response = Response::NotFound();
 	}
-	this->sendFile(response, clientInstance);
+	this->sendFile(response, client);
 }
-void http::Server::sendFile(const std::string httpResponse, SOCK client)
+void http::Server::sendFile(const std::string& httpResponse, const SOCK& client)
 {
 	if (send(client, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCK_ERROR)
 	{
@@ -221,7 +221,7 @@ void http::Server::sendFile(const std::string httpResponse, SOCK client)
 		WSA_CLEANUP;
 	}
 }
-void http::Server::closeSocket(SOCK& sock, int how, const std::string method, const std::string func, const int line)
+void http::Server::closeSocket(const SOCK& sock, const int how, const std::string& method, const std::string& func, const int line)
 {
 	if (shutdown(sock, how) == SOCK_ERROR)
 	{
@@ -242,7 +242,7 @@ void http::Server::logData(std::ofstream& logfile, const float servingTime)
 	logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 	this->lockPrint.unlock();
 }
-void http::Server::printErr(const std::string msg, const int line)
+void http::Server::printErr(const std::string& msg, const int line)
 {
 	this->lockPrint.lock();
 	std::cerr << "\nSERVER ERROR:\n Message: \"" << msg << "\"\n Line: " << line << '\n';

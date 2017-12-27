@@ -10,14 +10,14 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		char* port;
+		std::string port;
 		if (argc > 1)
 		{
 			port = argv[1];
 		}
 		else
 		{
-			port = (char*)SERVER_PORT;
+			port = SERVER_PORT;
 		}
 		Server server(port);
 		server.setView(new TestView());

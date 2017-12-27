@@ -1,6 +1,6 @@
 #include "../include/response.h"
 
-std::string http::Response::HttpResponse(const std::string filePath, const std::string status, const size_t statusCode)
+std::string http::Response::HttpResponse(const std::string& filePath, const std::string& status, const size_t statusCode)
 {
 	return Parser::makeResponse(Parser::readFile(filePath), status, statusCode, "html");
 }
@@ -24,7 +24,7 @@ std::string http::Response::BadRequest()
 {
 	return Parser::errorPage(400, "Bad Request");
 }
-std::string http::Response::responseStatic(const std::string fileName)
+std::string http::Response::responseStatic(const std::string& fileName)
 {
 	size_t pos = fileName.find('.');
 	std::string type;

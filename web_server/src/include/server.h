@@ -18,23 +18,23 @@ private:
 	std::vector<View*> views;
 	uint16_t port;
 	void startThread(std::ofstream& logFile);
-	void serveClient(SOCK client, std::ofstream& logfile);
-	void processRequest(SOCK client);
-	void sendResponse(Request& request, SOCK client);
-	void sendFile(const std::string html, SOCK client);
-	void closeSocket(SOCK& sock, int how, const std::string method, const std::string func, const int line);
+	void serveClient(const SOCK client, std::ofstream& logfile);
+	void processRequest(const SOCK& client);
+	void sendResponse(Request& request, const SOCK& client);
+	void sendFile(const std::string& html, const SOCK& client);
+	void closeSocket(const SOCK& sock, const int how, const std::string& method, const std::string& func, const int line);
 	void logData(std::ofstream& logfile, const float servingTime);
-	void printErr(const std::string msg, const int line);
+	void printErr(const std::string& msg, const int line);
 	class Parser
 	{
 	public:
-		static std::string getClientData(SOCK client, uint16_t port, int clientID);
-		static View* availableView(std::vector<View*> views, const std::string url);
-		static std::string getIP(SOCK socket);
-		static bool requestStatic(const std::string url);
+		static std::string getClientData(const SOCK& client, uint16_t port, int clientID);
+		static View* availableView(std::vector<View*> views, const std::string& url);
+		static std::string getIP(const SOCK& socket);
+		static bool requestStatic(const std::string& url);
 	};
 public:
-	explicit Server(const std::string port = SERVER_PORT);
+	explicit Server(const std::string& port = SERVER_PORT);
 	void start();
 	void setView(View* view = new View());
 	void setViews(std::vector<View*> views);

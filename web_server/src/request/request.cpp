@@ -1,6 +1,6 @@
 #include "../include/server.h"
 
-http::Request::Request(const std::string request, const std::string method, const std::string url, const std::string client)
+http::Request::Request(const std::string& request, const std::string& method, const std::string& url, const std::string& client)
 {
 	std::string headers;
 	this->DATA.dict["method"] = method;
@@ -17,7 +17,7 @@ http::Request::Request(const std::string request, const std::string method, cons
 		Parser::parseBody(*this);
 	}
 };
-std::string http::Request::RequestData::get(const std::string key)
+std::string http::Request::RequestData::get(const std::string& key)
 {
 	std::string result;
 	if (this->dict.find(key) != this->dict.end())

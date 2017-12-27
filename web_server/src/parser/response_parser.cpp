@@ -3,7 +3,7 @@
 #include <sstream>
 #include <fstream>
 
-std::string http::Response::Parser::errorPage(const size_t code, const std::string msg)
+std::string http::Response::Parser::errorPage(const size_t code, const std::string& msg)
 {
 	std::string html("<!DOCTYPE html>\n<html>\n<head>\n"
 		"<link rel=\"icon\" "
@@ -13,7 +13,7 @@ std::string http::Response::Parser::errorPage(const size_t code, const std::stri
 		std::to_string(code) + " " + msg + "</h1>\n</body>\n</html>\n");
 	return Parser::makeResponse(html, msg, code, "html");
 }
-std::string http::Response::Parser::readFile(const std::string filePath)
+std::string http::Response::Parser::readFile(const std::string& filePath)
 {
 	std::ifstream file(filePath);
 	std::string html;
@@ -28,7 +28,7 @@ std::string http::Response::Parser::readFile(const std::string filePath)
 	}
 	return html;
 }
-std::string http::Response::Parser::makeResponse(const std::string html, const std::string statusStr, const size_t statusCode, const std::string requestContent)
+std::string http::Response::Parser::makeResponse(const std::string& html, const std::string& statusStr, const size_t statusCode, const std::string& requestContent)
 {
 	std::ostringstream ss;
 	DATE_TIME_NOW(ss, "%a, %d %b %y %T %z");
@@ -40,7 +40,7 @@ std::string http::Response::Parser::makeResponse(const std::string html, const s
 	std::cout << statusCode << '\n';
 	return response;
 }
-std::string http::Response::Parser::setContentType(const std::string requestType)
+std::string http::Response::Parser::setContentType(const std::string& requestType)
 {
 	std::string res("text/");
 	if (requestType == "js")

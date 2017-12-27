@@ -3,7 +3,7 @@
 #include <regex>
 #include <iostream>
 
-http::Request http::Request::Parser::parseRequestData(const std::string toParse, std::mutex& lock, const std::string client)
+http::Request http::Request::Parser::parseRequestData(const std::string& toParse, std::mutex& lock, const std::string& client)
 {
 	std::string firstLine;
 	auto dataToParse = (char*)toParse.c_str();
@@ -33,7 +33,7 @@ http::Request http::Request::Parser::parseRequestData(const std::string toParse,
 	body = std::regex_replace(body, std::regex(R"(\r+)"), "");
 	return Request(body, method, url, client);
 }
-REQUEST_METHOD http::Request::Parser::getRequestMethod(const std::string method)
+REQUEST_METHOD http::Request::Parser::getRequestMethod(const std::string& method)
 {
 	REQUEST_METHOD result = REQUEST_METHOD::REQUEST_NONE;
 	std::string methodToLower(method);
@@ -76,7 +76,7 @@ REQUEST_METHOD http::Request::Parser::getRequestMethod(const std::string method)
 	}
 	return result;
 }
-std::string http::Request::Parser::parseUrl(const std::string url, std::map<std::string, std::string>& container)
+std::string http::Request::Parser::parseUrl(const std::string& url, std::map<std::string, std::string>& container)
 {
 	std::string result(url);
 	size_t posBegin = url.find('?');
@@ -112,11 +112,11 @@ std::string http::Request::Parser::parseUrl(const std::string url, std::map<std:
 	}
 	return result;
 }
-std::string http::Request::Parser::parseVal(const std::string value)
+std::string http::Request::Parser::parseVal(const std::string& value)
 {
 	return std::regex_replace(value, std::regex(R"(\+)"), " ");
 }
-void http::Request::Parser::parseCookies(const std::string cookies, std::map<std::string, std::string>& container)
+void http::Request::Parser::parseCookies(const std::string& cookies, std::map<std::string, std::string>& container)
 {
 	if (!cookies.empty())
 	{
@@ -143,7 +143,7 @@ void http::Request::Parser::parseCookies(const std::string cookies, std::map<std
 		}
 	}
 }
-void http::Request::Parser::parseHeaders(const std::string request, std::map<std::string, std::string>& headers, std::map<std::string, std::string>& cookies)
+void http::Request::Parser::parseHeaders(const std::string& request, std::map<std::string, std::string>& headers, std::map<std::string, std::string>& cookies)
 {
 	if (!request.empty())
 	{
@@ -187,7 +187,7 @@ void http::Request::Parser::parseHeaders(const std::string request, std::map<std
 		} while (posEnd != std::string::npos);
 	}
 }
-CONTENT_TYPE http::Request::Parser::getContentType(const std::string contentTypeStr)
+CONTENT_TYPE http::Request::Parser::getContentType(const std::string& contentTypeStr)
 {
 	CONTENT_TYPE type = CONTENT_TYPE::CONTENT_NONE;
 	if (contentTypeStr == X_WWW_FORM_URLENCODED_TYPE)
@@ -200,7 +200,7 @@ CONTENT_TYPE http::Request::Parser::getContentType(const std::string contentType
 	}
 	return type;
 }
-std::string http::Request::Parser::getBody(const std::string request)
+std::string http::Request::Parser::getBody(const std::string& request)
 {
 	std::string requestBody;
 	if (!request.empty())
@@ -213,7 +213,7 @@ std::string http::Request::Parser::getBody(const std::string request)
 	}
 	return requestBody;
 }
-std::string http::Request::Parser::getHeaders(const std::string request)
+std::string http::Request::Parser::getHeaders(const std::string& request)
 {
 	std::string headers;
 	if (!request.empty())
@@ -266,7 +266,7 @@ void http::Request::Parser::parseFormUrlEncoded(Request& request)
 		}
 	}
 }
-char http::Request::Parser::codeToSymbol(const std::string str)
+char http::Request::Parser::codeToSymbol(const std::string& str)
 {
 	if (str == "%20")
 	{

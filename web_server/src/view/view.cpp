@@ -2,17 +2,17 @@
 #include <regex>
 #include <fstream>
 
-View::View(const std::string templateDir, const std::string staticDir)
+View::View(const std::string& templateDir, const std::string& staticDir)
 {
 	this->url = "";
 	this->setTemplateDir(BASE_DIR + templateDir);
 	this->setStaticDir(BASE_DIR + staticDir);
 }
-void View::setTemplateDir(const std::string dir)
+void View::setTemplateDir(const std::string& dir)
 {
 	this->templateDir = dir;
 }
-void View::setStaticDir(const std::string dir)
+void View::setStaticDir(const std::string& dir)
 {
 	this->staticDir = dir;
 }
@@ -52,7 +52,7 @@ std::string View::Trace(http::Request& request)
 {
 	return http::Response::MethodNotAllowed();
 }
-bool View::urlIsAvailable(const std::string url)
+bool View::urlIsAvailable(const std::string& url)
 {
 	std::string urlToCompare(this->url);
 	if (!this->url.empty())
@@ -68,7 +68,7 @@ bool View::urlIsAvailable(const std::string url)
 	}
 	return urlToCompare == url || this->hasStatic(url);
 }
-bool View::hasStatic(const std::string fileName)
+bool View::hasStatic(const std::string& fileName)
 {
 	std::ifstream file(this->staticDir + fileName);
 	bool res = false;
@@ -79,7 +79,7 @@ bool View::hasStatic(const std::string fileName)
 	}
 	return res;
 }
-std::string View::createStaticDir(const std::string url)
+std::string View::createStaticDir(const std::string& url)
 {
 	return this->staticDir + url;
 }
