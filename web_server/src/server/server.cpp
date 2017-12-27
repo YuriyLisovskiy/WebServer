@@ -6,7 +6,7 @@
 
 http::Server::Server(const std::string port)
 {
-	this->port = std::stoi(port);
+	this->port = (uint16_t)std::stoi(port);
 	this->setView();
 }
 void http::Server::setView(View* view)
