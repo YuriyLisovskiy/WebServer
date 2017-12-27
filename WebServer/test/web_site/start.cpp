@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			port = START_PORT;
+			port = (char*)START_PORT;
 		}
 		HttpServer server(&db, port);
 		server.setView(new TestView());
