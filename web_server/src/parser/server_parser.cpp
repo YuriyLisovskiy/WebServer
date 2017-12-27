@@ -24,14 +24,14 @@ View* http::Server::Parser::availableView(std::vector<View*> views, const std::s
 }
 std::string http::Server::Parser::getIP(const SOCK& socket)
 {
-	struct sockaddr_in addr;
+	struct sockaddr_in addr = {};
 	socklen_t addr_size = sizeof(struct sockaddr_in);
 	getsockname(socket, (struct sockaddr *)&addr, &addr_size);
-	sockaddr_in* pV4Addr = (struct sockaddr_in*)&addr;
+	auto* pV4Addr = &addr;
 	int ipAddr = pV4Addr->sin_addr.s_addr;
 	char clientIp[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
-	return clientIp;
+	return std::string(clientIp);
 }
 bool http::Server::Parser::requestStatic(const std::string& url)
 {

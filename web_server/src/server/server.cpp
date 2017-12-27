@@ -54,8 +54,7 @@ void http::Server::start()
 void http::Server::startThread(std::ofstream& logFile)
 {
 	SOCK listenSock;
-	int status;
-	sockaddr_in addr;
+	sockaddr_in addr = {};
 	socklen_t sa_size = sizeof(sockaddr_in);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(this->port);
@@ -131,10 +130,9 @@ void http::Server::processRequest(const SOCK& client)
 	} while (recvMsgSize >= MAX_BUFF_SIZE);
 	try
 	{
-		std::string dataToParse(data.c_str());
-		if (!dataToParse.empty())
+		if (!data.empty())
 		{
-			Request request(Request::Parser::parseRequestData((char*)dataToParse.c_str(), this->lockPrint, Parser::getIP(client)));
+			Request request(Request::Parser::parseRequestData((char*)data.c_str(), this->lockPrint, Parser::getIP(client)));
 			this->sendResponse(request, client);
 		}
 		else

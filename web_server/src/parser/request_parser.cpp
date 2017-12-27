@@ -29,7 +29,7 @@ http::Request http::Request::Parser::parseRequestData(const std::string& toParse
 	{
 		throw "bad request";
 	}
-	std::string body(toParse);
+	std::string body(dataToParse);
 	body = std::regex_replace(body, std::regex(R"(\r+)"), "");
 	return Request(body, method, url, client);
 }
@@ -234,7 +234,7 @@ void http::Request::Parser::parseBody(Request& request)
 		Parser::parseFormUrlEncoded(request);
 		break;
 	case CONTENT_TYPE::JSON:
-		request.POST.body = request.HEADERS.get("content-type") + '\n' + request.POST.body;
+		request.POST.body = request.HEADERS.get("content-type") + "\n" + request.POST.body;
 		break;
 	default:
 		throw "invalid content type";

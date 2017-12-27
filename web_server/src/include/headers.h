@@ -71,7 +71,7 @@ std::string getRootDir();
 #define DATE_TIME_NOW(stream, format)							\
 {																\
 	time_t now = time(nullptr);									\
-	struct tm tstruct;											\
+	struct tm tstruct = {}; 									\
 	char buf[80];												\
 	LOCAL_TIME(now, tstruct);								    \
 	strftime(buf, sizeof(buf), (format), &tstruct);	        	\
