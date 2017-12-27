@@ -22,7 +22,7 @@ Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const
 	toParse += 2;
 	lock.lock();
 	std::cout << "\n[";
-	DATE_TIME_NOW(std::cout);
+	DATE_TIME_NOW(std::cout, "%d/%b/%Y %r");
 	std::cout << "] \"" << firstLine << "\" ";
 	lock.unlock();
 	std::string url(""), method("");

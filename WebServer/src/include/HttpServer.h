@@ -16,7 +16,7 @@ __HTTP_BEGIN
 class HttpServer
 {
 public:
-	explicit HttpServer(SimpleDB* db = nullptr);
+	explicit HttpServer(SimpleDB* db = nullptr, const std::string port = START_PORT);
 	void run();
 	void setView(BaseView* view = new BaseView());
 	void setViews(std::vector<BaseView*> views);
@@ -27,6 +27,7 @@ private:
 	int portNumber;
 	int clientNum;
 	std::vector<BaseView*> views;
+	int port;
 	SimpleDB* db;
 
 	void startThread(const int port, std::ofstream& logFile);

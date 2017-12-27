@@ -3,7 +3,9 @@ project(WebServer)
 
 set(CMAKE_CXX_STANDARD 11)
 
-SET( CMAKE_CXX_FLAGS  "-pthread")
+set( CMAKE_CXX_FLAGS  "-pthread")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
 add_executable(WebServer
 		WebServer/src/include/CommonMacros.h

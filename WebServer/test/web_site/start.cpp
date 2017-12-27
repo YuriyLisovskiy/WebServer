@@ -3,23 +3,31 @@
 
 using namespace HTTP;
 
-int main()
+int main(int argc, char* argv[])
 {
-	HttpServer server(&db);
-	server.setView(new TestView());
 	try
 	{
+		char* port;
+		if (argc > 1)
+		{
+			port = argv[1];
+		}
+		else
+		{
+			port = (char*)START_PORT;
+		}
+		HttpServer server(&db, port);
+		server.setView(new TestView());
 		server.run();
 	}
 	catch (const std::exception& exc)
 	{
 		std::cout << exc.what();
-		std::cin.get();
 	}
 	catch (...)
 	{
 		std::cout << "Error...";
-		std::cin.get();
 	}
+	std::cin.get();
 	return 0;
 }

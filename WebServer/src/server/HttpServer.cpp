@@ -4,11 +4,12 @@
 #include <iostream>
 #include <sstream>
 
-HTTP::HttpServer::HttpServer(SimpleDB* db)
+HTTP::HttpServer::HttpServer(SimpleDB* db, const std::string port)
 {
+	this->port = std::stoi(port);
 	this->clientId = 0;
 	this->clientNum = 0;
-	this->portNumber = START_PORT;
+	this->portNumber = this->port;
 	this->setView();
 	this->db = db;
 }
@@ -43,7 +44,7 @@ void HTTP::HttpServer::run()
 		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'log.txt' is not opened.\n";
 	}
 	WSA_STARTUP;
-	std::thread newThread(&HttpServer::startThread, this, START_PORT, ref(logFile));
+	std::thread newThread(&HttpServer::startThread, this, this->port, ref(logFile));
 	if (newThread.joinable())
 	{
 		newThread.join();
@@ -60,7 +61,7 @@ void HTTP::HttpServer::startThread(const int port, std::ofstream& logFile)
 	sockaddr_in addr;
 	socklen_t sa_size = sizeof(sockaddr_in);
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
+	addr.sin_port = htons(this->port);
 //	addr.sin_addr.s_addr = htonl(SERVER_IP);
 	inet_pton(AF_INET, SERVER_IP, &(addr.sin_addr));
 	listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -88,7 +89,7 @@ void HTTP::HttpServer::startThread(const int port, std::ofstream& logFile)
 		return;
 	}
 	bool listening = true;
-	PRINT_SERVER_DATA(std::cout, Parser::getIP(listenSock), START_PORT);
+	PRINT_SERVER_DATA(std::cout, Parser::getIP(listenSock), this->port);
 	while (listening)
 	{
 //		if (this->clientNum == MAX_SERVED)
@@ -128,14 +129,14 @@ void HTTP::HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile
 	{
 		this->lockPrint.lock();
 		logfile << '[';
-		DATE_TIME_NOW(logfile);
+		DATE_TIME_NOW(logfile, "%d/%b/%Y %r");
 		logfile << ']';
 		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 		this->lockPrint.unlock();
 	}
 	this->lockPrint.lock();
 	std::stringstream ss;
-	DATE_TIME_NOW(ss);
+	DATE_TIME_NOW(ss, "%d/%b/%Y %r");
 	this->db->write({ "statistic_date", ss.str() });
 	this->db->write({ "statistic_speed", std::to_string(servingTime) });
 	std::string numStr(this->db->readUnique("requests_total"));
