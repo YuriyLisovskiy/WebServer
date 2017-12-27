@@ -1,20 +1,15 @@
-#include "../include/HttpServer.h"
-#include "../include/HttpResponse.h"
+#include "../include/server.h"
 #include <thread>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
-HTTP::HttpServer::HttpServer(SimpleDB* db, const std::string port)
+http::HttpServer::HttpServer(const std::string port)
 {
 	this->port = std::stoi(port);
-	this->clientId = 0;
-	this->clientNum = 0;
-	this->portNumber = this->port;
 	this->setView();
-	this->db = db;
 }
-
-void HTTP::HttpServer::setView(BaseView* view)
+void http::HttpServer::setView(View* view)
 {
 	if (view)
 	{
@@ -22,8 +17,7 @@ void HTTP::HttpServer::setView(BaseView* view)
 		this->views.push_back(view);
 	}
 }
-
-void HTTP::HttpServer::setViews(std::vector<BaseView*> views)
+void http::HttpServer::setViews(std::vector<View*> views)
 {
 	this->views.clear();
 	for (const auto& view : views)
@@ -34,11 +28,10 @@ void HTTP::HttpServer::setViews(std::vector<BaseView*> views)
 		}
 	}
 }
-
-void HTTP::HttpServer::run()
+void http::HttpServer::start()
 {
 	std::ofstream logFile;
-	logFile.open(BASE_DIR + "test/web_site/log.txt", std::ios::app | std::ios::out);
+	logFile.open(BASE_DIR + "log.txt", std::ios::app | std::ios::out);
 	if (!logFile.is_open())
 	{
 		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'log.txt' is not opened.\n";
@@ -52,8 +45,7 @@ void HTTP::HttpServer::run()
 	logFile.close();
 	WSA_CLEANUP;
 }
-
-void HTTP::HttpServer::startThread(const int port, std::ofstream& logFile)
+void http::HttpServer::startThread(const int port, std::ofstream& logFile)
 {
 	SOCK listenSock;
 	SOCK client;
@@ -62,7 +54,7 @@ void HTTP::HttpServer::startThread(const int port, std::ofstream& logFile)
 	socklen_t sa_size = sizeof(sockaddr_in);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(this->port);
-//	addr.sin_addr.s_addr = htonl(SERVER_IP);
+	//	addr.sin_addr.s_addr = htonl(SERVER_IP);
 	inet_pton(AF_INET, SERVER_IP, &(addr.sin_addr));
 	listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (listenSock == INVALID_SOCK)
@@ -92,18 +84,10 @@ void HTTP::HttpServer::startThread(const int port, std::ofstream& logFile)
 	PRINT_SERVER_DATA(std::cout, Parser::getIP(listenSock), this->port);
 	while (listening)
 	{
-//		if (this->clientNum == MAX_SERVED)
-//		{
-//			std::chrono::milliseconds duration(2000);
-//			std::this_thread::sleep_for(duration);
-//			break;
-//		}
 		if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
 		{
-			std::thread newClient(&HttpServer::serveClient, this, client, this->portNumber++, std::ref(logFile));
+			std::thread newClient(&HttpServer::serveClient, this, client, std::ref(logFile));
 			newClient.detach();
-			this->clientId++;
-			this->clientNum++;
 		}
 		else
 		{
@@ -111,15 +95,8 @@ void HTTP::HttpServer::startThread(const int port, std::ofstream& logFile)
 		}
 	}
 }
-
-void HTTP::HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile)
+void http::HttpServer::serveClient(SOCK client, std::ofstream& logfile)
 {
-	if (this->db)
-	{
-		lockPrint.lock();
-		this->db->write({ "clients", Parser::getIP(client) }, true);
-		lockPrint.unlock();
-	}
 	clock_t start, finish;
 	start = clock();
 	this->processRequest(client);
@@ -134,25 +111,8 @@ void HTTP::HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile
 		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 		this->lockPrint.unlock();
 	}
-	this->lockPrint.lock();
-	std::stringstream ss;
-	DATE_TIME_NOW(ss, "%d/%b/%Y %r");
-	this->db->write({ "statistic_date", ss.str() });
-	this->db->write({ "statistic_speed", std::to_string(servingTime) });
-	std::string numStr(this->db->readUnique("requests_total"));
-	if (!numStr.empty())
-	{
-		int num = std::stoi(numStr);
-		this->db->replace({ "requests_total", std::to_string(num) }, std::to_string(num + 1));
-	}
-	else
-	{
-		this->db->write({ "requests_total", std::to_string(1) }, true);
-	}
-	this->lockPrint.unlock();
 }
-
-void HTTP::HttpServer::processRequest(SOCK client)
+void http::HttpServer::processRequest(SOCK client)
 {
 	char buffer[MAX_BUFF_SIZE];
 	int recvMsgSize, bufError;
@@ -216,15 +176,18 @@ void HTTP::HttpServer::processRequest(SOCK client)
 		WSA_CLEANUP;
 	}
 }
-
-void HTTP::HttpServer::sendResponse(Request& request, SOCK clientInstance)
+void http::HttpServer::sendResponse(Request& request, SOCK clientInstance)
 {
 	std::string response;
 	std::string url = request.DATA.get("url");
-	BaseView* view = Parser::availableView(this->views, url);
+	View* view = Parser::availableView(this->views, url);
 	if (view)
 	{
-		if (!Parser::requestStatic(url))
+		if (Parser::requestStatic(url))
+		{
+			response = Response::responseStatic(view->createStaticDir(url));
+		}
+		else
 		{
 			switch (Request::Parser::getRequestMethod(request.DATA.get("method")))
 			{
@@ -245,10 +208,6 @@ void HTTP::HttpServer::sendResponse(Request& request, SOCK clientInstance)
 				break;
 			}
 		}
-		else
-		{
-			response = Response::responseStatic(view->createStaticDir(url));
-		}
 	}
 	else
 	{
@@ -256,8 +215,7 @@ void HTTP::HttpServer::sendResponse(Request& request, SOCK clientInstance)
 	}
 	this->sendFile(response, clientInstance);
 }
-
-void HTTP::HttpServer::sendFile(const std::string httpResponse, SOCK client)
+void http::HttpServer::sendFile(const std::string httpResponse, SOCK client)
 {
 	if (send(client, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCK_ERROR)
 	{

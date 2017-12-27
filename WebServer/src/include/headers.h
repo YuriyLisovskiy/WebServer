@@ -1,13 +1,10 @@
 #pragma once
 
-#ifndef WEB_SERVER_SERVER_MACROS_H
-#define WEB_SERVER_SERVER_MACROS_H
-
-#include "CommonMacros.h"
+#ifndef WEB_SERVER_HEADERS_H
+#define WEB_SERVER_HEADERS_H
 
 #define SERVER_IP "0.0.0.0"		    // server ip
 #define START_PORT "8000"		    // port for starting the server
-// #define MAX_SERVED 1000		    // max number of clients per port.
 
 #define PRINT_SERVER_DATA(stream, IP, PORT)						    \
 {																    \
@@ -20,6 +17,8 @@
 }
 
 #define MAX_BUFF_SIZE 1024
+
+#include <ctime>
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -49,10 +48,19 @@
 		return;										\
 	}												\
 }
+#define DATE_TIME_NOW(stream, format)							\
+{																\
+	time_t now = time(nullptr);									\
+	struct tm tstruct;											\
+	char buf[80];												\
+	localtime_s(&tstruct, &now);								\
+	strftime(buf, sizeof(buf), (format), &tstruct);				\
+	(stream) << buf;											\
+}
 
 #elif defined(__unix) || defined(__unix__) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
 
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -72,7 +80,39 @@ std::string getRootDir();
 #define SOCK_RECEIVE SHUT_RDWR
 #define WSA_LAST_ERR '\n'
 #define WSA_STARTUP /**/
+#define DATE_TIME_NOW(stream, format)							\
+{																\
+	time_t now = time(nullptr);									\
+	struct tm tstruct;											\
+	char buf[80];												\
+	localtime_r(&now, &tstruct);								\
+	strftime(buf, sizeof(buf), (format), &tstruct);	        	\
+	(stream) << buf;											\
+}
 
 #endif
+
+#define __HTTP_BEGIN namespace http {
+#define __HTTP_END }
+
+enum REQUEST_METHOD
+{
+	GET,
+	POST,
+	PUT,
+	DElETE,
+	none
+};
+
+enum CONTENT_TYPE
+{
+	JSON,
+	X_WWW_FORM_URLENCODED,
+	NONE
+};
+
+#define JSON_TYPE "application/json"
+#define X_WWW_FORM_URLENCODED_TYPE "application/x-www-form-urlencoded"
+#define IMAGE_TYPE(type) (type) == "png" || (type) == "jpg" || (type) == "jpeg" || (type) == "ico" || (type) == "gif"
 
 #endif

@@ -1,15 +1,20 @@
 #pragma once
-#include "../src/include/BaseView.h"
-#include "../src/include/HttpResponse.h"
-#include "../src/include/HttpServer.h"
-#include <iostream>
+#include "../src/include/view.h"
+#include "../src/include/response.h"
 
-void TEST_DB()
+using http::Request;
+using http::Response;
+using std::string;
+
+class TestView : public View
 {
-	SimpleDB testDB(BASE_DIR + "test/test.db");
-	testDB.write({"table_1", "some_data_1"}, true);
-	testDB.write({"table_2", "some_data_2"});
-	testDB.write({"table_1", "some_data_3"}, true);
-	testDB.write({"table_2", "some_data_4"});
-	testDB.write({"table_2", "some_data_4"}, true);
-}
+public:
+	TestView() : View("test/", "test/static/")
+	{
+		this->url = "welcome/";
+	};
+	string Get(Request& request) final
+	{
+		return Response::HttpResponse(this->templateDir + "test.html");
+	}
+};

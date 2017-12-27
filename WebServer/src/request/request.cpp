@@ -1,6 +1,6 @@
-#include "../include/HttpRequest.h"
+#include "../include/server.h"
 
-Request::Request(const std::string request, const std::string method, const std::string url, const std::string client)
+http::Request::Request(const std::string request, const std::string method, const std::string url, const std::string client)
 {
 	std::string headers("");
 	this->DATA.dict["method"] = method;
@@ -17,8 +17,7 @@ Request::Request(const std::string request, const std::string method, const std:
 		Parser::parseBody(*this);
 	}
 };
-
-std::string Request::RequestData::get(const std::string key)
+std::string http::Request::RequestData::get(const std::string key)
 {
 	std::string result("");
 	if (this->dict.find(key) != this->dict.end())
@@ -27,8 +26,7 @@ std::string Request::RequestData::get(const std::string key)
 	}
 	return result;
 }
-
-std::string Request::RequestPost::getBody()
+std::string http::Request::RequestPost::getBody()
 {
 	return this->body;
 }

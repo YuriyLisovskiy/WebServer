@@ -1,10 +1,10 @@
-#include "../include/HttpRequest.h"
-#include "../include/ServerMacros.h"
-#include "../include/RegularExpressions.h"
+#include "../include/request.h"
+#include "../include/headers.h"
+#include "../include/regexpr.h"
 #include <regex>
 #include <iostream>
 
-Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const std::string client)
+http::Request http::Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const std::string client)
 {
 	std::string firstLine("");
 	if (toParse)
@@ -27,7 +27,7 @@ Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const
 	lock.unlock();
 	std::string url(""), method("");
 	std::smatch data;
-	if (std::regex_match(firstLine, data, std::regex(REGEX::FIRST_LINE_REQUEST)))
+	if (std::regex_match(firstLine, data, std::regex(regex::FIRST_LINE_REQUEST)))
 	{
 		method = data[1].str();
 		url = data[2].str();
@@ -40,8 +40,7 @@ Request Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const
 	body = std::regex_replace(body, std::regex("\\r+"), "");
 	return Request(body, method, url, client);
 }
-
-REQUEST_METHOD Request::Parser::getRequestMethod(const std::string method)
+REQUEST_METHOD http::Request::Parser::getRequestMethod(const std::string method)
 {
 	REQUEST_METHOD result = REQUEST_METHOD::none;
 	std::string methodToLower(method);
@@ -64,8 +63,7 @@ REQUEST_METHOD Request::Parser::getRequestMethod(const std::string method)
 	}
 	return result;
 }
-
-std::string Request::Parser::parseUrl(const std::string url, std::map<std::string, std::string>& container)
+std::string http::Request::Parser::parseUrl(const std::string url, std::map<std::string, std::string>& container)
 {
 	std::string result(url);
 	size_t posBegin = url.find('?');
@@ -78,7 +76,7 @@ std::string Request::Parser::parseUrl(const std::string url, std::map<std::strin
 		while (posEnd != std::string::npos)
 		{
 			line = std::string(url.begin() + posBegin + 1, url.begin() + posEnd);
-			if (std::regex_match(line, data, std::regex(REGEX::REQUEST_GET_PARAM)))
+			if (std::regex_match(line, data, std::regex(regex::REQUEST_GET_PARAM)))
 			{
 				container[data[1].str()] = Parser::parseVal(data[2].str());
 			}
@@ -89,7 +87,7 @@ std::string Request::Parser::parseUrl(const std::string url, std::map<std::strin
 		if (posBegin < url.size())
 		{
 			line = std::string(url.begin() + posBegin, url.end());
-			if (std::regex_match(line, data, std::regex(REGEX::REQUEST_GET_PARAM)))
+			if (std::regex_match(line, data, std::regex(regex::REQUEST_GET_PARAM)))
 			{
 				container[data[1].str()] = Parser::parseVal(data[2].str());
 			}
@@ -101,13 +99,11 @@ std::string Request::Parser::parseUrl(const std::string url, std::map<std::strin
 	}
 	return result;
 }
-
-std::string Request::Parser::parseVal(const std::string value)
+std::string http::Request::Parser::parseVal(const std::string value)
 {
 	return std::regex_replace(value, std::regex("\\+"), " ");
 }
-
-void Request::Parser::parseCookies(const std::string cookies, std::map<std::string, std::string>& container)
+void http::Request::Parser::parseCookies(const std::string cookies, std::map<std::string, std::string>& container)
 {
 	if (!cookies.empty())
 	{
@@ -134,8 +130,7 @@ void Request::Parser::parseCookies(const std::string cookies, std::map<std::stri
 		}
 	}
 }
-
-void Request::Parser::parseHeaders(const std::string request, std::map<std::string, std::string>& headers, std::map<std::string, std::string>& cookies)
+void http::Request::Parser::parseHeaders(const std::string request, std::map<std::string, std::string>& headers, std::map<std::string, std::string>& cookies)
 {
 	if (!request.empty())
 	{
@@ -179,8 +174,7 @@ void Request::Parser::parseHeaders(const std::string request, std::map<std::stri
 		} while (posEnd != std::string::npos);
 	}
 }
-
-CONTENT_TYPE Request::Parser::getContentType(const std::string contentTypeStr)
+CONTENT_TYPE http::Request::Parser::getContentType(const std::string contentTypeStr)
 {
 	CONTENT_TYPE type = CONTENT_TYPE::NONE;
 	if (contentTypeStr == X_WWW_FORM_URLENCODED_TYPE)
@@ -193,8 +187,7 @@ CONTENT_TYPE Request::Parser::getContentType(const std::string contentTypeStr)
 	}
 	return type;
 }
-
-std::string Request::Parser::getBody(const std::string request)
+std::string http::Request::Parser::getBody(const std::string request)
 {
 	std::string requestBody("");
 	if (!request.empty())
@@ -207,8 +200,7 @@ std::string Request::Parser::getBody(const std::string request)
 	}
 	return requestBody;
 }
-
-std::string Request::Parser::getHeaders(const std::string request)
+std::string http::Request::Parser::getHeaders(const std::string request)
 {
 	std::string headers("");
 	if (!request.empty())
@@ -221,8 +213,7 @@ std::string Request::Parser::getHeaders(const std::string request)
 	}
 	return headers;
 }
-
-void Request::Parser::parseBody(Request& request)
+void http::Request::Parser::parseBody(Request& request)
 {
 	switch (Parser::getContentType(request.HEADERS.get("content-type")))
 	{
@@ -236,8 +227,7 @@ void Request::Parser::parseBody(Request& request)
 		throw "invalid content type";
 	}
 }
-
-void Request::Parser::parseFormUrlEncoded(Request& request)
+void http::Request::Parser::parseFormUrlEncoded(Request& request)
 {
 	Parser::percentDecode(request.POST.body);
 	std::string form(request.POST.body);
@@ -247,7 +237,7 @@ void Request::Parser::parseFormUrlEncoded(Request& request)
 	while (posEnd != std::string::npos)
 	{
 		line = std::string(form.begin() + posBegin, form.begin() + posEnd);
-		if (std::regex_match(line, data, std::regex(REGEX::REQUEST_GET_PARAM)))
+		if (std::regex_match(line, data, std::regex(regex::REQUEST_GET_PARAM)))
 		{
 			request.POST.dict[data[1].str()] = Parser::parseVal(data[2].str());
 		}
@@ -257,14 +247,13 @@ void Request::Parser::parseFormUrlEncoded(Request& request)
 	if (posBegin < form.size())
 	{
 		line = std::string(form.begin() + posBegin, form.end());
-		if (std::regex_match(line, data, std::regex(REGEX::REQUEST_GET_PARAM)))
+		if (std::regex_match(line, data, std::regex(regex::REQUEST_GET_PARAM)))
 		{
 			request.POST.dict[data[1].str()] = Parser::parseVal(data[2].str());
 		}
 	}
 }
-
-char Request::Parser::codeToSymbol(const std::string str)
+char http::Request::Parser::codeToSymbol(const std::string str)
 {
 	if (str == "%20")
 	{
@@ -347,8 +336,7 @@ char Request::Parser::codeToSymbol(const std::string str)
 		return '?';
 	}
 }
-
-void Request::Parser::percentDecode(std::string& str)
+void http::Request::Parser::percentDecode(std::string& str)
 {
 	size_t pos = str.find('%');
 	while (pos != std::string::npos)

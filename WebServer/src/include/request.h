@@ -1,15 +1,17 @@
 #pragma once
 
-#ifndef WEB_SERVER_HTTP_REQUEST_H
-#define WEB_SERVER_HTTP_REQUEST_H
+#ifndef WEB_SERVER_REQUEST_H
+#define WEB_SERVER_REQUEST_H
 
-#include "RequestMacros.h"
-#include <string>
+#include "headers.h"
 #include <map>
 #include <mutex>
 
+__HTTP_BEGIN
+
 class Request
 {
+	friend class HttpServer;
 private:
 	class RequestData
 	{
@@ -34,7 +36,6 @@ public:
 	RequestPost POST;
 	RequestData COOKIE;
 	Request(const std::string request, const std::string method, const std::string url, const std::string client);
-
 	class Parser
 	{
 	public:
@@ -53,5 +54,7 @@ public:
 		static void percentDecode(std::string& str);
 	};
 };
+
+__HTTP_END
 
 #endif
