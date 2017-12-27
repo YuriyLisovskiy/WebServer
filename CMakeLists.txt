@@ -1,24 +1,21 @@
 cmake_minimum_required(VERSION 3.9)
-project(WebServer)
 
-set(CMAKE_CXX_STANDARD 11)
+set(PROJECT_NAME web_server)
+
+project(${PROJECT_NAME})
+
+set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS  "-pthread")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
-file(GLOB LIB_FILES
-		"WebServer/src/include/*.h"
-		"WebServer/src/*/*.cpp")
+file(GLOB LIB_FILES "web_server/src/include/*.h" "web_server/src/*/*.cpp")
 
-file(GLOB TEST_FILES
-		"WebServer/test/*/*.h"
-		"WebServer/test/*/*.cpp")
+file(GLOB TEST_FILES "web_server/test/*.h" "web_server/test/*.cpp")
 
 set(LIB_SRC ${LIB_FILES})
 
-
 set(TEST_SRC ${TEST_FILES})
 
-
-add_executable(WebServer ${LIB_SRC} ${TEST_SRC})
+add_executable(${PROJECT_NAME} ${LIB_SRC} ${TEST_SRC})

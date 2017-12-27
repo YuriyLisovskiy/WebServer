@@ -16,7 +16,7 @@ std::string http::Response::Parser::errorPage(const size_t code, const std::stri
 std::string http::Response::Parser::readFile(const std::string filePath)
 {
 	std::ifstream file(filePath);
-	std::string html("");
+	std::string html;
 	if (file.is_open())
 	{
 		html.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());

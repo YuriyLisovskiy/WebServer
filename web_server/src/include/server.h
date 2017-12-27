@@ -16,8 +16,8 @@ class Server
 private:
 	std::mutex lockPrint;
 	std::vector<View*> views;
-	int port;
-	void startThread(const int port, std::ofstream& logFile);
+	uint16_t port;
+	void startThread(std::ofstream& logFile);
 	void serveClient(SOCK client, std::ofstream& logfile);
 	void processRequest(SOCK client);
 	void sendResponse(Request& request, SOCK client);
@@ -25,7 +25,7 @@ private:
 	class Parser
 	{
 	public:
-		static std::string getClientData(SOCK client, int port, int clientID);
+		static std::string getClientData(SOCK client, uint16_t port, int clientID);
 		static View* availableView(std::vector<View*> views, const std::string url);
 		static std::string getIP(SOCK socket);
 		static bool requestStatic(const std::string url);

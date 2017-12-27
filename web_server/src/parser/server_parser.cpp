@@ -2,7 +2,7 @@
 #include <regex>
 #include <iostream>
 
-std::string http::Server::Parser::getClientData(SOCK client, int port, int clientID)
+std::string http::Server::Parser::getClientData(SOCK client, uint16_t port, int clientID)
 {
 	std::string result = "ID: " + std::to_string(clientID) + "\nThe Client port is: ";
 	result += std::to_string(port);

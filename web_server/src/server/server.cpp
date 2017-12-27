@@ -37,7 +37,7 @@ void http::Server::start()
 		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'log.txt' is not opened.\n";
 	}
 	WSA_STARTUP;
-	std::thread newThread(&Server::startThread, this, this->port, ref(logFile));
+	std::thread newThread(&Server::startThread, this, ref(logFile));
 	if (newThread.joinable())
 	{
 		newThread.join();
@@ -45,7 +45,7 @@ void http::Server::start()
 	logFile.close();
 	WSA_CLEANUP;
 }
-void http::Server::startThread(const int port, std::ofstream& logFile)
+void http::Server::startThread(std::ofstream& logFile)
 {
 	SOCK listenSock;
 	SOCK client;
@@ -115,9 +115,10 @@ void http::Server::serveClient(SOCK client, std::ofstream& logfile)
 void http::Server::processRequest(SOCK client)
 {
 	char buffer[MAX_BUFF_SIZE];
-	int recvMsgSize, bufError;
+	ssize_t recvMsgSize;
+	int bufError;
 	std::string data;
-	int size = 0;
+	unsigned long size = 0;
 	do
 	{
 		recvMsgSize = recv(client, buffer, MAX_BUFF_SIZE, 0);
@@ -136,7 +137,7 @@ void http::Server::processRequest(SOCK client)
 	} while (recvMsgSize >= MAX_BUFF_SIZE);
 	try
 	{
-		char* dataToParse = (char*)data.c_str();
+		auto dataToParse = (char*)data.c_str();
 		if (!dataToParse)
 		{
 			dataToParse = nullptr;

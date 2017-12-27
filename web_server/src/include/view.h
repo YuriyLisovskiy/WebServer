@@ -9,7 +9,7 @@
 class View
 {
 public:
-	explicit View(const std::string templateDir = "", const std::string staticDir = "");
+	explicit View(std::string templateDir = "", std::string staticDir = "");
 	virtual std::string Get(http::Request& request);
 	virtual std::string Post(http::Request& request);
 	virtual std::string Put(http::Request& request);
@@ -19,10 +19,10 @@ public:
 	virtual std::string Options(http::Request& request);
 	virtual std::string Trace(http::Request& request);
 	virtual std::string Patch(http::Request& request);
-	void setTemplateDir(const std::string dir);
-	void setStaticDir(const std::string dir);
-	bool urlIsAvailable(const std::string url);
-	bool hasStatic(const std::string fileName);
+	void setTemplateDir(std::string dir);
+	void setStaticDir(std::string dir);
+	bool urlIsAvailable(std::string url);
+	bool hasStatic(std::string fileName);
 	std::string createStaticDir(const std::string url);
 protected:
 	std::string url;
