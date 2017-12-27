@@ -4,12 +4,12 @@
 #include <sstream>
 #include <fstream>
 
-http::HttpServer::HttpServer(const std::string port)
+http::Server::Server(const std::string port)
 {
 	this->port = std::stoi(port);
 	this->setView();
 }
-void http::HttpServer::setView(View* view)
+void http::Server::setView(View* view)
 {
 	if (view)
 	{
@@ -17,7 +17,7 @@ void http::HttpServer::setView(View* view)
 		this->views.push_back(view);
 	}
 }
-void http::HttpServer::setViews(std::vector<View*> views)
+void http::Server::setViews(std::vector<View*> views)
 {
 	this->views.clear();
 	for (const auto& view : views)
@@ -28,7 +28,7 @@ void http::HttpServer::setViews(std::vector<View*> views)
 		}
 	}
 }
-void http::HttpServer::start()
+void http::Server::start()
 {
 	std::ofstream logFile;
 	logFile.open(BASE_DIR + "log.txt", std::ios::app | std::ios::out);
@@ -37,7 +37,7 @@ void http::HttpServer::start()
 		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'log.txt' is not opened.\n";
 	}
 	WSA_STARTUP;
-	std::thread newThread(&HttpServer::startThread, this, this->port, ref(logFile));
+	std::thread newThread(&Server::startThread, this, this->port, ref(logFile));
 	if (newThread.joinable())
 	{
 		newThread.join();
@@ -45,7 +45,7 @@ void http::HttpServer::start()
 	logFile.close();
 	WSA_CLEANUP;
 }
-void http::HttpServer::startThread(const int port, std::ofstream& logFile)
+void http::Server::startThread(const int port, std::ofstream& logFile)
 {
 	SOCK listenSock;
 	SOCK client;
@@ -86,7 +86,7 @@ void http::HttpServer::startThread(const int port, std::ofstream& logFile)
 	{
 		if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
 		{
-			std::thread newClient(&HttpServer::serveClient, this, client, std::ref(logFile));
+			std::thread newClient(&Server::serveClient, this, client, std::ref(logFile));
 			newClient.detach();
 		}
 		else
@@ -95,7 +95,7 @@ void http::HttpServer::startThread(const int port, std::ofstream& logFile)
 		}
 	}
 }
-void http::HttpServer::serveClient(SOCK client, std::ofstream& logfile)
+void http::Server::serveClient(SOCK client, std::ofstream& logfile)
 {
 	clock_t start, finish;
 	start = clock();
@@ -112,7 +112,7 @@ void http::HttpServer::serveClient(SOCK client, std::ofstream& logfile)
 		this->lockPrint.unlock();
 	}
 }
-void http::HttpServer::processRequest(SOCK client)
+void http::Server::processRequest(SOCK client)
 {
 	char buffer[MAX_BUFF_SIZE];
 	int recvMsgSize, bufError;
@@ -176,7 +176,7 @@ void http::HttpServer::processRequest(SOCK client)
 		WSA_CLEANUP;
 	}
 }
-void http::HttpServer::sendResponse(Request& request, SOCK clientInstance)
+void http::Server::sendResponse(Request& request, SOCK clientInstance)
 {
 	std::string response;
 	std::string url = request.DATA.get("url");
@@ -215,7 +215,7 @@ void http::HttpServer::sendResponse(Request& request, SOCK clientInstance)
 	}
 	this->sendFile(response, clientInstance);
 }
-void http::HttpServer::sendFile(const std::string httpResponse, SOCK client)
+void http::Server::sendFile(const std::string httpResponse, SOCK client)
 {
 	if (send(client, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCK_ERROR)
 	{

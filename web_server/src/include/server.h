@@ -11,7 +11,7 @@
 
 __HTTP_BEGIN
 
-class HttpServer
+class Server
 {
 private:
 	std::mutex lockPrint;
@@ -31,7 +31,7 @@ private:
 		static bool requestStatic(const std::string url);
 	};
 public:
-	explicit HttpServer(const std::string port = START_PORT);
+	explicit Server(const std::string port = START_PORT);
 	void start();
 	void setView(View* view = new View());
 	void setViews(std::vector<View*> views);

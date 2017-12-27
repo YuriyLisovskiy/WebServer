@@ -2,7 +2,7 @@
 #include <regex>
 #include <iostream>
 
-std::string http::HttpServer::Parser::getClientData(SOCK client, int port, int clientID)
+std::string http::Server::Parser::getClientData(SOCK client, int port, int clientID)
 {
 	std::string result = "ID: " + std::to_string(clientID) + "\nThe Client port is: ";
 	result += std::to_string(port);
@@ -11,7 +11,7 @@ std::string http::HttpServer::Parser::getClientData(SOCK client, int port, int c
 	result += '\n';
 	return result;
 }
-View* http::HttpServer::Parser::availableView(std::vector<View*> views, const std::string url)
+View* http::Server::Parser::availableView(std::vector<View*> views, const std::string url)
 {
 	for (const auto& view : views)
 	{
@@ -22,7 +22,7 @@ View* http::HttpServer::Parser::availableView(std::vector<View*> views, const st
 	}
 	return nullptr;
 }
-std::string http::HttpServer::Parser::getIP(SOCK socket)
+std::string http::Server::Parser::getIP(SOCK socket)
 {
 	struct sockaddr_in addr;
 	socklen_t addr_size = sizeof(struct sockaddr_in);
@@ -33,7 +33,7 @@ std::string http::HttpServer::Parser::getIP(SOCK socket)
 	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
 	return clientIp;
 }
-bool http::HttpServer::Parser::requestStatic(const std::string url)
+bool http::Server::Parser::requestStatic(const std::string url)
 {
 	return url.find('.') != std::string::npos;
 }

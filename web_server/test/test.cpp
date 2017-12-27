@@ -2,7 +2,7 @@
 #include "test.h"
 #include <iostream>
 
-using http::HttpServer;
+using http::Server;
 using std::cerr;
 using std::cin;
 
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 		{
 			port = (char*)START_PORT;
 		}
-		HttpServer server(port);
+		Server server(port);
 		server.setView(new TestView());
 		server.start();
 	}
