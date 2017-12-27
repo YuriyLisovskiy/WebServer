@@ -37,6 +37,7 @@
 	}												\
 }
 #define LOCAL_TIME(timeNow, structure) localtime_s(&(structure), &(timeNow));
+#define MSG_SIZE int
 
 #elif defined(__unix) || defined(__unix__) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
 
@@ -61,6 +62,7 @@ std::string getRootDir();
 #define WSA_LAST_ERR '\n'
 #define WSA_STARTUP /**/
 #define LOCAL_TIME(timeNow, structure) localtime_r(&(timeNow), &(structure))
+#define MSG_SIZE ssize_t
 
 #endif
 

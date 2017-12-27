@@ -3,22 +3,16 @@
 #include <regex>
 #include <iostream>
 
-http::Request http::Request::Parser::parseRequestData(char* toParse, std::mutex& lock, const std::string client)
+http::Request http::Request::Parser::parseRequestData(const std::string toParse, std::mutex& lock, const std::string client)
 {
 	std::string firstLine;
-	if (toParse)
+	auto dataToParse = (char*)toParse.c_str();
+	while (*dataToParse != '\r')
 	{
-		while (*toParse != '\r')
-		{
-			firstLine += *toParse;
-			toParse++;
-		}
+		firstLine += *dataToParse;
+		dataToParse++;
 	}
-	else
-	{
-		throw "bad";
-	}
-	toParse += 2;
+	dataToParse += 2;
 	lock.lock();
 	std::cout << "\n[";
 	DATE_TIME_NOW(std::cout, "%d/%b/%Y %r");

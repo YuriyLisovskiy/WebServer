@@ -22,6 +22,9 @@ private:
 	void processRequest(SOCK client);
 	void sendResponse(Request& request, SOCK client);
 	void sendFile(const std::string html, SOCK client);
+	void closeSocket(SOCK& sock, int how, const std::string method, const std::string func, const int line);
+	void logData(std::ofstream& logfile, const float servingTime);
+	void printErr(const std::string msg, const int line);
 	class Parser
 	{
 	public:

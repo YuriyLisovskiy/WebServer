@@ -6,7 +6,14 @@
 
 http::Server::Server(const std::string port)
 {
-	this->port = (uint16_t)std::stoi(port);
+	try
+	{
+		this->port = (uint16_t)std::stoi(port);
+	}
+	catch (const std::exception& exc)
+	{
+		this->printErr("'http::Server::Server()': " + std::string(exc.what()) + ".", __LINE__ - 4);
+	}
 	this->setView();
 }
 void http::Server::setView(View* view)
@@ -30,11 +37,10 @@ void http::Server::setViews(std::vector<View*> views)
 }
 void http::Server::start()
 {
-	std::ofstream logFile;
-	logFile.open(BASE_DIR + "log.txt", std::ios::app | std::ios::out);
+	std::ofstream logFile(BASE_DIR + "log.txt", std::ios::app);
 	if (!logFile.is_open())
 	{
-		std::cerr << "SERVER ERROR: 'HttpServer::run()': file 'log.txt' is not opened.\n";
+		this->printErr("'http::Server::run()': file 'log.txt' is not opened.", __LINE__ - 3);
 	}
 	WSA_STARTUP;
 	std::thread newThread(&Server::startThread, this, ref(logFile));
@@ -48,40 +54,36 @@ void http::Server::start()
 void http::Server::startThread(std::ofstream& logFile)
 {
 	SOCK listenSock;
-	SOCK client;
 	int status;
 	sockaddr_in addr;
 	socklen_t sa_size = sizeof(sockaddr_in);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(this->port);
-	//	addr.sin_addr.s_addr = htonl(SERVER_IP);
 	inet_pton(AF_INET, SERVER_IP, &(addr.sin_addr));
-	listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (listenSock == INVALID_SOCK)
+	if ((listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCK)
 	{
-		std::cerr << "SERVER ERROR: 'HttpServer::startThread()': 'socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)'" << WSA_LAST_ERR;
+		this->printErr("'http::Server::startThread()': 'socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)' failed.", __LINE__ - 2);
 		WSA_CLEANUP;
 		return;
 	}
-	status = bind(listenSock, (sockaddr*)&addr, sizeof(sockaddr_in));
-	if (status == SOCK_ERROR)
+	if (bind(listenSock, (sockaddr*)&addr, sizeof(sockaddr_in)) == SOCK_ERROR)
 	{
-		std::cerr << "SERVER ERROR: 'HttpServer::startThread()': 'bind(listenSock, (sockaddr*)&addr, sizeof(sockaddr_in))'" << WSA_LAST_ERR;
-		status = CLOSE_SOCK(listenSock);
-		if (status == SOCK_ERROR)
+		this->printErr("'http::Server::startThread()': 'bind(listenSock, (sockaddr*)&addr, sizeof(sockaddr_in))' failed.", __LINE__ - 2);
+		if (CLOSE_SOCK(listenSock) == SOCK_ERROR)
 		{
-			std::cerr << "SERVER ERROR: 'HttpServer::startThread()': 'closesocket(listenSock)'" << WSA_LAST_ERR;
+			this->printErr("'http::Server::startThread()': 'closesocket(listenSock)' failed.", __LINE__ - 2);
 		}
 		WSA_CLEANUP;
 		return;
 	}
 	if (listen(listenSock, SOMAXCONN) == SOCK_ERROR)
 	{
-		std::cerr << "SERVER ERROR: 'HttpServer::startThread()': 'listen(listenSock, SOMAXCONN)'" << WSA_LAST_ERR;
+		this->printErr("'http::Server::startThread()': 'listen(listenSock, SOMAXCONN)' failed.", __LINE__ - 2);
 		return;
 	}
 	bool listening = true;
 	PRINT_SERVER_DATA(std::cout, Parser::getIP(listenSock), this->port);
+	SOCK client;
 	while (listening)
 	{
 		if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
@@ -91,7 +93,7 @@ void http::Server::startThread(std::ofstream& logFile)
 		}
 		else
 		{
-			std::cerr << "SERVER ERROR: 'HttpServer::startThread()': invalid client socket.\n";
+			this->printErr("'http::Server::startThread()': invalid client socket.", __LINE__ - 7);
 		}
 	}
 }
@@ -101,21 +103,15 @@ void http::Server::serveClient(SOCK client, std::ofstream& logfile)
 	start = clock();
 	this->processRequest(client);
 	finish = clock();
-	float servingTime = (float)(finish - start) / CLOCKS_PER_SEC;
 	if (logfile.is_open())
 	{
-		this->lockPrint.lock();
-		logfile << '[';
-		DATE_TIME_NOW(logfile, "%d/%b/%Y %r");
-		logfile << ']';
-		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
-		this->lockPrint.unlock();
+		this->logData(logfile, (float)(finish - start) / CLOCKS_PER_SEC);
 	}
 }
 void http::Server::processRequest(SOCK client)
 {
 	char buffer[MAX_BUFF_SIZE];
-	ssize_t recvMsgSize;
+	MSG_SIZE recvMsgSize;
 	int bufError;
 	std::string data;
 	unsigned long size = 0;
@@ -130,50 +126,32 @@ void http::Server::processRequest(SOCK client)
 		}
 		else if (recvMsgSize < 0)
 		{
-			this->lockPrint.lock();
-			std::cerr << "SERVER ERROR: 'HttpServer::processRequest()': 'recv(client, buffer, 1024, 0)'" << WSA_LAST_ERR;
-			this->lockPrint.unlock();
+			this->printErr("'http::Server::processRequest()': 'recv(client, buffer, 1024, 0)' failed.", __LINE__ - 9);
 		}
 	} while (recvMsgSize >= MAX_BUFF_SIZE);
 	try
 	{
-		auto dataToParse = (char*)data.c_str();
-		if (!dataToParse)
+		std::string dataToParse(data.c_str());
+		if (!dataToParse.empty())
 		{
-			dataToParse = nullptr;
+			Request request(Request::Parser::parseRequestData((char*)dataToParse.c_str(), this->lockPrint, Parser::getIP(client)));
+			this->sendResponse(request, client);
 		}
-		Request request(Request::Parser::parseRequestData(dataToParse, this->lockPrint, Parser::getIP(client)));
-		this->sendResponse(request, client);
+		else
+		{
+			this->sendFile(Response::BadRequest(), client);
+		}
 	}
 	catch (...)
 	{
 		this->sendFile(Response::BadRequest(), client);
 	}
-	bufError = shutdown(client, SOCK_SEND);
-	if (bufError == SOCK_ERROR)
-	{
-		this->lockPrint.lock();
-		std::cerr << "SERVER ERROR: 'HttpServer::processRequest()': 'shutdown(client, SD_SEND)'" << WSA_LAST_ERR;
-		this->lockPrint.unlock();
-		CLOSE_SOCK(client);
-		WSA_CLEANUP;
-	}
-
-	bufError = shutdown(client, SOCK_RECEIVE);
-	if (bufError == SOCK_ERROR)
-	{
-		this->lockPrint.lock();
-		std::cerr << "SERVER ERROR: 'HttpServer::processRequest()': 'shutdown(client, SD_RECEIVE)'" << WSA_LAST_ERR;
-		this->lockPrint.unlock();
-		CLOSE_SOCK(client);
-		WSA_CLEANUP;
-	}
+	this->closeSocket(client, SOCK_SEND, "processRequest()", "shutdown(client, SOCK_SEND)", __LINE__);
+	this->closeSocket(client, SOCK_RECEIVE, "processRequest()", "shutdown(client, SOCK_RECEIVE)", __LINE__);
 	bufError = CLOSE_SOCK(client);
 	if (bufError == SOCK_ERROR)
 	{
-		this->lockPrint.lock();
-		std::cerr << "SERVER ERROR: 'HttpServer::processRequest()': 'closesocket(client)'" << WSA_LAST_ERR;
-		this->lockPrint.unlock();
+		this->printErr("'http::Server::processRequest()': 'CLOSE_SOCK(client)' failed.", __LINE__ - 3);
 		WSA_CLEANUP;
 	}
 }
@@ -235,10 +213,38 @@ void http::Server::sendFile(const std::string httpResponse, SOCK client)
 {
 	if (send(client, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCK_ERROR)
 	{
-		this->lockPrint.lock();
-		std::cerr << "SERVER ERROR: 'HttpServer::sendFile()': 'send(client, httpResponse.c_str(), (int)httpResponse.size(), 0)'" << WSA_LAST_ERR;
-		this->lockPrint.unlock();
-		CLOSE_SOCK(client);
+		this->printErr("'http::Server::sendFile()': 'send(client, httpResponse.c_str(), (int)httpResponse.size(), 0)' failed.", __LINE__ - 2);
+		if (CLOSE_SOCK(client) == SOCK_ERROR)
+		{
+			this->printErr("'http::Server::sendFile()': 'CLOSE_SOCK(client)' failed.", __LINE__ - 2);
+		}
 		WSA_CLEANUP;
 	}
+}
+void http::Server::closeSocket(SOCK& sock, int how, const std::string method, const std::string func, const int line)
+{
+	if (shutdown(sock, how) == SOCK_ERROR)
+	{
+		this->printErr("'http::Server::" + method + "': '" + func + "' failed.", line);
+		if (CLOSE_SOCK(sock) == SOCK_ERROR)
+		{
+			this->printErr("'http::Server::closeSocket()': 'CLOSE_SOCK(sock)' failed.", __LINE__ - 2);
+		}
+		WSA_CLEANUP;
+	}
+}
+void http::Server::logData(std::ofstream& logfile, const float servingTime)
+{
+	this->lockPrint.lock();
+	logfile << '[';
+	DATE_TIME_NOW(logfile, "%d/%b/%Y %r");
+	logfile << ']';
+	logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
+	this->lockPrint.unlock();
+}
+void http::Server::printErr(const std::string msg, const int line)
+{
+	this->lockPrint.lock();
+	std::cerr << "\nSERVER ERROR:\n Message: \"" << msg << "\"\n Line: " << line << '\n';
+	this->lockPrint.unlock();
 }
