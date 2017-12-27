@@ -4,21 +4,9 @@
 #define WEB_SERVER_HEADERS_H
 
 #define SERVER_IP "0.0.0.0"		    // server ip
-#define START_PORT "8000"		    // port for starting the server
-
-#define PRINT_SERVER_DATA(stream, IP, PORT)						    \
-{																    \
-	(stream) << '[';												\
-	DATE_TIME_NOW(stream, "%d/%b/%Y %r");					    	\
-	(stream) << ']';												\
-	(stream) << "\nWeb server version 1.0\n"					    \
-	"Started server at http://" << (IP) << ":" << (PORT) << "/\n"	\
-	"Quit the server with CTRL - BREAK.\n";						    \
-}
+#define SERVER_PORT "8000"		    // port for starting the server
 
 #define MAX_BUFF_SIZE 1024
-
-#include <ctime>
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -48,15 +36,7 @@
 		return;										\
 	}												\
 }
-#define DATE_TIME_NOW(stream, format)							\
-{																\
-	time_t now = time(nullptr);									\
-	struct tm tstruct;											\
-	char buf[80];												\
-	localtime_s(&tstruct, &now);								\
-	strftime(buf, sizeof(buf), (format), &tstruct);				\
-	(stream) << buf;											\
-}
+#define LOCAL_TIME(timeNow, structure) localtime_s(&(structure), &(timeNow));
 
 #elif defined(__unix) || defined(__unix__) || defined(__APPLE__) || defined(__MACH__) || defined(__linux__) || defined(__FreeBSD__)
 
@@ -72,7 +52,7 @@ std::string getRootDir();
 
 #define SOCK int
 #define BASE_DIR getRootDir()
-#define INVALID_SOCK (SOCK)(~0)//(-1)
+#define INVALID_SOCK (SOCK)(~0)
 #define CLOSE_SOCK(sock) close(sock)
 #define WSA_CLEANUP /**/
 #define SOCK_ERROR (-1)
@@ -80,17 +60,31 @@ std::string getRootDir();
 #define SOCK_RECEIVE SHUT_RDWR
 #define WSA_LAST_ERR '\n'
 #define WSA_STARTUP /**/
+#define LOCAL_TIME(timeNow, structure) localtime_r(&(timeNow), &(structure))
+
+#endif
+
+#include <ctime>
+
 #define DATE_TIME_NOW(stream, format)							\
 {																\
 	time_t now = time(nullptr);									\
 	struct tm tstruct;											\
 	char buf[80];												\
-	localtime_r(&now, &tstruct);								\
+	LOCAL_TIME(now, tstruct);								    \
 	strftime(buf, sizeof(buf), (format), &tstruct);	        	\
 	(stream) << buf;											\
 }
 
-#endif
+#define PRINT_SERVER_DATA(stream, IP, PORT)						    \
+{																    \
+	(stream) << '[';												\
+	DATE_TIME_NOW(stream, "%d/%b/%Y %r");					    	\
+	(stream) << ']';												\
+	(stream) << "\nWeb server version 1.0\n"					    \
+	"Started server at http://" << (IP) << ":" << (PORT) << "/\n"	\
+	"Quit the server with CTRL - BREAK.\n";						    \
+}
 
 #define __HTTP_BEGIN namespace http {
 #define __HTTP_END }

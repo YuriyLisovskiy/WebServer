@@ -31,7 +31,7 @@ private:
 		static bool requestStatic(const std::string url);
 	};
 public:
-	explicit Server(const std::string port = START_PORT);
+	explicit Server(const std::string port = SERVER_PORT);
 	void start();
 	void setView(View* view = new View());
 	void setViews(std::vector<View*> views);

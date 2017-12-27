@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			port = (char*)START_PORT;
+			port = (char*)SERVER_PORT;
 		}
 		Server server(port);
 		server.setView(new TestView());
