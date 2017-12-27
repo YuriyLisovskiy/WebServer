@@ -7,58 +7,45 @@ Download as a zip archive or clone the repository:
 ```
 git clone https://github.com/YuriyLisovskiy/WebServer.git
 ```
-Move to the project folder:
-```
-cd WebServer
-```
 
 ### Usage
-* Include `src/include/HttpServer.h` for using http server.
-    > For using built-in http response, include `src/include/HttpResponse.h`
+* Include `web_server/src/include/server.h` for using http server.
+    > For using built-in http response, include `web_server/src/include/response.h`
     
-    > For using views , include `src/include/BaseView.h`
-* Implement a class inherited from `BaseView` and overload all 
-necessary methods which must return `std::string` data type. Available methods: `Get()`, `Post()`, `Put()`, `Delete()`
-(Default: `Response::MethodNotAllowed()`).
+    > For using views , include `web_server/src/include/view.h`
+* Implement a class inherited from base class `View` and overload all 
+necessary methods which must return `std::string` data type. Available methods: `Get()`, `Post()`, `Put()`, `Delete()`,
+`Head()`, `Connect()`, `Options()`, `Trace()` and `Patch()`.
+(Returns `http::Response::MethodNotAllowed()` by default).
 
 Example:
 
 ```
-class SomeView : public BaseView
+class SomeView : public View
 {
 public:
-	SomeView() : BaseView("template_dir/")
+	SomeView() : View("template_dir/", "static_dir/")
 	{
 	    this->url = "some/site_url/";
 	};
-	std::string Get(Request& request) final
+	std::string Get(http::Request& request) final
 	{
 	    /* Some logic */
-	    return Response::HttpResponse(this->dir + "get_request.html");
+	    return http::Response::HttpResponse(this->dir + "get_request.html");
 	}
-	std::string Post(Request& request) final
+	std::string Post(http::Request& request) final
         {
             /* Some logic */
-    	    return Response::HttpResponse(this->dir + "post_request.html");
-        }
-        std::string Put(Request& request) final
-        {
-            /* Some logic */
-            return Response::HttpResponse(this->dir + "put_request.html");
-        }
-        std::string Delete(Request& request) final
-        {
-            /* Some logic */
-            return Response::HttpResponse(this->dir + "delete_request.html");
-        }
-        
+    	    return http::Response::HttpResponse(this->dir + "post_request.html");
+        }        
 };
 ```
-* Set all views and run the server.
+* Setup all views and run the server.
 ```
-HttpServer server;
+std::string port("12345");
+HttpServer server(port);
 server.setView(new SomeView());
-server.run();
+server.start();
 ```
 
 ### Author

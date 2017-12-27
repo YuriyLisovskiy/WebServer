@@ -1,8 +1,8 @@
-#include "../include/HttpServer.h"
+#include "../include/server.h"
 #include <regex>
 #include <iostream>
 
-std::string HTTP::HttpServer::Parser::getClientData(SOCK client, int port, int clientID)
+std::string http::Server::Parser::getClientData(const SOCK& client, uint16_t port, int clientID)
 {
 	std::string result = "ID: " + std::to_string(clientID) + "\nThe Client port is: ";
 	result += std::to_string(port);
@@ -11,8 +11,7 @@ std::string HTTP::HttpServer::Parser::getClientData(SOCK client, int port, int c
 	result += '\n';
 	return result;
 }
-
-BaseView* HTTP::HttpServer::Parser::availableView(std::vector<BaseView*> views, const std::string url)
+View* http::Server::Parser::availableView(std::vector<View*> views, const std::string& url)
 {
 	for (const auto& view : views)
 	{
@@ -23,20 +22,18 @@ BaseView* HTTP::HttpServer::Parser::availableView(std::vector<BaseView*> views, 
 	}
 	return nullptr;
 }
-
-std::string HTTP::HttpServer::Parser::getIP(SOCK socket)
+std::string http::Server::Parser::getIP(const SOCK& socket)
 {
-	struct sockaddr_in addr;
+	struct sockaddr_in addr = {};
 	socklen_t addr_size = sizeof(struct sockaddr_in);
 	getsockname(socket, (struct sockaddr *)&addr, &addr_size);
-	sockaddr_in* pV4Addr = (struct sockaddr_in*)&addr;
+	auto* pV4Addr = &addr;
 	int ipAddr = pV4Addr->sin_addr.s_addr;
 	char clientIp[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
-	return clientIp;
+	return std::string(clientIp);
 }
-
-bool HTTP::HttpServer::Parser::requestStatic(const std::string url)
+bool http::Server::Parser::requestStatic(const std::string& url)
 {
 	return url.find('.') != std::string::npos;
 }
