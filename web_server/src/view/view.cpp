@@ -33,6 +33,26 @@ std::string View::Delete(http::Request& request)
 {
 	return http::Response::MethodNotAllowed();
 }
+std::string View::Connect(http::Request& request)
+{
+	return http::Response::MethodNotAllowed();
+}
+std::string View::Head(http::Request& request)
+{
+	return http::Response::MethodNotAllowed();
+}
+std::string View::Options(http::Request& request)
+{
+	return http::Response::MethodNotAllowed();
+}
+std::string View::Patch(http::Request& request)
+{
+	return http::Response::MethodNotAllowed();
+}
+std::string View::Trace(http::Request& request)
+{
+	return http::Response::MethodNotAllowed();
+}
 bool View::urlIsAvailable(const std::string url)
 {
 	std::string urlToCompare(this->url);

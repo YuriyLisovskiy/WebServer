@@ -42,7 +42,7 @@ http::Request http::Request::Parser::parseRequestData(char* toParse, std::mutex&
 }
 REQUEST_METHOD http::Request::Parser::getRequestMethod(const std::string method)
 {
-	REQUEST_METHOD result = REQUEST_METHOD::none;
+	REQUEST_METHOD result = REQUEST_METHOD::REQUEST_NONE;
 	std::string methodToLower(method);
 	std::transform(methodToLower.begin(), methodToLower.end(), methodToLower.begin(), ::tolower);
 	if (methodToLower == "get")
@@ -60,6 +60,26 @@ REQUEST_METHOD http::Request::Parser::getRequestMethod(const std::string method)
 	else if (methodToLower == "delete")
 	{
 		result = REQUEST_METHOD::DElETE;
+	}
+	else if (methodToLower == "options")
+	{
+		result = REQUEST_METHOD::OPTIONS;
+	}
+	else if (methodToLower == "connect")
+	{
+		result = REQUEST_METHOD::CONNECT;
+	}
+	else if (methodToLower == "head")
+	{
+		result = REQUEST_METHOD::HEAD;
+	}
+	else if (methodToLower == "trace")
+	{
+		result = REQUEST_METHOD::TRACE;
+	}
+	else if (methodToLower == "patch")
+	{
+		result = REQUEST_METHOD::PATCH;
 	}
 	return result;
 }
@@ -176,7 +196,7 @@ void http::Request::Parser::parseHeaders(const std::string request, std::map<std
 }
 CONTENT_TYPE http::Request::Parser::getContentType(const std::string contentTypeStr)
 {
-	CONTENT_TYPE type = CONTENT_TYPE::NONE;
+	CONTENT_TYPE type = CONTENT_TYPE::CONTENT_NONE;
 	if (contentTypeStr == X_WWW_FORM_URLENCODED_TYPE)
 	{
 		type = CONTENT_TYPE::X_WWW_FORM_URLENCODED;

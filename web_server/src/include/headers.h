@@ -101,14 +101,19 @@ enum REQUEST_METHOD
 	POST,
 	PUT,
 	DElETE,
-	none
+	HEAD,
+	CONNECT,
+	OPTIONS,
+	TRACE,
+	PATCH,
+	REQUEST_NONE
 };
 
 enum CONTENT_TYPE
 {
 	JSON,
 	X_WWW_FORM_URLENCODED,
-	NONE
+	CONTENT_NONE
 };
 
 #define JSON_TYPE "application/json"

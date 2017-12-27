@@ -14,6 +14,11 @@ public:
 	virtual std::string Post(http::Request& request);
 	virtual std::string Put(http::Request& request);
 	virtual std::string Delete(http::Request& request);
+	virtual std::string Head(http::Request& request);
+	virtual std::string Connect(http::Request& request);
+	virtual std::string Options(http::Request& request);
+	virtual std::string Trace(http::Request& request);
+	virtual std::string Patch(http::Request& request);
 	void setTemplateDir(const std::string dir);
 	void setStaticDir(const std::string dir);
 	bool urlIsAvailable(const std::string url);

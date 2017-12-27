@@ -203,6 +203,21 @@ void http::Server::sendResponse(Request& request, SOCK clientInstance)
 			case REQUEST_METHOD::DElETE:
 				response = view->Delete(request);
 				break;
+			case REQUEST_METHOD::HEAD:
+				response = view->Head(request);
+				break;
+			case REQUEST_METHOD::CONNECT:
+				response = view->Connect(request);
+				break;
+			case REQUEST_METHOD::OPTIONS:
+				response = view->Options(request);
+				break;
+			case REQUEST_METHOD::PATCH:
+				response = view->Patch(request);
+				break;
+			case REQUEST_METHOD::TRACE:
+				response = view->Trace(request);
+				break;
 			default:
 				response = Response::MethodNotAllowed();
 				break;
