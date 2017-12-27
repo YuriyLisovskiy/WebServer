@@ -1,6 +1,7 @@
 #include "../include/HttpResponse.h"
 #include <iostream>
 #include <regex>
+#include <sstream>
 
 std::string Response::Parser::errorPage(const size_t code, const std::string msg)
 {
@@ -46,9 +47,12 @@ std::string Response::Parser::readFile(const std::string filePath)
 
 std::string Response::Parser::makeResponse(const std::string html, const std::string statusStr, const size_t statusCode, const std::string requestContent)
 {
+	std::ostringstream ss;
+	DATE_TIME_NOW(ss, "%a, %d %b %y %T %z");
 	std::string response("HTTP/1.1 " + std::to_string(statusCode) + " " + statusStr + " \r\n");
 	response += "Content-Type: " + Parser::setContentType(requestContent) + "; charset=utf-8 \r\n";
-	response += "Content-Length: " + std::to_string(html.length()) + " \r\n\n";
+	response += "Content-Length: " + std::to_string(html.length()) + " \r\n";
+	response += "Date: " + ss.str() + " \r\n\n";
 	response += html;
 	std::cout << statusCode << '\n';
 	return response;

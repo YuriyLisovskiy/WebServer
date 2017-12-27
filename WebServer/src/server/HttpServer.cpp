@@ -129,14 +129,14 @@ void HTTP::HttpServer::serveClient(SOCK client, int port, std::ofstream& logfile
 	{
 		this->lockPrint.lock();
 		logfile << '[';
-		DATE_TIME_NOW(logfile);
+		DATE_TIME_NOW(logfile, "%d/%b/%Y %r");
 		logfile << ']';
 		logfile << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 		this->lockPrint.unlock();
 	}
 	this->lockPrint.lock();
 	std::stringstream ss;
-	DATE_TIME_NOW(ss);
+	DATE_TIME_NOW(ss, "%d/%b/%Y %r");
 	this->db->write({ "statistic_date", ss.str() });
 	this->db->write({ "statistic_speed", std::to_string(servingTime) });
 	std::string numStr(this->db->readUnique("requests_total"));

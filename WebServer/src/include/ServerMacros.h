@@ -12,7 +12,7 @@
 #define PRINT_SERVER_DATA(stream, IP, PORT)						    \
 {																    \
 	(stream) << '[';												\
-	DATE_TIME_NOW(stream);									    	\
+	DATE_TIME_NOW(stream, "%d/%b/%Y %r");					    	\
 	(stream) << ']';												\
 	(stream) << "\nWeb server version 1.0\n"					    \
 	"Started server at http://" << (IP) << ":" << (PORT) << "/\n"	\
