@@ -7,10 +7,6 @@ Download as a zip archive or clone the repository:
 ```
 git clone https://github.com/YuriyLisovskiy/WebServer.git
 ```
-Move to the project folder:
-```
-cd WebServer
-```
 
 ### Usage
 * Include `web_server/src/include/server.h` for using http server.
@@ -19,7 +15,7 @@ cd WebServer
     > For using views , include `web_server/src/include/view.h`
 * Implement a class inherited from base class `View` and overload all 
 necessary methods which must return `std::string` data type. Available methods: `Get()`, `Post()`, `Put()`, `Delete()`,
-`Head()`, `Connect()`, `Options()`, `Trace()`, `Patch()`.
+`Head()`, `Connect()`, `Options()`, `Trace()` and `Patch()`.
 (Returns `http::Response::MethodNotAllowed()` by default).
 
 Example:
@@ -49,7 +45,7 @@ public:
 std::string port("12345");
 HttpServer server(port);
 server.setView(new SomeView());
-server.run();
+server.start();
 ```
 
 ### Author
