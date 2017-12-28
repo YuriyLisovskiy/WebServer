@@ -5,7 +5,6 @@
 
 #include "response.h"
 #include "request.h"
-#include <map>
 #include <vector>
 #include <functional>
 

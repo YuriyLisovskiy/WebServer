@@ -91,20 +91,6 @@ std::string getRootDir();
 #define __HTTP_BEGIN namespace http {
 #define __HTTP_END }
 
-enum REQUEST_METHOD
-{
-	GET,
-	POST,
-	PUT,
-	DElETE,
-	HEAD,
-	CONNECT,
-	OPTIONS,
-	TRACE,
-	PATCH,
-	REQUEST_NONE
-};
-
 enum CONTENT_TYPE
 {
 	JSON,

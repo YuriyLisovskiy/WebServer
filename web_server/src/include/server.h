@@ -6,9 +6,6 @@
 #include "headers.h"
 #include "request.h"
 #include "application.h"
-#include <mutex>
-#include <vector>
-#include <queue>
 
 __HTTP_BEGIN
 
@@ -18,13 +15,12 @@ private:
 	std::mutex lockPrint;
 	Application* app;
 	uint16_t port;
-	std::queue<SOCK> clientsQueue;
 	void startListener();
-	void serveClient(const SOCK client);
+	void serveClient(SOCK client);
 	void processRequest(const SOCK& client);
 	void sendResponse(Request& request, const SOCK& client);
 	void sendFile(const std::string& html, const SOCK& client);
-	void closeSocket(const SOCK& sock, const int how, const std::string& method, const std::string& func, const int line);
+	void closeSocket(const SOCK& sock, int how, const std::string& method, const std::string& func, int line);
 	class Parser
 	{
 	public:

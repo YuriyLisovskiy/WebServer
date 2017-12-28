@@ -12,12 +12,12 @@ private:
 	static std::string path;
 	static Logger* instance;
 	Logger() = default;
-	Logger(const Logger& copy) {};
+	Logger(const Logger& copy) = default;
 public:
 	static Logger* log();
 	void file(const std::string& msg, std::mutex& lock);
 	void info(const std::string& msg, std::mutex& lock);
-	void error(const std::string& msg, const int line, std::mutex& lock);
+	void error(const std::string& msg, int line, std::mutex& lock);
 };
 
 #endif

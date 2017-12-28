@@ -150,7 +150,14 @@ void http::Server::sendResponse(Request& request, const SOCK& client)
 	{
 		if (Parser::requestStatic(url))
 		{
-			response = Response::responseStatic(this->app->createStaticDir(url));
+			if (this->app->hasStatic(url))
+			{
+				response = Response::responseStatic(this->app->createStaticDir(url));
+			}
+			else
+			{
+				response = Response::NotFound();
+			}
 		}
 		else
 		{
