@@ -1,51 +1,83 @@
 # Web Server C++ Linux/Windows
-
 ### Download and Open
-
 Download as a zip archive or clone the repository:
-
 ```
 git clone https://github.com/YuriyLisovskiy/WebServer.git
 ```
-
 ### Usage
 * Include `web_server/src/include/server.h` for using http server.
     > For using built-in http response, include `web_server/src/include/response.h`
     
-    > For using views , include `web_server/src/include/view.h`
-* Implement a class inherited from base class `View` and overload all 
-necessary methods which must return `std::string` data type. Available methods: `Get()`, `Post()`, `Put()`, `Delete()`,
-`Head()`, `Connect()`, `Options()`, `Trace()` and `Patch()`.
-(Returns `http::Response::MethodNotAllowed()` by default).
+    > For creating an application, include `web_server/src/include/application.h`
+* Implement a class inherited from base class `Application`.
 
 Example:
-
 ```
-class SomeView : public View
+#include "src/include/application.h"
+#include "src/include/response.h"
+
+class SomeApp : public Application
 {
 public:
-	SomeView() : View("template_dir/", "static_dir/")
+	SomeApp() : Application("path_to/html_docs/", "path_to/static_files/")
 	{
-	    this->url = "some/site_url/";
+		std::vector<std::pair<std::string, appFunc>> urls = {
+			{ "some/site/url", std::bind(&SomeApp::some_view, this, std::placeholders::_1) }
+		};
+		this->urls.set(urls);
 	};
-	std::string Get(http::Request& request) final
+	std::string some_view(http::Request& request)
 	{
-	    /* Some logic */
-	    return http::Response::HttpResponse(this->dir + "get_request.html");
+		return http::Response::HttpResponse(this->templateDir + "some_document.html");
 	}
-	std::string Post(http::Request& request) final
-        {
-            /* Some logic */
-    	    return http::Response::HttpResponse(this->dir + "post_request.html");
-        }        
 };
 ```
-* Setup all views and run the server.
+* Setup an application in `web_server/app_start.cpp` in `main()` function:
 ```
-std::string port("12345");
-HttpServer server(port);
-server.setView(new SomeView());
-server.start();
+#include "src/include/server.h"
+#include <iostream>
+
+#include "path/to/some_app.h"
+
+int main(int argc, char* argv[])
+{
+    try
+    {
+        std::string port;
+        if (argc > 1)
+        {
+            port = argv[1];
+        }
+        else
+        {
+            port = SERVER_PORT;
+        }
+        Server server(port);
+        server.setApp(new SomeApp());   // setup an app here
+        server.start();
+    }
+    catch (const std::exception& exc)
+    {
+        cerr << exc.what();
+    }
+    catch (...)
+    {
+        cerr << "Error...";
+    }
+    cin.get();
+    return 0;
+}
+```
+* Build the project using CLion or Microsoft Visual Studio
+build tools and run the server.
+
+Linux:
+```
+./Path_To_Project/WebServer/bin/web_server 12345
+```
+Windows:
+```
+web_server.exe 12345
 ```
 
 ### Author
