@@ -20,14 +20,11 @@ private:
 	uint16_t port;
 	std::queue<SOCK> clientsQueue;
 	void startListener();
-	void startSender();
 	void serveClient(const SOCK client);
 	void processRequest(const SOCK& client);
 	void sendResponse(Request& request, const SOCK& client);
 	void sendFile(const std::string& html, const SOCK& client);
 	void closeSocket(const SOCK& sock, const int how, const std::string& method, const std::string& func, const int line);
-	void logData(std::ofstream& logfile, const float servingTime);
-	void printErr(const std::string& msg, const int line);
 	class Parser
 	{
 	public:
