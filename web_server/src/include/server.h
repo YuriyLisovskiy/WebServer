@@ -17,7 +17,8 @@ private:
 	std::mutex lockPrint;
 	std::vector<View*> views;
 	uint16_t port;
-	void startThread(std::ofstream& logFile);
+	void startListener(std::ofstream& logFile);
+	void startSender();
 	void serveClient(const SOCK client, std::ofstream& logfile);
 	void processRequest(const SOCK& client);
 	void sendResponse(Request& request, const SOCK& client);

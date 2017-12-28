@@ -43,15 +43,24 @@ void http::Server::start()
 		this->printErr("'http::Server::run()': file 'log.txt' is not opened.", __LINE__ - 3);
 	}
 	WSA_STARTUP;
-	std::thread newThread(&Server::startThread, this, ref(logFile));
-	if (newThread.joinable())
+//	std::thread newSenderThread();
+	std::thread newListenThread(&Server::startListener, this, ref(logFile));
+	if (newListenThread.joinable())
 	{
-		newThread.join();
+		newListenThread.join();
 	}
 	logFile.close();
 	WSA_CLEANUP;
 }
-void http::Server::startThread(std::ofstream& logFile)
+void http::Server::startSender()
+{
+	bool sending = true;
+	while (sending)
+	{
+		// TODO: create serving thread
+	}
+}
+void http::Server::startListener(std::ofstream& logFile)
 {
 	SOCK listenSock;
 	sockaddr_in addr = {};

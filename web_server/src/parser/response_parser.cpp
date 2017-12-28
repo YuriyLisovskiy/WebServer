@@ -13,20 +13,28 @@ std::string http::Response::Parser::errorPage(const size_t code, const std::stri
 		std::to_string(code) + " " + msg + "</h1>\n</body>\n</html>\n");
 	return Parser::makeResponse(html, msg, code, "html");
 }
-std::string http::Response::Parser::readFile(const std::string& filePath)
+std::string http::Response::Parser::readFile(const std::string& filePath, bool openBinary)
 {
-	std::ifstream file(filePath);
-	std::string html;
+	std::ifstream file;
+	if (openBinary)
+	{
+		file.open(filePath, std::ios::binary);
+	}
+	else
+	{
+		file.open(filePath);
+	}
+	std::string res;
 	if (file.is_open())
 	{
-		html.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		res.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 		file.close();
 	}
 	else
 	{
 		std::cerr << "Cannot open '" << filePath << "'\n";
 	}
-	return html;
+	return res;
 }
 std::string http::Response::Parser::makeResponse(const std::string& html, const std::string& statusStr, const size_t statusCode, const std::string& requestContent)
 {
@@ -35,7 +43,7 @@ std::string http::Response::Parser::makeResponse(const std::string& html, const 
 	std::string response("HTTP/1.1 " + std::to_string(statusCode) + " " + statusStr + " \r\n");
 	response += "Content-Type: " + Parser::setContentType(requestContent) + "; charset=utf-8 \r\n";
 	response += "Content-Length: " + std::to_string(html.length()) + " \r\n";
-	response += "Date: " + ss.str() + " \r\n\n";
+	response += "Date: " + ss.str() + " \r\n\r\n";
 	response += html;
 	std::cout << statusCode << '\n';
 	return response;
@@ -50,6 +58,10 @@ std::string http::Response::Parser::setContentType(const std::string& requestTyp
 	else if (IMAGE_TYPE(requestType))
 	{
 		res = "image/*";
+	}
+	else if (AUDIO_TYPE(requestType))
+	{
+		res = "audio/*";
 	}
 	else
 	{

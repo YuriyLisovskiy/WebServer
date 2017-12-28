@@ -114,6 +114,9 @@ enum CONTENT_TYPE
 
 #define JSON_TYPE "application/json"
 #define X_WWW_FORM_URLENCODED_TYPE "application/x-www-form-urlencoded"
-#define IMAGE_TYPE(type) (type) == "png" || (type) == "jpg" || (type) == "jpeg" || (type) == "ico" || (type) == "gif"
+#define IMAGE_TYPE(type) (type) == "png" || (type) == "jpg" || (type) == "jpeg" || (type) == "ico" || (type) == "gif" || \
+						 (type) == "apng" || (type) == "svg" || (type) == "bmp"
+#define AUDIO_TYPE(type) (type) == "mp3" || (type) == "mp4" || (type) == "mpeg" || (type) == "wav" || (type) == "aac" || \
+						 (type) == "aacp" || (type) == "ogg" || (type) == "webm" || (type) == "flac"
 
 #endif
