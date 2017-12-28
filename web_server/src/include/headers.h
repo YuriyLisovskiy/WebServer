@@ -49,10 +49,8 @@
 #include <pthread.h>
 #include <string>
 
-std::string getRootDir();
-
 #define SOCK int
-#define BASE_DIR getRootDir()
+#define BASE_DIR std::string(getcwd(nullptr, 0)) + "/web_server/"
 #define INVALID_SOCK (SOCK)(~0)
 #define CLOSE_SOCK(sock) close(sock)
 #define WSA_CLEANUP /**/

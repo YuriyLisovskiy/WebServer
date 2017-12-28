@@ -19,7 +19,7 @@ Example:
 class SomeApp : public Application
 {
 public:
-	SomeApp() : Application("path_to/html_docs/", "path_to/static_files/")
+	SomeApp() : Application("path_to/html_docs/", "path_to/static_files/") // read note below*
 	{
 		std::vector<std::pair<std::string, appFunc>> urls = {
 			{ "some/site/url", std::bind(&SomeApp::some_view, this, std::placeholders::_1) }
@@ -32,6 +32,9 @@ public:
 	}
 };
 ```
+
+> Note: base directory is `Path_To_Project_Folder/WebServer/web_server/`.
+Use `some_app.setTemplateDir()` and `some_app.setStaticDir()` for setting up custom directories.
 * Setup an application in `web_server/app_start.cpp` in `main()` function:
 ```
 #include "src/include/server.h"
