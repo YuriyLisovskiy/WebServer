@@ -8,6 +8,7 @@
 #include "view.h"
 #include <mutex>
 #include <vector>
+#include <queue>
 
 __HTTP_BEGIN
 
@@ -17,9 +18,10 @@ private:
 	std::mutex lockPrint;
 	std::vector<View*> views;
 	uint16_t port;
-	void startListener(std::ofstream& logFile);
+	std::queue<SOCK> clientsQueue;
+	void startListener();
 	void startSender();
-	void serveClient(const SOCK client, std::ofstream& logfile);
+	void serveClient(const SOCK client);
 	void processRequest(const SOCK& client);
 	void sendResponse(Request& request, const SOCK& client);
 	void sendFile(const std::string& html, const SOCK& client);

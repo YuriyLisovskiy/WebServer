@@ -43,8 +43,8 @@ void http::Server::start()
 		this->printErr("'http::Server::run()': file 'log.txt' is not opened.", __LINE__ - 3);
 	}
 	WSA_STARTUP;
-//	std::thread newSenderThread();
-	std::thread newListenThread(&Server::startListener, this, ref(logFile));
+	std::thread newSenderThread(&Server::startSender, this);
+	std::thread newListenThread(&Server::startListener, this);
 	if (newListenThread.joinable())
 	{
 		newListenThread.join();
@@ -57,10 +57,15 @@ void http::Server::startSender()
 	bool sending = true;
 	while (sending)
 	{
-		// TODO: create serving thread
+		while (!this->clientsQueue.empty())
+		{
+			std::thread newClient(&Server::serveClient, this, this->clientsQueue.front());
+			newClient.detach();
+			clientsQueue.pop();
+		}
 	}
 }
-void http::Server::startListener(std::ofstream& logFile)
+void http::Server::startListener()
 {
 	SOCK listenSock;
 	sockaddr_in addr = {};
@@ -96,8 +101,7 @@ void http::Server::startListener(std::ofstream& logFile)
 	{
 		if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
 		{
-			std::thread newClient(&Server::serveClient, this, client, std::ref(logFile));
-			newClient.detach();
+			this->clientsQueue.push(client);
 		}
 		else
 		{
@@ -105,16 +109,16 @@ void http::Server::startListener(std::ofstream& logFile)
 		}
 	}
 }
-void http::Server::serveClient(const SOCK client, std::ofstream& logfile)
+void http::Server::serveClient(const SOCK client)
 {
-	clock_t start, finish;
-	start = clock();
+//	clock_t start, finish;
+//	start = clock();
 	this->processRequest(client);
-	finish = clock();
-	if (logfile.is_open())
-	{
-		this->logData(logfile, (float)(finish - start) / CLOCKS_PER_SEC);
-	}
+//	finish = clock();
+//	if (logfile.is_open())
+//	{
+//		this->logData(logfile, (float)(finish - start) / CLOCKS_PER_SEC);
+//	}
 }
 void http::Server::processRequest(const SOCK& client)
 {
