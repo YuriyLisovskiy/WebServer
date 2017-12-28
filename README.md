@@ -71,8 +71,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 ```
-* Build the project using CLion or Microsoft Visual Studio
-build tools and run the server.
+* Build the project using CLion build tools and run the server.
 
 Linux:
 ```
