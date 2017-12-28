@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 			port = SERVER_PORT;
 		}
 		Server server(port);
-		server.setView(new TestView());
+		server.setApp(new TestApp());
 		server.start();
 	}
 	catch (const std::exception& exc)

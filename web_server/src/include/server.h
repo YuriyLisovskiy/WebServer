@@ -5,7 +5,7 @@
 
 #include "headers.h"
 #include "request.h"
-#include "view.h"
+#include "application.h"
 #include <mutex>
 #include <vector>
 #include <queue>
@@ -16,7 +16,7 @@ class Server
 {
 private:
 	std::mutex lockPrint;
-	std::vector<View*> views;
+	Application* app;
 	uint16_t port;
 	std::queue<SOCK> clientsQueue;
 	void startListener();
@@ -29,15 +29,13 @@ private:
 	{
 	public:
 		static std::string getClientData(const SOCK& client, uint16_t port, int clientID);
-		static View* availableView(std::vector<View*> views, const std::string& url);
 		static std::string getIP(const SOCK& socket);
 		static bool requestStatic(const std::string& url);
 	};
 public:
 	explicit Server(const std::string& port = SERVER_PORT);
 	void start();
-	void setView(View* view = new View());
-	void setViews(std::vector<View*> views);
+	void setApp(Application* app = new Application());
 };
 
 __HTTP_END

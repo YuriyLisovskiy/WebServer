@@ -11,17 +11,6 @@ std::string http::Server::Parser::getClientData(const SOCK& client, uint16_t por
 	result += '\n';
 	return result;
 }
-View* http::Server::Parser::availableView(std::vector<View*> views, const std::string& url)
-{
-	for (const auto& view : views)
-	{
-		if (view->urlIsAvailable(url))
-		{
-			return view;
-		}
-	}
-	return nullptr;
-}
 std::string http::Server::Parser::getIP(const SOCK& socket)
 {
 	struct sockaddr_in addr = {};

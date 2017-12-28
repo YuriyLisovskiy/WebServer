@@ -1,19 +1,22 @@
 #pragma once
-#include "../src/include/view.h"
+#include "../src/include/application.h"
 #include "../src/include/response.h"
 
 using http::Request;
 using http::Response;
 using std::string;
 
-class TestView : public View
+class TestApp : public Application
 {
 public:
-	TestView() : View("test/", "test/static/")
+	TestApp() : Application("test/", "test/static/")
 	{
-		this->url = "welcome/";
+		std::vector<std::pair<std::string, func>> urlPatterns = {
+			{ "welcome/", std::bind(&TestApp::index, this, std::placeholders::_1) }
+		};
+		this->urls.set(urlPatterns);
 	};
-	string Get(Request& request) final
+	std::string index(Request& request)
 	{
 		return Response::HttpResponse(this->templateDir + "test.html");
 	}

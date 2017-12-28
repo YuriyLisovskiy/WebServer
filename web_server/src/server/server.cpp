@@ -18,25 +18,13 @@ http::Server::Server(const std::string& port)
 		Logger::log()->error("'http::Server::Server()': 'invalid port number'", __LINE__ - 4, this->lockPrint);
 		this->port = (uint16_t)std::stoi(SERVER_PORT);
 	}
-	this->setView();
+	this->setApp();
 }
-void http::Server::setView(View* view)
+void http::Server::setApp(Application* app)
 {
-	if (view)
+	if (app)
 	{
-		this->views.clear();
-		this->views.push_back(view);
-	}
-}
-void http::Server::setViews(std::vector<View*> views)
-{
-	this->views.clear();
-	for (const auto& view : views)
-	{
-		if (view)
-		{
-			this->views.push_back(view);
-		}
+		this->app = app;
 	}
 }
 void http::Server::start()
@@ -158,53 +146,27 @@ void http::Server::sendResponse(Request& request, const SOCK& client)
 {
 	std::string response;
 	std::string url = request.DATA.get("url");
-	View* view = Parser::availableView(this->views, url);
-	if (view)
+	if (this->app)
 	{
 		if (Parser::requestStatic(url))
 		{
-			response = Response::responseStatic(view->createStaticDir(url));
+			response = Response::responseStatic(this->app->createStaticDir(url));
 		}
 		else
 		{
-			switch (Request::Parser::getRequestMethod(request.DATA.get("method")))
+			if (this->app->checkUrl(url))
 			{
-			case REQUEST_METHOD::GET:
-				response = view->Get(request);
-				break;
-			case REQUEST_METHOD::POST:
-				response = view->Post(request);
-				break;
-			case REQUEST_METHOD::PUT:
-				response = view->Put(request);
-				break;
-			case REQUEST_METHOD::DElETE:
-				response = view->Delete(request);
-				break;
-			case REQUEST_METHOD::HEAD:
-				response = view->Head(request);
-				break;
-			case REQUEST_METHOD::CONNECT:
-				response = view->Connect(request);
-				break;
-			case REQUEST_METHOD::OPTIONS:
-				response = view->Options(request);
-				break;
-			case REQUEST_METHOD::PATCH:
-				response = view->Patch(request);
-				break;
-			case REQUEST_METHOD::TRACE:
-				response = view->Trace(request);
-				break;
-			default:
-				response = Response::MethodNotAllowed();
-				break;
+				response = this->app->getFunction(url)(request);
+			}
+			else
+			{
+				response = Response::NotFound();
 			}
 		}
 	}
 	else
 	{
-		response = Response::NotFound();
+		response = Response::InternalServerError();
 	}
 	this->sendFile(response, client);
 }
