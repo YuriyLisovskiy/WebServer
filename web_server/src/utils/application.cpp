@@ -34,7 +34,7 @@ bool Application::checkUrl(const std::string& url)
 {
 	return this->urls.urlExists(url);
 }
-func Application::getFunction(const std::string& key)
+appFunc Application::getFunction(const std::string& key)
 {
 	return this->urls.urls[key];
 }

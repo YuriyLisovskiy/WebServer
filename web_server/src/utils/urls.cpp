@@ -1,6 +1,6 @@
 #include "../include/application.h"
 
-void Application::Urls::set(std::vector<std::pair<std::string, func>> urls)
+void Application::Urls::set(std::vector<std::pair<std::string, appFunc>> urls)
 {
 	if (!urls.empty())
 	{

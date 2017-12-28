@@ -8,7 +8,7 @@
 #include <vector>
 #include <functional>
 
-using func = std::function<std::string(http::Request&)>;
+using appFunc = std::function<std::string(http::Request&)>;
 
 class Application
 {
@@ -17,9 +17,9 @@ private:
 	{
 		friend class Application;
 	private:
-		std::map<std::string, func> urls;
+		std::map<std::string, appFunc> urls;
 	public:
-		void set(std::vector<std::pair<std::string, func>> urls);
+		void set(std::vector<std::pair<std::string, appFunc>> urls);
 		bool urlExists(const std::string& url);
 	};
 public:
@@ -29,7 +29,7 @@ public:
 	bool hasStatic(const std::string& fileName);
 	std::string createStaticDir(const std::string& url);
 	bool checkUrl(const std::string& url);
-	func getFunction(const std::string& key);
+	appFunc getFunction(const std::string& key);
 protected:
 	Urls urls;
 	std::string templateDir;

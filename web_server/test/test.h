@@ -11,7 +11,7 @@ class TestApp : public Application
 public:
 	TestApp() : Application("test/", "test/static/")
 	{
-		std::vector<std::pair<std::string, func>> urlPatterns = {
+		std::vector<std::pair<std::string, appFunc>> urlPatterns = {
 			{ "welcome/", std::bind(&TestApp::index, this, std::placeholders::_1) }
 		};
 		this->urls.set(urlPatterns);

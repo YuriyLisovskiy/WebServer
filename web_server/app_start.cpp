@@ -1,5 +1,5 @@
-#include "../src/include/server.h"
-#include "test.h"
+#include "src/include/server.h"
+#include "test/test.h"
 #include <iostream>
 
 using http::Server;
