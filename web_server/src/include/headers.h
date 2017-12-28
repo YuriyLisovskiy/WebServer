@@ -17,7 +17,7 @@
 #pragma comment (lib, "Ws2_32.lib")
 
 #define SOCK SOCKET
-#define BASE_DIR std::string(_getcwd(0, 0)) + "/"
+#define BASE_DIR std::string(_getcwd(0, 0)) + "/web_server/"
 #define INVALID_SOCK INVALID_SOCKET
 #define WSA_CLEANUP WSACleanup()
 #define CLOSE_SOCK(sock) closesocket(sock)

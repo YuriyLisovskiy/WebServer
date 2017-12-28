@@ -78,9 +78,9 @@ Linux:
 ```
 ./Path_To_Project/WebServer/bin/web_server 12345
 ```
-Windows:
+Windows (PowerShell):
 ```
-web_server.exe 12345
+.\Path_To_Project\WebServer\bin\web_server.exe 12345
 ```
 
 ### Author
