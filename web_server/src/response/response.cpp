@@ -36,5 +36,5 @@ std::string http::Response::responseStatic(const std::string& fileName)
 	{
 		throw "bad request";
 	}
-	return Parser::makeResponse(Parser::readFile(fileName), "OK", 200, type);
+	return Parser::makeResponse(Parser::readFile(fileName, true), "OK", 200, type);
 }

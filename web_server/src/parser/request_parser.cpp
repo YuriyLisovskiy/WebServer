@@ -33,49 +33,6 @@ http::Request http::Request::Parser::parseRequestData(const std::string& toParse
 	body = std::regex_replace(body, std::regex(R"(\r+)"), "");
 	return Request(body, method, url, client);
 }
-REQUEST_METHOD http::Request::Parser::getRequestMethod(const std::string& method)
-{
-	REQUEST_METHOD result = REQUEST_METHOD::REQUEST_NONE;
-	std::string methodToLower(method);
-	std::transform(methodToLower.begin(), methodToLower.end(), methodToLower.begin(), ::tolower);
-	if (methodToLower == "get")
-	{
-		result = REQUEST_METHOD::GET;
-	}
-	else if (methodToLower == "post")
-	{
-		result = REQUEST_METHOD::POST;
-	}
-	else if (methodToLower == "put")
-	{
-		result = REQUEST_METHOD::PUT;
-	}
-	else if (methodToLower == "delete")
-	{
-		result = REQUEST_METHOD::DElETE;
-	}
-	else if (methodToLower == "options")
-	{
-		result = REQUEST_METHOD::OPTIONS;
-	}
-	else if (methodToLower == "connect")
-	{
-		result = REQUEST_METHOD::CONNECT;
-	}
-	else if (methodToLower == "head")
-	{
-		result = REQUEST_METHOD::HEAD;
-	}
-	else if (methodToLower == "trace")
-	{
-		result = REQUEST_METHOD::TRACE;
-	}
-	else if (methodToLower == "patch")
-	{
-		result = REQUEST_METHOD::PATCH;
-	}
-	return result;
-}
 std::string http::Request::Parser::parseUrl(const std::string& url, std::map<std::string, std::string>& container)
 {
 	std::string result(url);

@@ -40,7 +40,6 @@ public:
 	{
 	public:
 		static Request parseRequestData(const std::string& toParse, std::mutex& lock, const std::string& client);
-		static REQUEST_METHOD getRequestMethod(const std::string& method);
 		static std::string parseUrl(const std::string& url, std::map<std::string, std::string>& container);
 		static std::string parseVal(const std::string& value);
 		static void parseCookies(const std::string& cookies, std::map<std::string, std::string>& container);

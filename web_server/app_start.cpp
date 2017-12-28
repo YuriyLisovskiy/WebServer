@@ -1,5 +1,5 @@
-#include "../src/include/server.h"
-#include "test.h"
+#include "src/include/server.h"
+#include "test/test.h"
 #include <iostream>
 
 using http::Server;
@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 			port = SERVER_PORT;
 		}
 		Server server(port);
-		server.setView(new TestView());
+		server.setApp(new TestApp());
 		server.start();
 	}
 	catch (const std::exception& exc)
