@@ -1,4 +1,5 @@
 # Web Server C++ Linux/Windows
+
 ### Download and Open
 Download as a zip archive or clone the repository:
 ```
@@ -39,9 +40,7 @@ Use `some_app.setTemplateDir()` and `some_app.setStaticDir()` for setting up cus
 ```
 #include "src/include/server.h"
 #include <iostream>
-
 #include "path/to/some_app.h"
-
 int main(int argc, char* argv[])
 {
     try
@@ -85,5 +84,7 @@ Windows (PowerShell):
 ### Author
 
 * **[Yuriy Lisovskiy](https://github.com/YuriyLisovskiy)**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 > Note: the project is not tested completely, so, there still can be bugs.
