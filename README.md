@@ -1,11 +1,11 @@
 # Web Server C++ Linux/Windows
 
-### Download and Open
+## Download and Open
 Download as a zip archive or clone the repository:
 ```
 git clone https://github.com/YuriyLisovskiy/WebServer.git
 ```
-### Usage
+## Usage
 * Include `web_server/src/include/server.h` for using http server.
     > For using built-in http response, include `web_server/src/include/response.h`
     
@@ -80,11 +80,12 @@ Windows (PowerShell):
 ```
 .\Path_To_Project\WebServer\bin\web_server.exe 12345
 ```
+> Note: the project is not tested completely, so, there still can be bugs.
 
-### Author
+## Author
 
 * **[Yuriy Lisovskiy](https://github.com/YuriyLisovskiy)**
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## License
 
-> Note: the project is not tested completely, so, there still can be bugs.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
