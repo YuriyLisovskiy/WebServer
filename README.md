@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 {
     if (argc > 1)
     {
-        if (argv[1] == "runserver")
+        if (std::string(argv[1]) == "runserver")
         {
             try
             {
@@ -71,9 +71,13 @@ int main(int argc, char* argv[])
                 std::cerr << "Error...";
             }
         }
-        else if (argv[1] == "test")
+        else if (std::string(argv[1]) == "test")
         {
             // TODO: run tests
+        }
+        else
+        {
+            std::cerr << "Invalid arguments passed...";
         }
     }
     else
@@ -88,11 +92,11 @@ int main(int argc, char* argv[])
 
 Linux:
 ```
-./Path_To_Project/WebServer/bin/web_server runserver 12345
+./Path_To_Project/WebServer/bin/web_server runserver 127.0.0.1 12345
 ```
 Windows (PowerShell):
 ```
-.\Path_To_Project\WebServer\bin\web_server.exe runserver 12345
+.\Path_To_Project\WebServer\bin\web_server.exe runserver 127.0.0.1 12345
 ```
 > Note: the project is not tested completely, so, there still can be bugs.
 
