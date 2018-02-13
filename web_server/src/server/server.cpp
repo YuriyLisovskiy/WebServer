@@ -7,7 +7,7 @@
 
 std::string Logger::path = BASE_DIR + "log.txt";
 
-http::Server::Server(const std::string& port)
+http::Server::Server(const std::string& IP, const std::string& port)
 {
 	try
 	{
@@ -18,6 +18,7 @@ http::Server::Server(const std::string& port)
 		Logger::log()->error("'http::Server::Server()': 'invalid port number'", __LINE__ - 4, this->lockPrint);
 		this->port = (uint16_t)std::stoi(SERVER_PORT);
 	}
+	this->ip = IP;
 	this->setApp();
 }
 void http::Server::setApp(Application* app)
@@ -44,7 +45,7 @@ void http::Server::startListener()
 	socklen_t sa_size = sizeof(sockaddr_in);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(this->port);
-	inet_pton(AF_INET, SERVER_IP, &(addr.sin_addr));
+	inet_pton(AF_INET, this->ip.c_str(), &(addr.sin_addr));
 	if ((listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCK)
 	{
 		Logger::log()->error("'http::Server::startThread()': 'socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)' failed.", __LINE__ - 2, this->lockPrint);

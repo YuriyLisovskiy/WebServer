@@ -15,6 +15,7 @@ private:
 	std::mutex lockPrint;
 	Application* app;
 	uint16_t port;
+	std::string ip;
 	void startListener();
 	void serveClient(SOCK client);
 	void processRequest(const SOCK& client);
@@ -29,7 +30,7 @@ private:
 		static bool requestStatic(const std::string& url);
 	};
 public:
-	explicit Server(const std::string& port = SERVER_PORT);
+	explicit Server(const std::string& IP=SERVER_IP, const std::string& port = SERVER_PORT);
 	void start();
 	void setApp(Application* app = new Application());
 };
