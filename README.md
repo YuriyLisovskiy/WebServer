@@ -38,35 +38,49 @@ public:
 Use `some_app.setTemplateDir()` and `some_app.setStaticDir()` for setting up custom directories.
 * Setup an application in `web_server/app_start.cpp` in `main()` function:
 ```
-#include "src/include/server.h"
 #include <iostream>
 #include "path/to/some_app.h"
+#include "src/include/server.h"
 int main(int argc, char* argv[])
 {
-    try
+    if (argc > 1)
     {
-        std::string port;
-        if (argc > 1)
+        if (argv[1] == "runserver")
         {
-            port = argv[1];
+            try
+            {
+                std::string port;
+                if (argc > 2)
+                {
+                    port = argv[2];
+                }
+                else
+                {
+                    port = SERVER_PORT;
+                }
+                http::Server server(port);
+                server.setApp(new DemoApp());
+                server.start();
+            }
+            catch (const std::exception& exc)
+            {
+                std::cerr << exc.what();
+            }
+            catch (...)
+            {
+                std::cerr << "Error...";
+            }
         }
-        else
+        else if (argv[1] == "test")
         {
-            port = SERVER_PORT;
+            // TODO: run tests
         }
-        Server server(port);
-        server.setApp(new SomeApp());   // setup an app here
-        server.start();
     }
-    catch (const std::exception& exc)
+    else
     {
-        cerr << exc.what();
+        std::cerr << "Invalid arguments passed...";
     }
-    catch (...)
-    {
-        cerr << "Error...";
-    }
-    cin.get();
+    std::cin.get();
     return 0;
 }
 ```
@@ -74,11 +88,11 @@ int main(int argc, char* argv[])
 
 Linux:
 ```
-./Path_To_Project/WebServer/bin/web_server 12345
+./Path_To_Project/WebServer/bin/web_server runserver 12345
 ```
 Windows (PowerShell):
 ```
-.\Path_To_Project\WebServer\bin\web_server.exe 12345
+.\Path_To_Project\WebServer\bin\web_server.exe runserver 12345
 ```
 > Note: the project is not tested completely, so, there still can be bugs.
 
