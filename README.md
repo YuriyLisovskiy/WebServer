@@ -7,9 +7,9 @@ git clone https://github.com/YuriyLisovskiy/WebServer.git
 ```
 ## Usage
 * Include `web_server/src/include/server.h` for using http server.
-    > For using built-in http response, include `web_server/src/include/response.h`
-    
-    > For creating an application, include `web_server/src/include/application.h`
+	> For using built-in http response, include `web_server/src/include/response.h`
+	
+	> For creating an application, include `web_server/src/include/application.h`
 * Implement a class inherited from base class `Application`.
 
 Example:
@@ -38,53 +38,19 @@ public:
 Use `some_app.setTemplateDir()` and `some_app.setStaticDir()` for setting up custom directories.
 * Setup an application in `web_server/app_start.cpp` in `main()` function:
 ```
-#include <iostream>
-#include "path/to/some_app.h"
 #include "src/include/server.h"
+#include "demo/demo.h"
+#include <iostream>
+
+using http::Server;
+using std::cin;
+
 int main(int argc, char* argv[])
 {
-    if (argc > 1)
-    {
-        if (std::string(argv[1]) == "runserver")
-        {
-            try
-            {
-                std::string port;
-                if (argc > 2)
-                {
-                    port = argv[2];
-                }
-                else
-                {
-                    port = SERVER_PORT;
-                }
-                http::Server server(port);
-                server.setApp(new DemoApp());
-                server.start();
-            }
-            catch (const std::exception& exc)
-            {
-                std::cerr << exc.what();
-            }
-            catch (...)
-            {
-                std::cerr << "Error...";
-            }
-        }
-        else if (std::string(argv[1]) == "test")
-        {
-            // TODO: run tests
-        }
-        else
-        {
-            std::cerr << "Invalid arguments passed...";
-        }
-    }
-    else
-    {
-        std::cerr << "Invalid arguments passed...";
-    }
-    std::cin.get();
+    Server server(argc, argv);
+    server.setApp(new DemoApp());   // set an application here
+    server.start();
+    cin.get();
     return 0;
 }
 ```
