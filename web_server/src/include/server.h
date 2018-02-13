@@ -30,7 +30,7 @@ private:
 		static bool requestStatic(const std::string& url);
 	};
 public:
-	explicit Server(const std::string& IP=SERVER_IP, const std::string& port = SERVER_PORT);
+	explicit Server(int argc, char* argv[]);
 	void start();
 	void setApp(Application* app = new Application());
 };

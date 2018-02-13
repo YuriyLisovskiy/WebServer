@@ -7,18 +7,52 @@
 
 std::string Logger::path = BASE_DIR + "log.txt";
 
-http::Server::Server(const std::string& IP, const std::string& port)
+http::Server::Server(int argc, char* argv[])
 {
+	std::string PORT, IP;
 	try
 	{
-		this->port = (uint16_t)std::stoi(port);
+		if (argc > 1)
+		{
+			if (std::string(argv[1]) == "runserver")
+			{
+				if (argc > 3)
+				{
+					this->ip = argv[2];
+					this->port = (uint16_t)std::stoi(argv[3]);
+				}
+				else
+				{
+					this->ip = SERVER_IP;
+					this->port = (uint16_t)std::stoi(SERVER_PORT);
+				}
+			}
+			else if (std::string(argv[1]) == "test")
+			{
+				std::cout << "Test running...";
+			}
+			else
+			{
+				std::cerr << "Invalid arguments passed...";
+			}
+		}
+		else
+		{
+			std::cerr << "Invalid arguments passed...";
+		}
 	}
-	catch (const std::exception&)
+	catch (const std::invalid_argument&)
 	{
-		Logger::log()->error("'http::Server::Server()': 'invalid port number'", __LINE__ - 4, this->lockPrint);
+		Logger::log()->error("'http::Server::Server()': 'invalid port number'", __LINE__ - 24, this->lockPrint);
+		this->ip = SERVER_IP;
 		this->port = (uint16_t)std::stoi(SERVER_PORT);
 	}
-	this->ip = IP;
+	catch (...)
+	{
+		Logger::log()->error("'http::Server::Server()': 'unknown error occurred'", __LINE__, this->lockPrint);
+		this->ip = SERVER_IP;
+		this->port = (uint16_t)std::stoi(SERVER_PORT);
+	}
 	this->setApp();
 }
 void http::Server::setApp(Application* app)
