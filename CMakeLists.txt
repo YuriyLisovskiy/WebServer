@@ -14,6 +14,6 @@ file(GLOB LIB_FILES "web_server/src/include/*.h" "web_server/src/*/*.cpp" "web_s
 
 file(GLOB TEST_FILES "web_server/test/*.h")
 
-set(LIB_SRC ${LIB_FILES})
+set(LIB_SRC ${LIB_FILES} web_server/demo/demo.h)
 
 add_executable(${PROJECT_NAME} ${LIB_SRC} ${TEST_SRC})
