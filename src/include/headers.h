@@ -3,7 +3,7 @@
 #ifndef WEB_SERVER_HEADERS_H
 #define WEB_SERVER_HEADERS_H
 
-#define SERVER_IP "127.0.0.1"		    // server ip
+#define SERVER_IP "127.0.0.1"		// server ip
 #define SERVER_PORT "8000"		    // port for starting the server
 
 #define MAX_BUFF_SIZE 1024
@@ -17,7 +17,7 @@
 #pragma comment (lib, "Ws2_32.lib")
 
 #define SOCK SOCKET
-#define BASE_DIR std::string(_getcwd(0, 0)) + "/../web_server/"
+#define BASE_DIR std::string(_getcwd(0, 0))
 #define INVALID_SOCK INVALID_SOCKET
 #define WSA_CLEANUP WSACleanup()
 #define CLOSE_SOCK(sock) closesocket(sock)
@@ -50,7 +50,7 @@
 #include <string>
 
 #define SOCK int
-#define BASE_DIR std::string(getcwd(nullptr, 0)) + "/../web_server/"
+#define BASE_DIR std::string(getcwd(nullptr, 0))
 #define INVALID_SOCK (SOCK)(~0)
 #define CLOSE_SOCK(sock) close(sock)
 #define WSA_CLEANUP /**/

@@ -27,10 +27,6 @@ http::Server::Server(int argc, char* argv[])
 					this->port = (uint16_t)std::stoi(SERVER_PORT);
 				}
 			}
-			else if (std::string(argv[1]) == "test")
-			{
-				std::cout << "Test running...";
-			}
 			else
 			{
 				std::cerr << "Invalid arguments passed...";

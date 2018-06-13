@@ -1,5 +1,5 @@
-#include "src/include/server.h"
-#include "demo/demo.h"
+#include "../src/include/server.h"
+#include "demo.h"
 #include <iostream>
 
 using http::Server;
@@ -10,6 +10,5 @@ int main(int argc, char* argv[])
     Server server(argc, argv);
     server.setApp(new DemoApp());
     server.start();
-	cin.get();
 	return 0;
 }
