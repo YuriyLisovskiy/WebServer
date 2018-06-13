@@ -2,18 +2,19 @@
 #include <regex>
 #include <fstream>
 
-Application::Application(const std::string& templateDir, const std::string& staticDir)
+Application::Application(const std::string& root, const std::string& templateDir, const std::string& staticDir)
 {
-	this->setTemplateDir(BASE_DIR + templateDir);
-	this->setStaticDir(BASE_DIR + staticDir);
+	this->rootDir = root;
+	this->setTemplateDir(templateDir);
+	this->setStaticDir(staticDir);
 }
 void Application::setTemplateDir(const std::string& dir)
 {
-	this->templateDir = dir;
+	this->templateDir = BASE_DIR + "/" + this->rootDir + dir;
 }
 void Application::setStaticDir(const std::string& dir)
 {
-	this->staticDir = dir;
+	this->staticDir = BASE_DIR + "/" + this->rootDir + dir;
 }
 bool Application::hasStatic(const std::string& fileName)
 {

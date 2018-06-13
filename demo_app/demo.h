@@ -12,7 +12,7 @@ using std::string;
 class DemoApp : public Application
 {
 public:
-    explicit DemoApp() : Application("/demo_app/", "/demo_app/static/")
+    explicit DemoApp() : Application("demo_app/", "/", "static/")
     {
         std::vector<std::pair<std::string, appFunc>> urlPatterns = {
                 { "/", std::bind(&DemoApp::index, this, std::placeholders::_1) }

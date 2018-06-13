@@ -23,7 +23,7 @@ private:
 		bool urlExists(const std::string& url);
 	};
 public:
-	explicit Application(const std::string& templateDir = "", const std::string& staticDir = "");
+	explicit Application(const std::string& root = "", const std::string& templateDir = "", const std::string& staticDir = "");
 	void setTemplateDir(const std::string& dir);
 	void setStaticDir(const std::string& dir);
 	bool hasStatic(const std::string& fileName);
@@ -34,6 +34,7 @@ protected:
 	Urls urls;
 	std::string templateDir;
 	std::string staticDir;
+	std::string rootDir;
 };
 
 #endif
