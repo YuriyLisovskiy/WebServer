@@ -1,4 +1,4 @@
-# Web Server C++ Linux/Windows
+# Linux/Windows Web Server in C++
 
 ## Download and Open
 Download as a zip archive or clone the repository:
@@ -8,13 +8,13 @@ git clone https://github.com/YuriyLisovskiy/WebServer.git
 ## Usage
 `demo_app.h`:
 ```
-#include "src/include/application.h"
-#include "src/include/response.h"
+#include "include/application.h"
+#include "include/response.h"
 
 class SomeApp : public Application
 {
 public:
-	SomeApp() : Application("app_root_folder", "path_to/html_docs/", "path_to/static_files/") // read note below*
+	SomeApp() : Application("app_root_folder/", "app_templates/", "app_static_files/")
 	{
 		std::vector<std::pair<std::string, appFunc>> urls = {
 			{ "some/site/url", std::bind(&SomeApp::some_view, this, std::placeholders::_1) }
@@ -28,17 +28,15 @@ public:
 };
 ```
 
-> Note: base directory is `Path_To_Project_Folder/WebServer/`.
-Use `some_app.setTemplateDir()` and `some_app.setStaticDir()` for setting up custom directories.
-
-`main.cpp`:
+`entry_point.cpp`:
 ```
-#include "src/include/server.h"
 #include "demo.h"
 #include <iostream>
 
-using http::Server;
+#include "include/server.h"
+
 using std::cin;
+using http::Server;
 
 int main(int argc, char* argv[])
 {
@@ -53,11 +51,11 @@ int main(int argc, char* argv[])
 
 Linux:
 ```
-./Path_To_Project/bin/app_name runserver 127.0.0.1 12345
+./Path_To_Project/bin/app_binary runserver 127.0.0.1 8000
 ```
 Windows (PowerShell):
 ```
-.\Path_To_Project\bin\app_name.exe runserver 127.0.0.1 12345
+.\Path_To_Project\bin\app_binary.exe runserver 127.0.0.1 8000
 ```
 > Note: the project is not tested completely, so, there still can be bugs.
 
