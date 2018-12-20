@@ -1,6 +1,7 @@
-#include "../src/include/server.h"
-#include "demo.h"
 #include <iostream>
+
+#include "demo.h"
+#include "../src/include/server.h"
 
 using http::Server;
 using std::cin;

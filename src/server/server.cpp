@@ -1,9 +1,10 @@
-#include "../include/server.h"
-#include "../include/logger.h"
 #include <thread>
-#include <iostream>
 #include <sstream>
 #include <fstream>
+#include <iostream>
+
+#include "../include/server.h"
+#include "../include/logger.h"
 
 std::string Logger::path = BASE_DIR + "log.txt";
 
@@ -51,6 +52,7 @@ http::Server::Server(int argc, char* argv[])
 	}
 	this->setApp();
 }
+
 void http::Server::setApp(Application* app)
 {
 	if (app)
@@ -58,6 +60,7 @@ void http::Server::setApp(Application* app)
 		this->app = app;
 	}
 }
+
 void http::Server::start()
 {
 	WSA_STARTUP;
@@ -68,6 +71,7 @@ void http::Server::start()
 	}
 	WSA_CLEANUP;
 }
+
 void http::Server::startListener()
 {
 	SOCK listenSock;
@@ -102,17 +106,36 @@ void http::Server::startListener()
 	SOCK client;
 	while (listening)
 	{
-		if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
+		try
 		{
-			std::thread newClient(&Server::serveClient, this, client);
-			newClient.detach();
+			if ((client = accept(listenSock, (sockaddr*)&addr, &sa_size)) != INVALID_SOCK)
+			{
+				std::thread newClient(&Server::serveClient, this, client);
+				newClient.detach();
+			}
+			else
+			{
+				Logger::log()->error("'http::Server::startThread()': invalid client socket.", __LINE__ - 7, this->lockPrint);
+			}
 		}
-		else
+		catch (const std::exception& exc)
 		{
-			Logger::log()->error("'http::Server::startThread()': invalid client socket.", __LINE__ - 7, this->lockPrint);
+			Logger::log()->error("'http::Server::startThread()': " + std::to_string(*exc.what()) + ".", __LINE__, this->lockPrint);
+			listening = false;
+		}
+		catch (const char* exc)
+		{
+			Logger::log()->error("'http::Server::startThread()': " + std::to_string(*exc) + ".", __LINE__, this->lockPrint);
+			listening = false;
+		}
+		catch (...)
+		{
+			Logger::log()->error("'http::Server::startThread()': unknown error occurred.", __LINE__, this->lockPrint);
+			listening = false;
 		}
 	}
 }
+
 void http::Server::serveClient(const SOCK client)
 {
 	clock_t start, finish;
@@ -127,6 +150,7 @@ void http::Server::serveClient(const SOCK client)
 	ss << "\nRequest took: " + std::to_string(servingTime) + " seconds.\n\n";
 	Logger::log()->file(ss.str(), this->lockPrint);
 }
+
 void http::Server::processRequest(const SOCK& client)
 {
 	char buffer[MAX_BUFF_SIZE];
@@ -173,6 +197,7 @@ void http::Server::processRequest(const SOCK& client)
 		WSA_CLEANUP;
 	}
 }
+
 void http::Server::sendResponse(Request& request, const SOCK& client)
 {
 	std::string response;
@@ -208,6 +233,7 @@ void http::Server::sendResponse(Request& request, const SOCK& client)
 	}
 	this->sendFile(response, client);
 }
+
 void http::Server::sendFile(const std::string& httpResponse, const SOCK& client)
 {
 	if (send(client, httpResponse.c_str(), (int)httpResponse.size(), 0) == SOCK_ERROR)
@@ -220,6 +246,7 @@ void http::Server::sendFile(const std::string& httpResponse, const SOCK& client)
 		WSA_CLEANUP;
 	}
 }
+
 void http::Server::closeSocket(const SOCK& sock, const int how, const std::string& method, const std::string& func, const int line)
 {
 	if (shutdown(sock, how) == SOCK_ERROR)

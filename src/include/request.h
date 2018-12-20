@@ -3,15 +3,15 @@
 #ifndef WEB_SERVER_REQUEST_H
 #define WEB_SERVER_REQUEST_H
 
-#include "headers.h"
 #include <map>
 #include <mutex>
+
+#include "headers.h"
 
 __HTTP_BEGIN
 
 class Request
 {
-	friend class HttpServer;
 private:
 	class RequestData
 	{
@@ -29,6 +29,7 @@ private:
 	public:
 		std::string getBody();
 	};
+
 public:
 	RequestData HEADERS;
 	RequestData DATA;

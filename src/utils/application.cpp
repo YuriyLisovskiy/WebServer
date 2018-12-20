@@ -5,17 +5,10 @@
 Application::Application(const std::string& root, const std::string& templateDir, const std::string& staticDir)
 {
 	this->rootDir = root;
-	this->setTemplateDir(templateDir);
-	this->setStaticDir(staticDir);
+	this->templateDir = BASE_DIR + "/" + this->rootDir + templateDir;
+	this->staticDir = BASE_DIR + "/" + this->rootDir + staticDir;
 }
-void Application::setTemplateDir(const std::string& dir)
-{
-	this->templateDir = BASE_DIR + "/" + this->rootDir + dir;
-}
-void Application::setStaticDir(const std::string& dir)
-{
-	this->staticDir = BASE_DIR + "/" + this->rootDir + dir;
-}
+
 bool Application::hasStatic(const std::string& fileName)
 {
 	std::ifstream file(this->staticDir + fileName);
@@ -27,14 +20,17 @@ bool Application::hasStatic(const std::string& fileName)
 	}
 	return res;
 }
+
 std::string Application::createStaticDir(const std::string& url)
 {
 	return this->staticDir + url;
 }
+
 bool Application::checkUrl(const std::string& url)
 {
 	return this->urls.urlExists(url);
 }
+
 appFunc Application::getFunction(const std::string& key)
 {
 	return this->urls.urls[key];

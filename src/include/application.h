@@ -3,10 +3,11 @@
 #ifndef WEB_SERVER_APPLICATION_H
 #define WEB_SERVER_APPLICATION_H
 
-#include "response.h"
-#include "request.h"
 #include <vector>
 #include <functional>
+
+#include "request.h"
+#include "response.h"
 
 using appFunc = std::function<std::string(http::Request&)>;
 
@@ -23,9 +24,7 @@ private:
 		bool urlExists(const std::string& url);
 	};
 public:
-	explicit Application(const std::string& root = "", const std::string& templateDir = "", const std::string& staticDir = "");
-	void setTemplateDir(const std::string& dir);
-	void setStaticDir(const std::string& dir);
+	explicit Application(const std::string& root = "./", const std::string& templateDir = "./", const std::string& staticDir = "./");
 	bool hasStatic(const std::string& fileName);
 	std::string createStaticDir(const std::string& url);
 	bool checkUrl(const std::string& url);

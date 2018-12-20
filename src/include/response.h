@@ -11,7 +11,7 @@ __HTTP_BEGIN
 class Response
 {
 public:
-	static std::string HttpResponse(const std::string& path, const std::string& status = "OK", const size_t statusCode = 200);
+	static std::string HttpResponse(const std::string& path, const std::string& status = "OK", size_t statusCode = 200);
 	static std::string NotFound();
 	static std::string Forbidden();
 	static std::string MethodNotAllowed();
@@ -23,8 +23,8 @@ private:
 	{
 	public:
 		static std::string readFile(const std::string& filePath, bool openBinary = false);
-		static std::string errorPage(const size_t code, const std::string& msg);
-		static std::string makeResponse(const std::string& html, const std::string& statusStr, const size_t statusCode, const std::string& requestContent);
+		static std::string errorPage(size_t code, const std::string& msg);
+		static std::string makeResponse(const std::string& content, const std::string& statusStr, size_t statusCode, const std::string& requestContent);
 		static std::string setContentType(const std::string& requestContent);
 	};
 };

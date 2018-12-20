@@ -1,7 +1,8 @@
-#include "../include/response.h"
-#include <iostream>
 #include <sstream>
 #include <fstream>
+#include <iostream>
+
+#include "../include/response.h"
 
 std::string http::Response::Parser::errorPage(const size_t code, const std::string& msg)
 {
@@ -13,6 +14,7 @@ std::string http::Response::Parser::errorPage(const size_t code, const std::stri
 		std::to_string(code) + " " + msg + "</h1>\n</body>\n</html>\n");
 	return Parser::makeResponse(html, msg, code, "html");
 }
+
 std::string http::Response::Parser::readFile(const std::string& filePath, bool openBinary)
 {
 	std::ifstream file;
@@ -36,18 +38,20 @@ std::string http::Response::Parser::readFile(const std::string& filePath, bool o
 	}
 	return res;
 }
-std::string http::Response::Parser::makeResponse(const std::string& html, const std::string& statusStr, const size_t statusCode, const std::string& requestContent)
+
+std::string http::Response::Parser::makeResponse(const std::string& content, const std::string& statusStr, const size_t statusCode, const std::string& requestContent)
 {
 	std::ostringstream ss;
 	DATE_TIME_NOW(ss, "%a, %d %b %y %T %z");
 	std::string response("HTTP/1.1 " + std::to_string(statusCode) + " " + statusStr + " \r\n");
 	response += "Content-Type: " + Parser::setContentType(requestContent) + "; charset=utf-8 \r\n";
-	response += "Content-Length: " + std::to_string(html.length()) + " \r\n";
+	response += "Content-Length: " + std::to_string(content.length()) + " \r\n";
 	response += "Date: " + ss.str() + " \r\n\r\n";
-	response += html;
+	response += content;
 	std::cout << statusCode << '\n';
 	return response;
 }
+
 std::string http::Response::Parser::setContentType(const std::string& requestType)
 {
 	std::string res("text/");

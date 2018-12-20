@@ -1,16 +1,13 @@
-#include "../include/server.h"
 #include <regex>
 #include <iostream>
 
+#include "../include/server.h"
+
 std::string http::Server::Parser::getClientData(const SOCK& client, uint16_t port, int clientID)
 {
-	std::string result = "ID: " + std::to_string(clientID) + "\nThe Client port is: ";
-	result += std::to_string(port);
-	result += "\nThe Client IP is: ";
-	result += Parser::getIP(client);
-	result += '\n';
-	return result;
+	return "ID: " + std::to_string(clientID) + "\nThe Client port is: " + std::to_string(port) + "\nThe Client IP is: " + Parser::getIP(client) + '\n';
 }
+
 std::string http::Server::Parser::getIP(const SOCK& socket)
 {
 	struct sockaddr_in addr = {};
@@ -22,6 +19,7 @@ std::string http::Server::Parser::getIP(const SOCK& socket)
 	inet_ntop(AF_INET, &ipAddr, clientIp, INET_ADDRSTRLEN);
 	return std::string(clientIp);
 }
+
 bool http::Server::Parser::requestStatic(const std::string& url)
 {
 	return url.find('.') != std::string::npos;

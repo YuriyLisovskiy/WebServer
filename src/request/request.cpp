@@ -17,6 +17,7 @@ http::Request::Request(const std::string& request, const std::string& method, co
 		Parser::parseBody(*this);
 	}
 };
+
 std::string http::Request::RequestData::get(const std::string& key)
 {
 	std::string result;
@@ -26,6 +27,7 @@ std::string http::Request::RequestData::get(const std::string& key)
 	}
 	return result;
 }
+
 std::string http::Request::RequestPost::getBody()
 {
 	return this->body;

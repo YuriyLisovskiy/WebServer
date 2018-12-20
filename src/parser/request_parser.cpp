@@ -1,7 +1,8 @@
-#include "../include/request.h"
-#include "../include/regexpr.h"
 #include <regex>
 #include <iostream>
+
+#include "../include/request.h"
+#include "../include/regexpr.h"
 
 http::Request http::Request::Parser::parseRequestData(const std::string& toParse, std::mutex& lock, const std::string& client)
 {
@@ -33,6 +34,7 @@ http::Request http::Request::Parser::parseRequestData(const std::string& toParse
 	body = std::regex_replace(body, std::regex(R"(\r+)"), "");
 	return Request(body, method, url, client);
 }
+
 std::string http::Request::Parser::parseUrl(const std::string& url, std::map<std::string, std::string>& container)
 {
 	std::string result(url);
@@ -69,10 +71,12 @@ std::string http::Request::Parser::parseUrl(const std::string& url, std::map<std
 	}
 	return result;
 }
+
 std::string http::Request::Parser::parseVal(const std::string& value)
 {
 	return std::regex_replace(value, std::regex(R"(\+)"), " ");
 }
+
 void http::Request::Parser::parseCookies(const std::string& cookies, std::map<std::string, std::string>& container)
 {
 	if (!cookies.empty())
@@ -83,7 +87,6 @@ void http::Request::Parser::parseCookies(const std::string& cookies, std::map<st
 		{
 			key = std::string(cookies.begin() + posBegin, cookies.begin() + posEnd);
 			std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-
 			posBegin = posEnd + 1;
 			posEnd = cookies.find(';', posBegin);
 			if (posEnd == std::string::npos)
@@ -100,6 +103,7 @@ void http::Request::Parser::parseCookies(const std::string& cookies, std::map<st
 		}
 	}
 }
+
 void http::Request::Parser::parseHeaders(const std::string& request, std::map<std::string, std::string>& headers, std::map<std::string, std::string>& cookies)
 {
 	if (!request.empty())
@@ -144,6 +148,7 @@ void http::Request::Parser::parseHeaders(const std::string& request, std::map<st
 		} while (posEnd != std::string::npos);
 	}
 }
+
 CONTENT_TYPE http::Request::Parser::getContentType(const std::string& contentTypeStr)
 {
 	CONTENT_TYPE type = CONTENT_TYPE::CONTENT_NONE;
@@ -157,6 +162,7 @@ CONTENT_TYPE http::Request::Parser::getContentType(const std::string& contentTyp
 	}
 	return type;
 }
+
 std::string http::Request::Parser::getBody(const std::string& request)
 {
 	std::string requestBody;
@@ -170,6 +176,7 @@ std::string http::Request::Parser::getBody(const std::string& request)
 	}
 	return requestBody;
 }
+
 std::string http::Request::Parser::getHeaders(const std::string& request)
 {
 	std::string headers;
@@ -183,6 +190,7 @@ std::string http::Request::Parser::getHeaders(const std::string& request)
 	}
 	return headers;
 }
+
 void http::Request::Parser::parseBody(Request& request)
 {
 	switch (Parser::getContentType(request.HEADERS.get("content-type")))
@@ -197,6 +205,7 @@ void http::Request::Parser::parseBody(Request& request)
 		throw "invalid content type";
 	}
 }
+
 void http::Request::Parser::parseFormUrlEncoded(Request& request)
 {
 	Parser::percentDecode(request.POST.body);
@@ -223,6 +232,7 @@ void http::Request::Parser::parseFormUrlEncoded(Request& request)
 		}
 	}
 }
+
 char http::Request::Parser::codeToSymbol(const std::string& str)
 {
 	if (str == "%20")
@@ -306,6 +316,7 @@ char http::Request::Parser::codeToSymbol(const std::string& str)
 		return '?';
 	}
 }
+
 void http::Request::Parser::percentDecode(std::string& str)
 {
 	size_t pos = str.find('%');

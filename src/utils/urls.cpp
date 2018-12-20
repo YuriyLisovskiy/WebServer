@@ -19,6 +19,7 @@ void Application::Urls::set(std::vector<std::pair<std::string, appFunc>> urls)
 		}
 	}
 }
+
 bool Application::Urls::urlExists(const std::string& url)
 {
 	return this->urls.find(url) != this->urls.end();

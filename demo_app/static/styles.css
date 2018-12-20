@@ -2,5 +2,6 @@
 table{width:100%;}
 table th{text-align:center;}
 a{font-size:20px;text-decoration:none;}
-img{width:20px;height:auto;}
+img{width:300px;height:auto;}
 .download{margin-top:20px;}
+.gh-logo{margin-bottom:-5px;width:25px;height:auto;}
