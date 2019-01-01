@@ -1,4 +1,4 @@
-# Cross-platform web server in pure C++
+# Simple cross-platform web server in pure C++
 
 ## Download
 Download as a zip archive or clone the repository:
