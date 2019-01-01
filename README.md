@@ -1,6 +1,6 @@
-# Linux/Windows Web Server in C++
+# Cross-platform web server in pure C++
 
-## Download and Open
+## Download
 Download as a zip archive or clone the repository:
 ```
 git clone https://github.com/YuriyLisovskiy/WebServer.git
@@ -47,17 +47,16 @@ int main(int argc, char* argv[])
     return 0;
 }
 ```
-* Build the project using CLion build tools and run the server.
+* Build the project with CMakeLists.txt and run the server.
 
 Linux:
 ```
 ./Path_To_Project/bin/app_binary runserver 127.0.0.1 8000
 ```
-Windows (PowerShell):
+Windows:
 ```
 .\Path_To_Project\bin\app_binary.exe runserver 127.0.0.1 8000
 ```
-> Note: the project is not tested completely, so, there still can be bugs.
 
 ## Author
 
